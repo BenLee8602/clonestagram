@@ -34,14 +34,14 @@ function Register() {
         });
     };
 
-    return (<>
-        <h1>Register</h1>
+    return (<div className="content">
+        <h1>register</h1>
         <input type="text" placeholder="username" onChange={ e => setCurName(e.target.value) } /><br/>
         <input type="password" placeholder="password" onChange={ e => setCurPass(e.target.value) } /><br/>
         <input type="password" placeholder="confirm" onChange={ e => setCurPassConf(e.target.value) } /><br/>
         <p>{ errMsg }</p>
         <button onClick={ handleLogin }>Submit</button>
-    </>);
+    </div>);
 }
 
 export default Register;

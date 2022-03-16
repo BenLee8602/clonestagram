@@ -28,13 +28,13 @@ function Login() {
         });
     };
 
-    return (<>
-        <h1>Login</h1>
+    return (<div className="content">
+        <h1>login</h1>
         <input type="text" placeholder="username" onChange={ e => setCurName(e.target.value) } /><br/>
         <input type="password" placeholder="password" onChange={ e => setCurPass(e.target.value) } /><br/>
         <p>{ errMsg }</p>
         <button onClick={ handleLogin }>Submit</button>
-    </>);
+    </div>);
 }
 
 export default Login;

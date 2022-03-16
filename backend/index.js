@@ -9,45 +9,79 @@ const cors = require("cors");
 app.use(cors({ origin: "http://localhost:3001" }));
 
 const mongoose = require("mongoose");
-mongoose.connect("mongodb+srv://ben2:B3w3UOSDkLzBikVx@clonestagram.a7ygw.mongodb.net/clonestagram?retryWrites=true&w=majority");
+mongoose.connect("mongodb+srv://ben2:B3w3UOSDkLzBikVx@clonestagram.a7ygw.mongodb.net/clonestagram?retryWrites=true&w=majority")
+.then(() => console.log("Connected to database"))
+.catch(err => console.log("Failed to connect to database: " + err));
 
 const User = require("./models/user");
 const Post = require("./models/post");
 
-app.get("/login", (req, res) => {
-    res.json({ success: true, msg: "worked" });
-});
 
-app.post("/register", (req, res) => {
+app.post("/register", async (req, res) => {
     const name = req.body.name;
-    const pass = req.body.pass;
     
-    User.findOne({ name: name })
-    .then(async doc => {
+    try {
+        const doc = await User.findOne({ name: name })
         if (doc) return res.json({ success: false, msg: "Username is taken" });
-        const user = await User.create({
-            name: name,
-            pass: pass
-        });
-        console.log(user);
+        const user = await User.create(req.body);
         await user.save();
         res.json({ success: true, msg: `User ${name} created` });
-    })
-    .catch(err => console.log(err));
+    } catch (err) {
+        console.log(err);
+        res.json(err);
+    }
 });
 
-app.post("/login", (req, res) => {
+
+app.post("/login", async (req, res) => {
     const name = req.body.name;
     const pass = req.body.pass;
-    
-    User.findOne({ name: name })
-    .then(doc => {
+
+    try {
+        const doc = await User.findOne({ name: name })
         if (!doc) res.json({ success: false, msg: `User ${name} not found` });
         else if (doc.pass != pass) res.json({ success: false, msg: `Incorrect password` });
         else res.json({ success: true, msg: `Logged in as ${name}` });
-    })
-    .catch(err => console.log(err));
+    } catch (err) {
+        console.log(err);
+        res.json(err);
+    }
 });
+
+
+app.post("/newpost", async (req, res) => {
+    try {
+        const newPost = await Post.create(req.body);
+        await newPost.save();
+        res.json({ success: true, msg: "New post added" });
+    } catch (err) {
+        console.log(err);
+        res.json(err);
+    }
+});
+
+
+app.get("/users/:name/profile", async (req, res) => {
+    try {
+        const posts = await Post.find({ author: req.params.name });
+        res.json({ posts: posts });
+    } catch (err) {
+        console.log(err);
+        res.json(err);
+    }
+});
+
+
+app.get("/", async (req, res) => {
+    try {
+        const posts = await Post.find({});
+        res.json(posts);
+    } catch (err) {
+        console.log(err);
+        res.json(err);
+    }
+});
+
 
 app.listen(port, () => {
     console.log(`backend running on port ${port}`);
