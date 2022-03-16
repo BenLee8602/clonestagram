@@ -39,6 +39,7 @@ function NewPost() {
     };
 
     return (<div className="content">
+        <h1>new post</h1>
         <input type="text" placeholder="title" onChange={ e => setTitle(e.target.value) } /><br/>
         <textarea onChange={ e => setContent(e.target.value) } /> <br/>
         <p>{ errMsg }</p><br/>

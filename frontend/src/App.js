@@ -10,6 +10,7 @@ import Profile from "./Profile";
 import Login from "./Login";
 import Register from "./Register";
 import NewPost from "./NewPost";
+import Search from "./Search";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -20,8 +21,9 @@ function App() {
                 <NavigationBar />
                 <Routes>
                     <Route path="/" element={ <Home/> } />
+                    <Route path="/users/:name/profile" element={ <Profile/> } />
+                    <Route path="/search" element={ <Search/> } />
                     <Route element={ <ProtectedRoute authorized={ !!user } /> }>
-                        <Route path="/profile" element={ <Profile/> } />
                         <Route path="/newpost" element={ <NewPost/> } />
                     </Route>
                     <Route path="/register" element={ <Register/> } />

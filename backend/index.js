@@ -49,11 +49,10 @@ app.post("/login", async (req, res) => {
 });
 
 
-app.post("/newpost", async (req, res) => {
+app.get("/", async (req, res) => {
     try {
-        const newPost = await Post.create(req.body);
-        await newPost.save();
-        res.json({ success: true, msg: "New post added" });
+        const posts = await Post.find({}).sort({ posted: "desc" });
+        res.json(posts);
     } catch (err) {
         console.log(err);
         res.json(err);
@@ -63,8 +62,23 @@ app.post("/newpost", async (req, res) => {
 
 app.get("/users/:name/profile", async (req, res) => {
     try {
+        const user = await User.findOne({ name: req.params.name });
+        if (!user) return res.json({ success: false, posts: [] });
         const posts = await Post.find({ author: req.params.name });
-        res.json({ posts: posts });
+        res.json({ success: true, posts: posts });
+    } catch (err) {
+        console.log(err);
+        res.json({success: false, err: err });
+    }
+});
+
+
+app.get("/search/:query", async (req, res) => {
+    const query = { $regex: req.params.query, $options: "i" }
+    try {
+        const users = await User.find({ name:  query });
+        const posts = await Post.find({ title: query });
+        res.json({ query: req.params.query, users, posts });
     } catch (err) {
         console.log(err);
         res.json(err);
@@ -72,10 +86,11 @@ app.get("/users/:name/profile", async (req, res) => {
 });
 
 
-app.get("/", async (req, res) => {
+app.post("/newpost", async (req, res) => {
     try {
-        const posts = await Post.find({});
-        res.json(posts);
+        const newPost = await Post.create(req.body);
+        await newPost.save();
+        res.json({ success: true, msg: "New post added" });
     } catch (err) {
         console.log(err);
         res.json(err);

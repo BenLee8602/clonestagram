@@ -4,6 +4,11 @@ html {
     color: white;
 }
 
+a {
+    text-decoration: none;
+    color: white;
+}
+
 #root {
     width: 75vw;
     margin: auto;
@@ -31,14 +36,12 @@ nav ul {
 
 nav li {
     float: left;
-    padding-left: 4vw;
+    padding: 0px, 4vw;
 }
 
 nav li a {
     display: block;
     text-align: center;
     padding: 14px 16px;
-    text-decoration: none;
-    color: white;
     font-size: larger;
 }

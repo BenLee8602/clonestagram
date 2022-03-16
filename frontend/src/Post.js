@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 
 export const defaultPost = {
     author: "admin",
@@ -7,10 +8,16 @@ export const defaultPost = {
     content: "content is loading"
 };
 
-function Post({ post }) {
+function Post({ post, mini }) {
+    if (mini) {
+        return (<div className="item">
+            <h3>{ post.title }</h3>
+            <p><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</p>
+        </div>);
+    }
     return (<div className="item">
         <h1>{ post.title }</h1>
-        <h3>{ post.author } | { new Date(post.posted).toLocaleString() }</h3>
+        <h3><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</h3>
         <p>{ post.content }</p>
     </div>)
 }

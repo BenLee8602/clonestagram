@@ -9,7 +9,8 @@ function NavigationBar() {
         <nav>
             <ul>
                 <li><Link to="/">home</Link></li>
-                <li><Link to="/profile">profile</Link></li>
+                <li><Link to={ user ? `/users/${user}/profile` : "/login" }>profile</Link></li>
+                <li><Link to="/search">search</Link></li>
                 <li><Link to="/newpost">new</Link></li>
                 { 
                     user ? (
