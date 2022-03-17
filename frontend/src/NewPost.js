@@ -32,7 +32,7 @@ function NewPost() {
         fetch("http://localhost:3000/newpost", req)
         .then(res => res.json())
         .then(res => {
-            if (res.success) Navigate("/profile");
+            if (res.success) Navigate(`/users/${user}/profile`);
             else setErrMsg(res.msg);
             console.log(res.msg);
         });
