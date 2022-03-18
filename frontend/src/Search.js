@@ -11,7 +11,7 @@ function Search() {
         if (query === "") return;
         fetch(`http://localhost:3000/search/${query}`)
         .then(res => res.json())
-        .then(res => { console.log(res); setResults(res) });
+        .then(res => setResults(res));
     };
 
     return (<div className="content">

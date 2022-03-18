@@ -5,27 +5,18 @@ import UserContext from "./UserContext";
 function NewPost() {
     const Navigate = useNavigate();
     const [user, setUser] = useContext(UserContext);
-    const [title, setTitle] = useState("");
-    const [content, setContent] = useState("");
+    const [image, setImage] = useState("");
+    const [caption, setCaption] = useState("");
     const [errMsg, setErrMsg] = useState("");
 
     const handleSubmit = () => {
-        if (title === "") {
-            setErrMsg("Post title is required");
-            return;
-        }
-        else if (content === "") {
-            setErrMsg("Post content is required");
-            return;
-        }
-
         const req = {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
                 author: user,
-                title: title,
-                content: content
+                image: image,
+                caption: caption
             })
         };
 
@@ -40,8 +31,8 @@ function NewPost() {
 
     return (<div className="content">
         <h1>new post</h1>
-        <input type="text" placeholder="title" onChange={ e => setTitle(e.target.value) } /><br/>
-        <textarea onChange={ e => setContent(e.target.value) } /> <br/>
+        <input type="text" placeholder="image url" onChange={ e => setImage(e.target.value) } /><br/>
+        <input type="text" placeholder="caption" onChange={ e => setCaption(e.target.value) } /><br/>
         <p>{ errMsg }</p><br/>
         <button onClick={ handleSubmit }>Submit</button>
     </div>);

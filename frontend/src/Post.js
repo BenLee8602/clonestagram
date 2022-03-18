@@ -1,24 +1,18 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export const defaultPost = {
-    author: "admin",
-    posted: Date.now(),
-    title: "loading",
-    content: "content is loading"
-};
-
 function Post({ post, mini }) {
     if (mini) {
         return (<div className="item">
+            <Link to={`/posts/${post._id}`}><img src={ post.image } alt="/default_pfp.png" style={{"width":"64px", "height":"64px"}} /></Link>
             <h3>{ post.title }</h3>
             <p><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</p>
         </div>);
     }
     return (<div className="item">
-        <h1>{ post.title }</h1>
         <h3><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</h3>
-        <p>{ post.content }</p>
+        <Link to={`/posts/${post._id}`}><img src={ post.image } alt="/default_pfp.png" style={{"maxWidth": "71vw"}} /></Link>
+        <p>{ post.caption }</p>
     </div>)
 }
 

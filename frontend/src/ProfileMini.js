@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 
 function ProfileMini({ user }) {
     return (<div className="item">
+        <img src={ user.pfp } alt="/default_pfp.png" style={{"width":"64px", "height":"64px"}} />
         <h3><Link to={`/users/${user.name}/profile`}>{ user.name }</Link></h3>
-        <p>User bio goes here!</p>
+        <p>{ user.nick }</p>
     </div>);
 }
 

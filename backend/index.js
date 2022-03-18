@@ -1,3 +1,5 @@
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -9,8 +11,7 @@ const cors = require("cors");
 app.use(cors({ origin: "http://localhost:3001" }));
 
 const mongoose = require("mongoose");
-const database = require("./config/database");
-mongoose.connect(database.url)
+mongoose.connect(process.env.DB_URL)
 .then(() => console.log("Connected to database"))
 .catch(err => console.log("Failed to connect to database: " + err));
 
@@ -74,10 +75,22 @@ app.get("/", async (req, res) => {
 
 app.get("/users/:name/profile", async (req, res) => {
     try {
-        const user = await User.findOne({ name: req.params.name }, "-_id name");
+        const user = await User.findOne({ name: req.params.name }, "-_id -pass");
         if (!user) return res.json({ success: false, posts: [] });
         const posts = await Post.find({ author: req.params.name }).sort({ posted: "desc" });;
-        res.json({ success: true, posts: posts });
+        res.json({ success: true, user: user, posts: posts });
+    } catch (err) {
+        console.log(err);
+        res.json({success: false, err: err });
+    }
+});
+
+
+app.get("/posts/:id", async (req, res) => {
+    try {
+        const post = await Post.findById(req.params.id);
+        if (post) res.json({ success: true, post: post });
+        else res.json({ success: false });
     } catch (err) {
         console.log(err);
         res.json({success: false, err: err });
@@ -88,8 +101,8 @@ app.get("/users/:name/profile", async (req, res) => {
 app.get("/search/:query", async (req, res) => {
     const query = { $regex: req.params.query, $options: "i" }
     try {
-        const users = await User.find({ name:  query }, "-_id name");
-        const posts = await Post.find({ title: query });
+        const users = await User.find({ name: query }, "-_id -pass");
+        const posts = await Post.find({ $or: [{ author: query }, { caption: query }] });
         res.json({ query: req.params.query, users, posts });
     } catch (err) {
         console.log(err);

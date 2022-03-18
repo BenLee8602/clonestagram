@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import UserContext from "./UserContext";
 
@@ -11,6 +11,7 @@ import Login from "./Login";
 import Register from "./Register";
 import NewPost from "./NewPost";
 import Search from "./Search";
+import ViewPost from "./ViewPost";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -23,6 +24,7 @@ function App() {
                     <Route path="/" element={ <Home/> } />
                     <Route path="/users/:name/profile" element={ <Profile/> } />
                     <Route path="/search" element={ <Search/> } />
+                    <Route path="/posts/:id" element={ <ViewPost/> } />
                     <Route element={ <ProtectedRoute authorized={ !!user } /> }>
                         <Route path="/newpost" element={ <NewPost/> } />
                     </Route>

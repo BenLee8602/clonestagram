@@ -11,11 +11,11 @@ const PostSchema = new Schema({
         immutable: true,
         default: () => Date.now()
     },
-    title: {
+    image: {
         type: String,
-        required: true
+        default: "/default_pfp.png"
     },
-    content: {
+    caption: {
         type: String,
         required: true
     }

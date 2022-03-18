@@ -14,10 +14,10 @@ function NavigationBar() {
                 <li><Link to="/newpost">new</Link></li>
                 { 
                     user ? (
-                        <li><Link to="/login" onClick={ () => setUser(null) }>logout</Link></li>
+                        <li style={{"float":"right"}}><Link to="/login" onClick={ () => setUser(null) }>logout</Link></li>
                     ) : (<>
-                        <li><Link to="/register">register</Link></li>
-                        <li><Link to="/login">login</Link></li>
+                        <li style={{"float":"right"}}><Link to="/register">register</Link></li>
+                        <li style={{"float":"right"}}><Link to="/login">login</Link></li>
                     </>)
                 }
             </ul>

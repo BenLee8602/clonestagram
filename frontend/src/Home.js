@@ -4,7 +4,7 @@ import Post, { defaultPost } from "./Post";
 
 function Home() {
     const [user, setUser] = useContext(UserContext);
-    const [allPosts, setAllPosts] = useState([defaultPost]);
+    const [allPosts, setAllPosts] = useState(null);
 
     useEffect(() => {
         fetch(`http://localhost:3000`)
@@ -13,6 +13,7 @@ function Home() {
         .catch(err => console.log(err));
     }, []);
 
+    if (!allPosts) return <h1>loading</h1>
     return (<div className="content">
         <h1>home</h1>
         { allPosts.map((v, i) => <Post key={ i } post={ v } />) }

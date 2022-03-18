@@ -10,6 +10,18 @@ const UserSchema = new Schema({
     pass: {
         type: String,
         required: true
+    },
+    pfp: {
+        type: String,
+        default: "/default_pfp.png"
+    },
+    nick: {
+        type: String,
+        default: ""
+    },
+    bio: {
+        type: String,
+        default: ""
     }
 });
 

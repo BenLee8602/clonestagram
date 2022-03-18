@@ -16,14 +16,14 @@ a {
 
 .content {
     background-color: rgb(54, 49, 47);
-    padding: 14px 16px;
+    padding: 1vw;
     margin-top: 14px;
 }
 
 .item {
     background-color: rgb(63, 57, 54);
-    padding: 14px 16px;
-    margin-top: 14px;
+    padding: 1vw;
+    margin-top: 1vw;
 }
 
 nav ul {
@@ -36,12 +36,11 @@ nav ul {
 
 nav li {
     float: left;
-    padding: 0px, 4vw;
 }
 
 nav li a {
     display: block;
     text-align: center;
-    padding: 14px 16px;
+    padding: 1vw 2vw;
     font-size: larger;
 }
