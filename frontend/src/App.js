@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
 import UserContext from "./UserContext";
@@ -15,6 +15,16 @@ import ViewPost from "./ViewPost";
 
 function App() {
     const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const storedUser = localStorage.getItem("user");
+        if (storedUser) setUser(storedUser);
+    }, []);
+
+    useEffect(() => {
+        if (user) localStorage.setItem("user", user);
+        else localStorage.removeItem("user");
+    }, [user]);
 
     return (<>
         <BrowserRouter>

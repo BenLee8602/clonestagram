@@ -19,7 +19,18 @@ const User = require("./models/user");
 const Post = require("./models/post");
 
 const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
 
+
+function verifyToken(req, res, next) {
+    const token = req.headers["authorization"].split(' ')[1];
+    if (!token) return res.status(401);
+    jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+        if (err) return res.status(403);
+        req.user = user;
+        next();
+    });
+}
 
 
 app.post("/register", async (req, res) => {
@@ -35,7 +46,10 @@ app.post("/register", async (req, res) => {
 
         const user = await User.create({ name, pass: hash });
         await user.save();
-        res.json({ success: true, msg: `User ${name} created` });
+
+        const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
+
+        res.json({ success: true, msg: `User ${name} created`, token: token });
     } catch (err) {
         console.log(err);
         res.json(err);
@@ -50,8 +64,10 @@ app.post("/login", async (req, res) => {
     try {
         const user = await User.findOne({ name: name });
         if (user) {
-            if (await bcrypt.compare(pass, user.pass))
-                res.json({ success: true, msg: `Logged in as ${name}` });
+            if (await bcrypt.compare(pass, user.pass)) {
+                const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
+                res.json({ success: true, msg: `Logged in as ${name}`, token: token });
+            }
             else res.json({ success: false, msg: `Incorrect password` });
         }
         else res.json({ success: false, msg: `User ${name} not found` });
@@ -111,9 +127,13 @@ app.get("/search/:query", async (req, res) => {
 });
 
 
-app.post("/newpost", async (req, res) => {
+app.post("/newpost", verifyToken, async (req, res) => {
     try {
-        const newPost = await Post.create(req.body);
+        const newPost = await Post.create({
+            author: req.user,
+            image: req.body.image,
+            caption: req.body.caption
+        });
         await newPost.save();
         res.json({ success: true, msg: "New post added" });
     } catch (err) {

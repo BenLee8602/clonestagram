@@ -1,9 +1,7 @@
-import React, { useContext, useEffect, useState } from "react";
-import UserContext from "./UserContext";
-import Post, { defaultPost } from "./Post";
+import React, { useEffect, useState } from "react";
+import Post from "./Post";
 
 function Home() {
-    const [user, setUser] = useContext(UserContext);
     const [allPosts, setAllPosts] = useState(null);
 
     useEffect(() => {

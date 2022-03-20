@@ -20,6 +20,7 @@ function Login() {
         .then(res => res.json())
         .then(res => {
             if (res.success) {
+                localStorage.setItem("token", res.token);
                 setUser(curName);
                 Navigate("/");
             }
