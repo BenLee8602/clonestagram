@@ -23,7 +23,9 @@ const jwt = require("jsonwebtoken");
 
 
 function verifyToken(req, res, next) {
-    const token = req.headers["authorization"].split(' ')[1];
+    var token = req.headers["authorization"];
+    if (!token) return res.status(401);
+    token = token.split(' ')[1];
     if (!token) return res.status(401);
     jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) return res.status(403);
@@ -93,8 +95,49 @@ app.get("/users/:name/profile", async (req, res) => {
     try {
         const user = await User.findOne({ name: req.params.name }, "-_id -pass");
         if (!user) return res.json({ success: false, posts: [] });
-        const posts = await Post.find({ author: req.params.name }).sort({ posted: "desc" });;
-        res.json({ success: true, user: user, posts: posts });
+        const posts = await Post.find({ author: req.params.name }).sort({ posted: "desc" });
+
+        const token = req.headers["authorization"].split(' ')[1];
+        const isThisUser = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, tokenUser) => {
+            return !err && user.name == tokenUser;
+        });
+
+        res.json({
+            success: true,
+            user: user,
+            posts: posts,
+            isThisUser: isThisUser
+        });
+    } catch (err) {
+        console.log(err);
+        res.json({success: false, err: err });
+    }
+});
+
+
+app.get("/profile", verifyToken, async (req, res) => {
+    try {
+        const user = await User.findOne({ name: req.user }, "-_id -pass");
+        if (user) res.json({ success: true, user: user });
+        else res.json({ success: false });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, err: err });
+    }
+});
+
+
+app.put("/edit/profile", verifyToken, async (req, res) => {
+    try {
+        await User.updateOne(
+            { name: req.user },
+            { $set: {
+                pfp: req.body.pfp,
+                nick: req.body.nick,
+                bio: req.body.bio
+            }}
+        );
+        res.json({ success: true });
     } catch (err) {
         console.log(err);
         res.json({success: false, err: err });

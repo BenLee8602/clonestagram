@@ -7,6 +7,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import NavigationBar from "./NavigationBar";
 import Home from "./Home";
 import Profile from "./Profile";
+import ProfileEdit from "./ProfileEdit";
 import Login from "./Login";
 import Register from "./Register";
 import NewPost from "./NewPost";
@@ -37,6 +38,7 @@ function App() {
                     <Route path="/posts/:id" element={ <ViewPost/> } />
                     <Route element={ <ProtectedRoute authorized={ !!user } /> }>
                         <Route path="/newpost" element={ <NewPost/> } />
+                        <Route path="/edit/profile" element={ <ProfileEdit/> } />
                     </Route>
                     <Route path="/register" element={ <Register/> } />
                     <Route path="/login" element={ <Login/> } />
