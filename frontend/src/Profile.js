@@ -31,7 +31,7 @@ function Profile() {
         ) }
         <h1>{ profile.user.name }</h1>
         <h3>{ profile.user.nick }</h3>
-        <p>{ profile.user.bio }</p>
+        <p style={{"whiteSpace":"pre-wrap"}}>{ profile.user.bio }</p>
         { profile.posts.map((v, i) => <Post key={ i } post={ v } />) }
     </div>);
 }

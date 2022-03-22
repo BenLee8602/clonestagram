@@ -58,9 +58,21 @@ function ProfileEdit() {
 
     if (!profile.success) return (<div className="content"><h1>loading</h1></div>);
     return (<div className="content">
-        <input placeholder="profile icon url" defaultValue={ profile.user.pfp } onChange={ e => setPfp(e.target.value) } /><br/>
-        <input placeholder="nickname" defaultValue={ profile.user.nick } onChange={ e => setNick(e.target.value) } /><br/>
-        <input placeholder="bio" defaultValue={ profile.user.bio } onChange={ e => setBio(e.target.value) } /><br/>
+        <input
+            placeholder="profile icon url"
+            defaultValue={ profile.user.pfp }
+            onChange={ e => setPfp(e.target.value) }
+        /><br/>
+        <input
+            placeholder="nickname"
+            defaultValue={ profile.user.nick }
+            onChange={ e => setNick(e.target.value) }
+        /><br/>
+        <textarea
+            placeholder="bio"
+            defaultValue={ profile.user.bio }
+            onChange={ e => setBio(e.target.value) }
+        /><br/>
         <button onClick={ handleSubmit }>submit</button>
     </div>);
 }
