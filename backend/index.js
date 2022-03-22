@@ -157,6 +157,29 @@ app.get("/posts/:id", async (req, res) => {
 });
 
 
+app.put("/posts/:id/like", verifyToken, async (req, res) => {
+    try {
+        const post = await Post.findOneAndUpdate(
+            { _id: req.params.id },
+            [{ $set: {
+                likes: {
+                    $cond: {
+                        if: { $in: [req.user, "$likes"] },
+                        then: { $setDifference: ["$likes", [req.user]] },
+                        else: { $concatArrays: ["$likes", [req.user]] }
+                    }
+                }
+            } }],
+            { new: true }
+        );
+        res.json({ likes: post.likes });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, err: err });
+    }
+});
+
+
 app.get("/search/:query", async (req, res) => {
     const query = { $regex: req.params.query, $options: "i" }
     try {

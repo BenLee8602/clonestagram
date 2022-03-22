@@ -18,6 +18,10 @@ const PostSchema = new Schema({
     caption: {
         type: String,
         required: true
+    },
+    likes: {
+        type: Array,
+        default: []
     }
 });
 

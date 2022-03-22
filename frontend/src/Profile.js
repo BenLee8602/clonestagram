@@ -14,7 +14,7 @@ function Profile() {
                 "Authorization": "Bearer " + localStorage.getItem("token")
             }
         };
-
+        
         fetch(`http://localhost:3000/users/${name}/profile`, req)
         .then(res => res.json())
         .then(res => setProfile(res))
