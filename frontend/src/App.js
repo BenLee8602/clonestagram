@@ -13,6 +13,7 @@ import Register from "./Register";
 import NewPost from "./NewPost";
 import Search from "./Search";
 import ViewPost from "./ViewPost";
+import UserList from"./UserList";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -36,6 +37,7 @@ function App() {
                     <Route path="/users/:name/profile" element={ <Profile/> } />
                     <Route path="/search" element={ <Search/> } />
                     <Route path="/posts/:id" element={ <ViewPost/> } />
+                    <Route path="/posts/:id/likes" element={ <ViewPost likes /> } />
                     <Route element={ <ProtectedRoute authorized={ !!user } /> }>
                         <Route path="/newpost" element={ <NewPost/> } />
                         <Route path="/edit/profile" element={ <ProfileEdit/> } />

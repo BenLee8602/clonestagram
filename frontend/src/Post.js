@@ -40,8 +40,10 @@ function Post({ post, mini }) {
                 .map((v, i) => <Frag key={i}><Link to={`/users/${v}/profile`}>{v}</Link>, </Frag>) }
                 { " and " }
             </> : <></> }
-            { <Link to={`/users/${likes[likes.length - 1]}/profile`}>{likes[likes.length - 1]}</Link> }
+            <Link to={`/users/${likes[likes.length - 1]}/profile`}>{likes[likes.length - 1]}</Link>
+            <Link to={`/posts/${post._id}/likes`} style={{"color":"gray"}}> view all</Link>
         </> : <></> }
+        
     </div>)
 }
 

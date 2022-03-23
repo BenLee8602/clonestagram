@@ -91,6 +91,17 @@ app.get("/", async (req, res) => {
 });
 
 
+app.post("/users", async (req, res) => {
+    try {
+        const users = await User.find({ name: { $in: req.body.names } });
+        res.json(users);
+    } catch (err) {
+        console.log(err);
+        res.json({ users: [] });
+    }
+});
+
+
 app.get("/users/:name/profile", async (req, res) => {
     try {
         const user = await User.findOne({ name: req.params.name }, "-_id -pass");
@@ -149,10 +160,10 @@ app.get("/posts/:id", async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
         if (post) res.json({ success: true, post: post });
-        else res.json({ success: false });
+        else res.json({ success: false, msg: "post not found" });
     } catch (err) {
         console.log(err);
-        res.json({success: false, err: err });
+        res.json({success: false, msg: err });
     }
 });
 
