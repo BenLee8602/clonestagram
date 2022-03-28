@@ -1,8 +1,11 @@
-import React, { Fragment as Frag, useState } from "react";
+import React, { Fragment as Frag, useContext, useState } from "react";
 import { Link } from "react-router-dom";
+import UserContext from "./UserContext";
 
 function Post({ post, mini }) {
+    const [user, setUser] = useContext(UserContext)
     const [likes, setLikes] = useState(post.likes);
+    const [liked, setLiked] = useState(post.likes.includes(user));
 
     const handleLike = () => {
         const req = {
@@ -15,13 +18,16 @@ function Post({ post, mini }) {
         
         fetch(`http://localhost:3000/posts/${post._id}/like`, req)
         .then(res => res.json())
-        .then(res => setLikes(res.likes))
+        .then(res => {
+            setLikes(res.likes)
+            setLiked(user && !likes)
+        })
         .catch(err => console.log(err));
     };
 
     if (mini) {
         return (<div className="item">
-            <Link to={`/posts/${post._id}`}><img src={ post.image } alt="/default_pfp.png" style={{"width":"64px", "height":"64px"}} /></Link>
+            <Link to={`/posts/${post._id}`}><img src={ post.image } alt="image not found" style={{"width":"64px", "height":"64px"}} /></Link>
             <h3><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</h3>
             <p style={{"whiteSpace":"pre-wrap"}}>{ post.caption }</p>
         </div>);
@@ -29,10 +35,10 @@ function Post({ post, mini }) {
 
     return (<div className="item">
         <h3><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</h3>
-        <Link to={`/posts/${post._id}`}><img src={ post.image } alt="/default_pfp.png" style={{"maxWidth": "71vw"}} /></Link>
+        <Link to={`/posts/${post._id}`}><img src={ post.image } alt="image not found" style={{"maxWidth": "71vw"}} /></Link>
         <p style={{"whiteSpace":"pre-wrap"}}>{ post.caption }</p>
 
-        <button onClick={handleLike}>like</button>
+        <button onClick={handleLike}>{ liked ? "unlike" : "like" }</button>
         { likes.length ? <>
             { "liked by: " }
             { likes.length > 1 ? <>

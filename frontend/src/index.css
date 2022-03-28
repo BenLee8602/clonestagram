@@ -61,3 +61,24 @@ textarea {
     width: 72vw;
     height: 256px;
 }
+
+#profilenav {
+    height: 20vw;
+}
+
+#profilenav button {
+    padding: 0vw;
+    margin: 2.8333vw;
+    width: 12vw;
+    height: 12vw;
+    transform: translateY(-9.5vw);
+}
+
+#editprofile {
+    display: inline-block;
+    width: 20vw;
+    text-align: center;
+    background-color: rgb(75, 68, 64);
+    margin-top: 4px;
+    padding: 0.4vw 0px;
+}

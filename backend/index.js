@@ -41,7 +41,7 @@ app.post("/register", async (req, res) => {
     
     try {
         const doc = await User.findOne({ name: name }, "-_id name");
-        if (doc) return res.json({ success: false, msg: "Username is taken" });
+        if (doc) return res.json({ success: false, msg: "username is taken" });
 
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(pass, salt);
@@ -51,7 +51,7 @@ app.post("/register", async (req, res) => {
 
         const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
 
-        res.json({ success: true, msg: `User ${name} created`, token: token });
+        res.json({ success: true, msg: `user ${name} created`, token: token });
     } catch (err) {
         console.log(err);
         res.json(err);
@@ -68,11 +68,11 @@ app.post("/login", async (req, res) => {
         if (user) {
             if (await bcrypt.compare(pass, user.pass)) {
                 const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
-                res.json({ success: true, msg: `Logged in as ${name}`, token: token });
+                res.json({ success: true, msg: `logged in as ${name}`, token: token });
             }
-            else res.json({ success: false, msg: `Incorrect password` });
+            else res.json({ success: false, msg: `incorrect password` });
         }
-        else res.json({ success: false, msg: `User ${name} not found` });
+        else res.json({ success: false, msg: `user ${name} not found` });
     } catch (err) {
         console.log(err);
         res.json(err);
@@ -109,19 +109,70 @@ app.get("/users/:name/profile", async (req, res) => {
         const posts = await Post.find({ author: req.params.name }).sort({ posted: "desc" });
 
         const token = req.headers["authorization"].split(' ')[1];
-        const isThisUser = jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, tokenUser) => {
-            return !err && user.name == tokenUser;
+        var isThisUser = false;
+        var isFollowing = false;
+        jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, tokenUser) => {
+            if (!err) {
+                isThisUser = tokenUser === req.params.name;
+                isFollowing = user.followers.includes(tokenUser);
+            }
         });
 
         res.json({
             success: true,
             user: user,
             posts: posts,
-            isThisUser: isThisUser
+            isThisUser: isThisUser,
+            isFollowing: isFollowing
         });
     } catch (err) {
         console.log(err);
         res.json({success: false, err: err });
+    }
+});
+
+
+app.get("/users/:name/profile/follow", verifyToken, async (req, res) => {
+    try {
+        const thisUser  = req.user;
+        const otherUser = req.params.name;
+
+        if (thisUser === otherUser)
+            return res.json({ success: false, msg: "cant follow yourself" });
+        
+        // this user
+        await User.updateOne(
+            { name: thisUser },
+            [{ $set: {
+                following: {
+                    $cond: {
+                        if: { $in: [otherUser, "$following"] },
+                        then: { $setDifference: ["$following", [otherUser]] },
+                        else: { $concatArrays:  ["$following", [otherUser]] }
+                    }
+                }
+            } }]
+        );
+
+        // other user
+        const updated = await User.findOneAndUpdate(
+            { name: otherUser },
+            [{ $set: {
+                followers: {
+                    $cond: {
+                        if: { $in: [thisUser, "$followers"] },
+                        then: { $setDifference: ["$followers", [thisUser]] },
+                        else: { $concatArrays:  ["$followers", [thisUser]] }
+                    }
+                }
+            } }],
+            { new: true }
+        );
+        
+        res.json({ success: true, user: updated });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, msg: err });
     }
 });
 
@@ -163,7 +214,7 @@ app.get("/posts/:id", async (req, res) => {
         else res.json({ success: false, msg: "post not found" });
     } catch (err) {
         console.log(err);
-        res.json({success: false, msg: err });
+        res.json({ success: false, msg: err });
     }
 });
 
@@ -177,13 +228,17 @@ app.put("/posts/:id/like", verifyToken, async (req, res) => {
                     $cond: {
                         if: { $in: [req.user, "$likes"] },
                         then: { $setDifference: ["$likes", [req.user]] },
-                        else: { $concatArrays: ["$likes", [req.user]] }
+                        else: { $concatArrays:  ["$likes", [req.user]] }
                     }
                 }
             } }],
             { new: true }
         );
-        res.json({ likes: post.likes });
+
+        res.json({
+            likes: post.likes,
+            liked: post.likes.includes(req.user)
+        });
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });
