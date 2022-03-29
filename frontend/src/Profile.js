@@ -39,9 +39,18 @@ function Profile() {
     return (<div className="content">
         <div id="profilenav">
             <img src={ profile.user.pfp } alt="pfp not found" style={{"width":"20vw", "height":"20vw"}} />
-            <button onClick={ () => setContent("posts") }>{ profile.posts.length } posts</button>
-            <button onClick={ () => setContent("followers") }>{ profile.user.followers.length } followers</button>
-            <button onClick={ () => setContent("following") }>{ profile.user.following.length } following</button>
+            <button onClick={ () => setContent("posts") }>
+                <h3>posts</h3>
+                <h2>{ profile.posts.length }</h2>
+            </button>
+            <button onClick={ () => setContent("followers") }>
+                <h3>followers</h3>
+                <h2>{ profile.user.followers.length }</h2>
+            </button>
+            <button onClick={ () => setContent("following") }>
+                <h3>following</h3>
+                <h2>{ profile.user.following.length }</h2>
+            </button>
         </div>
 
         { profile.isThisUser ? (

@@ -37,7 +37,8 @@ function App() {
                     <Route path="/users/:name/profile" element={ <Profile/> } />
                     <Route path="/search" element={ <Search/> } />
                     <Route path="/posts/:id" element={ <ViewPost/> } />
-                    <Route path="/posts/:id/likes" element={ <ViewPost likes /> } />
+                    <Route path="/posts/:id/likes" element={ <ViewPost view="likes" /> } />
+                    <Route path="/posts/:id/comments" element={ <ViewPost view="comments" /> } />
                     <Route element={ <ProtectedRoute authorized={ !!user } /> }>
                         <Route path="/newpost" element={ <NewPost/> } />
                         <Route path="/edit/profile" element={ <ProfileEdit/> } />

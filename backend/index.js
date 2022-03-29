@@ -20,6 +20,7 @@ const Post = require("./models/post");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const { updateOne } = require("./models/user");
 
 
 function verifyToken(req, res, next) {
@@ -239,6 +240,26 @@ app.put("/posts/:id/like", verifyToken, async (req, res) => {
             likes: post.likes,
             liked: post.likes.includes(req.user)
         });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, err: err });
+    }
+});
+
+
+app.put("/posts/:id/comment", verifyToken, async (req, res) => {
+    try {
+        const newComment = {
+            author: req.user,
+            posted: Date.now(),
+            text: req.body.comment
+        };
+
+        await Post.updateOne(
+            { _id: req.params.id },
+            { $push: { comments: newComment } }
+        );
+        res.json({ success: true, comment: newComment });
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });
