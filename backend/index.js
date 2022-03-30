@@ -20,7 +20,7 @@ const Post = require("./models/post");
 
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const { updateOne } = require("./models/user");
+const { findOneAndUpdate, updateOne } = require("./models/user");
 
 
 function verifyToken(req, res, next) {
@@ -250,9 +250,12 @@ app.put("/posts/:id/like", verifyToken, async (req, res) => {
 app.put("/posts/:id/comment", verifyToken, async (req, res) => {
     try {
         const newComment = {
+            _id: new mongoose.Types.ObjectId(),
             author: req.user,
             posted: Date.now(),
-            text: req.body.comment
+            text: req.body.comment,
+            likes: [],
+            replies: []
         };
 
         await Post.updateOne(
@@ -267,8 +270,32 @@ app.put("/posts/:id/comment", verifyToken, async (req, res) => {
 });
 
 
+app.put("/posts/comments/:id/like", verifyToken, async (req, res) => {
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const post = await Post.findOne({ "comments._id": id });
+        if (!post) return res.json({ success: false, msg: "comment not found" });
+        
+        const i = post.comments.map(c => c._id.toString()).indexOf(id.toString());
+        const j = post.comments[i].likes.indexOf(req.user);
+        
+        if (j === -1) post.comments[i].likes.push(req.user);
+        else post.comments[i].likes = post.comments[i].likes.filter(e => e !== req.user);
+
+        await Post.updateOne(
+            { "comments._id": id },
+            { $set: { "comments.$.likes": post.comments[i].likes } }
+        );
+        res.json({ success: true, liked: j === -1 });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, err: err });
+    }
+});
+
+
 app.get("/search/:query", async (req, res) => {
-    const query = { $regex: req.params.query, $options: "i" }
+    const query = { $regex: req.params.query, $options: "i" };
     try {
         const users = await User.find({ name: query }, "-_id -pass");
         const posts = await Post.find({ $or: [{ author: query }, { caption: query }] });
