@@ -5,8 +5,10 @@ import Comment from "./Comment";
 
 function Post({ post, mini }) {
     const [user, setUser] = useContext(UserContext)
+
     const [likes, setLikes] = useState(post.likes);
     const [liked, setLiked] = useState(post.likes.includes(user));
+    
     const [comments, setComments] = useState(post.comments);
     const [newComment, setNewComment] = useState("");
 
@@ -30,7 +32,7 @@ function Post({ post, mini }) {
 
     const handleComment = () => {
         const req = {
-            method: "PUT",
+            method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("token")

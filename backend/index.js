@@ -247,7 +247,7 @@ app.put("/posts/:id/like", verifyToken, async (req, res) => {
 });
 
 
-app.put("/posts/:id/comment", verifyToken, async (req, res) => {
+app.post("/posts/:id/comment", verifyToken, async (req, res) => {
     try {
         const newComment = {
             _id: new mongoose.Types.ObjectId(),
@@ -273,20 +273,71 @@ app.put("/posts/:id/comment", verifyToken, async (req, res) => {
 app.put("/posts/comments/:id/like", verifyToken, async (req, res) => {
     try {
         const id = new mongoose.Types.ObjectId(req.params.id);
-        const post = await Post.findOne({ "comments._id": id });
+        const post = await Post.findOne(
+            { "comments._id": id },
+            "comments.$"
+        );
         if (!post) return res.json({ success: false, msg: "comment not found" });
         
-        const i = post.comments.map(c => c._id.toString()).indexOf(id.toString());
-        const j = post.comments[i].likes.indexOf(req.user);
-        
-        if (j === -1) post.comments[i].likes.push(req.user);
-        else post.comments[i].likes = post.comments[i].likes.filter(e => e !== req.user);
+        const liked = post.comments[0].likes.includes(req.user);
+        if (liked) post.comments[0].likes = post.comments[0].likes.filter(e => e !== req.user);
+        else post.comments[0].likes.push(req.user);
 
         await Post.updateOne(
             { "comments._id": id },
-            { $set: { "comments.$.likes": post.comments[i].likes } }
+            { $set: { "comments.$.likes": post.comments[0].likes } }
         );
-        res.json({ success: true, liked: j === -1 });
+        res.json({ success: true, liked: !liked });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, err: err });
+    }
+});
+
+
+app.post("/posts/comments/:id/reply", verifyToken, async (req, res) => {
+    try {
+        const newReply = {
+            _id: new mongoose.Types.ObjectId(),
+            author: req.user,
+            posted: Date.now(),
+            text: req.body.reply,
+            likes: []
+        };
+
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        await Post.updateOne(
+            { "comments._id": id },
+            { $push: { "comments.$.replies": newReply } }
+        );
+        res.json({ success: true, reply: newReply });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, err: err });
+    }
+});
+
+
+app.put("/posts/comments/reply/:id/like", verifyToken, async (req, res) => {
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const post = await Post.findOne(
+            { "comments.replies._id": id },
+            "comments.$"
+        );
+        if (!post) return res.json({ success: false, msg: "reply not found" });
+        
+        const i = post.comments[0].replies.map(r => r._id.toString()).indexOf(id.toString());
+        
+        const liked = post.comments[0].replies[i].likes.includes(req.user);
+        if (liked) post.comments[0].replies[i].likes = post.comments[0].replies[i].likes.filter(e => e !== req.user);
+        else post.comments[0].replies[i].likes.push(req.user);
+        
+        await Post.updateOne(
+            { "comments.replies._id": id },
+            { $set: { "comments.$.replies": post.comments[0].replies } }
+        );
+        res.json({ success: true, liked: !liked });
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });
