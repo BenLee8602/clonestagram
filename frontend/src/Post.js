@@ -12,6 +12,7 @@ function Post({ post, mini }) {
     const [comments, setComments] = useState(post.comments);
     const [newComment, setNewComment] = useState("");
 
+
     const handleLike = () => {
         const req = {
             method: "PUT",
@@ -30,6 +31,7 @@ function Post({ post, mini }) {
         .catch(err => console.log(err));
     };
 
+
     const handleComment = () => {
         const req = {
             method: "POST",
@@ -43,11 +45,11 @@ function Post({ post, mini }) {
         fetch(`http://localhost:3000/posts/${post._id}/comment`, req)
         .then(res => res.json())
         .then(res => {
-            if (res.success)
-                setComments([...comments, res.comment]);
+            if (res.success) setComments([...comments, res.comment]);
         })
         .catch(err => console.log(err));
     };
+    
 
     if (mini) {
         return (<div className="item">

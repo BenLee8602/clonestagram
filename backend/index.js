@@ -337,7 +337,7 @@ app.put("/posts/comments/reply/:id/like", verifyToken, async (req, res) => {
             { "comments.replies._id": id },
             { $set: { "comments.$.replies": post.comments[0].replies } }
         );
-        res.json({ success: true, liked: !liked });
+        res.json({ success: true, likes: post.comments[0].replies[i].likes, idx: i });
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });

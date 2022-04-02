@@ -1,29 +1,9 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UserContext from "./UserContext";
 
-function Reply({ reply }) {
+function Reply({ reply, handleLike }) {
     const [user, setUser] = useContext(UserContext);
-    const [nLikes, setNLikes] = useState(reply.likes.length);
-    const [liked, setLiked] = useState(reply.likes.includes(user));
-
-    const handleLike = () => {
-        const req = {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            }
-        };
-        
-        fetch(`http://localhost:3000/posts/comments/reply/${reply._id}/like`, req)
-        .then(res => res.json())
-        .then(res => {
-            setNLikes(res.liked ? nLikes + 1 : nLikes - 1);
-            setLiked(user && !liked);
-        })
-        .catch(err => console.log(err));
-    };
 
     return (<div className="item">
         <strong>
@@ -31,7 +11,7 @@ function Reply({ reply }) {
             {" | "}
             { new Date(reply.posted).toLocaleString() }
         </strong>
-        <button onClick={handleLike}>{ liked ? "unlike" : "like" }</button>{ nLikes }<br/>
+        <button onClick={() => handleLike(reply._id)}>{ reply.likes.includes(user) ? "unlike" : "like" }</button>{ reply.likes.length }<br/>
         <p style={{"margin":"0px","fontSize":"14px"}}>{ reply.text }</p>
     </div>);
 }
