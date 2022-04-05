@@ -22,7 +22,7 @@ function Register() {
             body: JSON.stringify({ name: curName, pass: curPass })
         };
 
-        fetch("http://localhost:3000/register", req)
+        fetch("http://localhost:3000/users/register", req)
         .then(res => res.json())
         .then(res => {
             if (res.success) {

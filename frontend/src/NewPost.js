@@ -22,7 +22,7 @@ function NewPost() {
             })
         };
 
-        fetch("http://localhost:3000/newpost", req)
+        fetch("http://localhost:3000/posts", req)
         .then(res => res.json())
         .then(res => {
             if (res.success) Navigate(`/users/${user}/profile`);

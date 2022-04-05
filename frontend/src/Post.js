@@ -61,7 +61,7 @@ function Post({ post, mini }) {
 
     return (<div className="item">
         <h3><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</h3>
-        <Link to={`/posts/${post._id}`}><img src={ post.image } alt="image not found" style={{"maxWidth": "71vw"}} /></Link>
+        <Link to={`/posts/${post._id}`}><img src={ post.image } alt="image not found" style={{"maxWidth": "56vw"}} /></Link>
         <p style={{"whiteSpace":"pre-wrap"}}>{ post.caption }</p>
 
         <button onClick={handleLike}>{ liked ? "unlike" : "like" }</button>

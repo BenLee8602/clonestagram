@@ -23,7 +23,7 @@ function Comment({ comment }) {
             }
         };
         
-        fetch(`http://localhost:3000/posts/comments/${comment._id}/like`, req)
+        fetch(`http://localhost:3000/comments/${comment._id}/like`, req)
         .then(res => res.json())
         .then(res => {
             setNLikes(res.liked ? nLikes + 1 : nLikes - 1);
@@ -43,7 +43,7 @@ function Comment({ comment }) {
             body: JSON.stringify({ reply: newReply })
         };
 
-        fetch(`http://localhost:3000/posts/comments/${comment._id}/reply`, req)
+        fetch(`http://localhost:3000/comments/${comment._id}/reply`, req)
         .then(res => res.json())
         .then(res => {
             if (res.success)
@@ -62,7 +62,7 @@ function Comment({ comment }) {
             }
         };
         
-        fetch(`http://localhost:3000/posts/comments/reply/${id}/like`, req)
+        fetch(`http://localhost:3000/replies/${id}/like`, req)
         .then(res => res.json())
         .then(res => {
             if (!res.success) return console.log(res);

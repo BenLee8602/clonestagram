@@ -5,7 +5,7 @@ function Home() {
     const [allPosts, setAllPosts] = useState(null);
 
     useEffect(() => {
-        fetch(`http://localhost:3000`)
+        fetch(`http://localhost:3000/posts`)
         .then(res => res.json())
         .then(res => setAllPosts(res))
         .catch(err => console.log(err));

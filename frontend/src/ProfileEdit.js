@@ -17,7 +17,7 @@ function ProfileEdit() {
             }
         };
 
-        fetch("http://localhost:3000/profile", req)
+        fetch("http://localhost:3000/users/profile", req)
         .then(res => res.json())
         .then(res => {
             setProfile(res);
@@ -42,7 +42,7 @@ function ProfileEdit() {
             })
         };
 
-        fetch(`http://localhost:3000/edit/profile`, req)
+        fetch(`http://localhost:3000/users/profile/edit`, req)
         .then(res => res.json())
         .then(res => {
             res.success ? (

@@ -25,7 +25,7 @@ function Profile() {
     }, [name]);
 
     const handleFollow = () => {
-        fetch(`http://localhost:3000/users/${name}/profile/follow`, req)
+        fetch(`http://localhost:3000/users/${name}/follow`, req)
         .then(res => res.json())
         .then(res => setProfile({
             ...profile,
@@ -38,7 +38,7 @@ function Profile() {
     if (!profile.success) return (<div className="content"><h1>profile not found</h1></div>);
     return (<div className="content">
         <div id="profilenav">
-            <img src={ profile.user.pfp } alt="pfp not found" style={{"width":"20vw", "height":"20vw"}} />
+            <img src={ profile.user.pfp } alt="pfp not found" style={{"width":"15vw", "height":"15vw"}} />
             <button onClick={ () => setContent("posts") }>
                 <h3>posts</h3>
                 <h2>{ profile.posts.length }</h2>
@@ -56,7 +56,7 @@ function Profile() {
         { profile.isThisUser ? (
             <Link id="editprofile" className="item" to="/edit/profile">edit profile</Link>
         ) : (
-            <button onClick={ handleFollow } style={{"marginTop":"4px","width":"20vw"}}>{ profile.isFollowing ? "unfollow" : "follow" }</button>
+            <button onClick={ handleFollow } style={{"marginTop":"4px","width":"15vw"}}>{ profile.isFollowing ? "unfollow" : "follow" }</button>
         ) }
 
         <h1>{ profile.user.name }</h1>
