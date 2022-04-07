@@ -4,6 +4,7 @@ import UserContext from "./UserContext";
 import Reply from "./Reply";
 import Delete from "./Delete";
 import Editable from "./Editable";
+import Like from "./Like";
 
 function Comment({ comment, setPost }) {
     const [user, setUser] = useContext(UserContext);
@@ -82,12 +83,12 @@ function Comment({ comment, setPost }) {
         <h3><Link to={`/users/${comment.author}/profile`}>{ comment.author }</Link> | { new Date(comment.posted).toLocaleString() }</h3>
         <div style={{"whiteSpace":"pre-wrap"}}>{ comment.text }</div>
 
+        <Like likes={ comment.likes } handleLike={ handleLike } showCount />
+
         { comment.author === user ? (<>
             <Delete handleDelete={ handleDelete } />
             <Editable value={ comment.text } handleSubmit={ handleEdit } />
-        </>) : <></> }
-
-        <button onClick={handleLike}>{ comment.likes.includes(user) ? "unlike" : "like" }</button> { comment.likes.length }<br/>
+        </>) : <></> }<br/>
 
         <input type="text" placeholder="reply" onChange={ e => setNewReply(e.target.value) } />
         <button onClick={ handleReply }>send</button>

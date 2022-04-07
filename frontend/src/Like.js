@@ -1,14 +1,15 @@
-import React, { useContext } from "react";
+import React, { Fragment as Frag, useContext } from "react";
+import { Link } from "react-router-dom";
 import UserContext from "./UserContext";
 
-// UNUSED!! for now
-
-function Like({ likes, showNames, handleLike }) {
+function Like({ likes, handleLike, showCount, showNames }) {
     const [user, setUser] = useContext(UserContext);
 
     return (<>
         <button onClick={handleLike}>{ likes.includes(user) ? "unlike" : "like" }</button>
         
+        { showCount ? likes.length : <></> }
+
         { showNames && likes.length ? <>
             { "liked by: " }
             { likes.length > 1 ? <>
@@ -17,7 +18,7 @@ function Like({ likes, showNames, handleLike }) {
                 { " and " }
             </> : <></> }
             <Link to={`/users/${likes[likes.length - 1]}/profile`}>{likes[likes.length - 1]}</Link>
-        </> : <></> }<br/>
+        </> : <></> }
     </>);
 }
 

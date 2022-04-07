@@ -2,6 +2,7 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import Delete from "./Delete";
 import Editable from "./Editable";
+import Like from "./Like";
 import UserContext from "./UserContext";
 
 function Reply({ reply, setPost }) {
@@ -63,11 +64,14 @@ function Reply({ reply, setPost }) {
             {" | "}
             { new Date(reply.posted).toLocaleString() }
         </strong>
+
+        <Like likes={ reply.likes } handleLike={ handleLike } showCount />
+
         { reply.author === user ? (<>
             <Delete handleDelete={ handleDelete } />
             <Editable value={ reply.text } handleSubmit={ handleEdit } />
         </>) : <></> }
-        <button onClick={() => handleLike(reply._id)}>{ reply.likes.includes(user) ? "unlike" : "like" }</button>{ reply.likes.length }<br/>
+
         <p style={{"margin":"0px","fontSize":"14px"}}>{ reply.text }</p>
     </div>);
 }
