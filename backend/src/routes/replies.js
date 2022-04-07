@@ -6,6 +6,7 @@ const mongoose = require("mongoose");
 const Post = require("../models/post");
 
 const { verifyToken } = require("../middleware/authorize");
+const { findOneAndUpdate } = require("../models/post");
 
 
 // like a reply
@@ -24,11 +25,13 @@ router.put("/:id/like", verifyToken, async (req, res) => {
         if (liked) post.comments[0].replies[i].likes = post.comments[0].replies[i].likes.filter(e => e !== req.user);
         else post.comments[0].replies[i].likes.push(req.user);
         
-        await Post.updateOne(
+        const newPost = await Post.findOneAndUpdate(
             { "comments.replies._id": id },
-            { $set: { "comments.$.replies": post.comments[0].replies } }
+            { $set: { "comments.$.replies": post.comments[0].replies } },
+            { new: true }
         );
-        res.json({ success: true, likes: post.comments[0].replies[i].likes, idx: i });
+
+        res.json({ success: true, newPost });
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });
@@ -37,8 +40,47 @@ router.put("/:id/like", verifyToken, async (req, res) => {
 
 
 // edit a reply
-router.put("/:id/edit", verifyToken, async (req, res) => {
-    
+router.put("/:id", verifyToken, async (req, res) => {
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const post = await Post.findOne(
+            { "comments.replies": { $elemMatch: { _id: id, author: req.user } } },
+            "comments.$"
+        );
+        if (!post) return res.json({ success: false, msg: "reply not found" });
+        
+        const i = post.comments[0].replies.map(r => r._id.toString()).indexOf(id.toString());
+
+        post.comments[0].replies[i].text = req.body.text;
+
+        const newPost = await Post.findOneAndUpdate(
+            { "comments.replies": { $elemMatch: { _id: id, author: req.user } } },
+            { $set: { "comments.$.replies": post.comments[0].replies } },
+            { new: true }
+        );
+
+        res.json({ success: true, newPost });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false });
+    }
+});
+
+
+// delete a reply
+router.delete("/:id", verifyToken, async (req, res) => {
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const newPost = await Post.findOneAndUpdate(
+            { "comments.replies": { $elemMatch: { _id: id, author: req.user } } },
+            { $pull: { "comments.$.replies": { _id: id } } },
+            { new: true }
+        );
+        res.json({ success: !!newPost, newPost });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false, err });
+    }
 });
 
 

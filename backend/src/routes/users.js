@@ -160,7 +160,7 @@ router.get("/profile", verifyToken, async (req, res) => {
 
 
 // edit the logged in user's profile
-router.put("/profile/edit", verifyToken, async (req, res) => {
+router.put("/profile", verifyToken, async (req, res) => {
     try {
         await User.updateOne(
             { name: req.user },
@@ -168,12 +168,73 @@ router.put("/profile/edit", verifyToken, async (req, res) => {
                 pfp: req.body.pfp,
                 nick: req.body.nick,
                 bio: req.body.bio
-            }}
+            } }
         );
         res.json({ success: true });
     } catch (err) {
         console.log(err);
         res.json({success: false, err: err });
+    }
+});
+
+
+// delete the logged in user
+router.delete("/profile", verifyToken, async (req, res) => {
+    try {
+        // delete user posts
+        await Post.deleteMany(
+            { author: req.user }
+        );
+
+        // delete user comments
+        await Post.updateMany(
+            { },
+            { $pull: { comments: { author: req.user } } }
+        );
+
+        // delete user replies
+        await Post.updateMany(
+            { },
+            { $pull: { "comments.$[].replies": { author: req.user } } }
+        );
+
+        // delete user from likes lists (posts, comments, replies)
+        await Post.updateMany(
+            { },
+            { $pull: { likes: req.user } }
+        );
+
+        await Post.updateMany(
+            { },
+            { $pull: { "comments.$[].likes": req.user } }
+        );
+
+        await Post.updateMany(
+            { },
+            { $pull: { "comments.$[].replies.$[].likes": req.user } }
+        );
+
+        // delete user from follower lists
+        await User.updateMany(
+            { },
+            { $pull: { followers: req.user } }
+        );
+
+        // delete user from following lists
+        await User.updateMany(
+            { },
+            { $pull: { following: req.user } }
+        );
+
+        // delete account
+        await User.deleteOne(
+            { name: req.user }
+        );
+
+        res.json({ success: true });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false });
     }
 });
 

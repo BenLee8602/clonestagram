@@ -2,14 +2,12 @@ import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
 import UserContext from "./UserContext";
 import Reply from "./Reply";
+import Delete from "./Delete";
+import Editable from "./Editable";
 
-function Comment({ comment }) {
+function Comment({ comment, setPost }) {
     const [user, setUser] = useContext(UserContext);
-
-    const [nLikes, setNLikes] = useState(comment.likes.length);
-    const [liked, setLiked] = useState(comment.likes.includes(user));
-
-    const [replies, setReplies] = useState(comment.replies);
+    
     const [newReply, setNewReply] = useState("");
     const [replyCount, setReplyCount] = useState(3);
     
@@ -25,10 +23,7 @@ function Comment({ comment }) {
         
         fetch(`http://localhost:3000/comments/${comment._id}/like`, req)
         .then(res => res.json())
-        .then(res => {
-            setNLikes(res.liked ? nLikes + 1 : nLikes - 1);
-            setLiked(user && !liked);
-        })
+        .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err));
     };
 
@@ -45,32 +40,41 @@ function Comment({ comment }) {
 
         fetch(`http://localhost:3000/comments/${comment._id}/reply`, req)
         .then(res => res.json())
-        .then(res => {
-            if (res.success)
-                setReplies([...replies, res.reply]);
-        })
+        .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err));
     };
 
 
-    const handleReplyLike = (id) => {
+    const handleEdit = text => {
         const req = {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("token")
+            },
+            body: JSON.stringify({ text })
+        };
+
+        fetch(`http://localhost:3000/comments/${comment._id}`, req)
+        .then(res => res.json())
+        .then(res => setPost({ ...res.newPost }))
+        .catch(err => console.log(err));
+    };
+
+
+    const handleDelete = () => {
+        const req = {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token")
             }
         };
-        
-        fetch(`http://localhost:3000/replies/${id}/like`, req)
+
+        fetch(`http://localhost:3000/comments/${comment._id}`, req)
         .then(res => res.json())
-        .then(res => {
-            if (!res.success) return console.log(res);
-            let newReplies = [...replies];
-            newReplies[res.idx].likes = res.likes;
-            setReplies([...newReplies]);
-        })
-        .catch(err => console.log(err));
+        .then(res => setPost({ ...res.newPost }))
+        .catch(err => console.log(err))
     };
 
 
@@ -78,16 +82,21 @@ function Comment({ comment }) {
         <h3><Link to={`/users/${comment.author}/profile`}>{ comment.author }</Link> | { new Date(comment.posted).toLocaleString() }</h3>
         <div style={{"whiteSpace":"pre-wrap"}}>{ comment.text }</div>
 
-        <button onClick={handleLike}>{ liked ? "unlike" : "like" }</button> likes: { nLikes }<br/>
+        { comment.author === user ? (<>
+            <Delete handleDelete={ handleDelete } />
+            <Editable value={ comment.text } handleSubmit={ handleEdit } />
+        </>) : <></> }
+
+        <button onClick={handleLike}>{ comment.likes.includes(user) ? "unlike" : "like" }</button> { comment.likes.length }<br/>
 
         <input type="text" placeholder="reply" onChange={ e => setNewReply(e.target.value) } />
         <button onClick={ handleReply }>send</button>
 
         <button onClick={ () => setReplyCount(Math.max(0, replyCount - 3)) }>show less</button>
-        <button onClick={ () => setReplyCount(Math.min(replyCount + 3, replies.length)) }>show more</button>
+        <button onClick={ () => setReplyCount(Math.min(replyCount + 3, comment.replies.length)) }>show more</button>
         {
-            replies.slice(Math.max(0, replies.length - replyCount), Math.max(0, replies.length))
-            .map(v => <Reply key={v._id} reply={v} handleLike={handleReplyLike} />)
+            comment.replies.slice(Math.max(0, comment.replies.length - replyCount), Math.max(0, comment.replies.length))
+            .map(v => <Reply key={v._id} reply={v} setPost={setPost} />)
         }
     </div>);
 }

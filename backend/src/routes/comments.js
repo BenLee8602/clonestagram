@@ -22,21 +22,17 @@ router.put("/:id/like", verifyToken, async (req, res) => {
         if (liked) post.comments[0].likes = post.comments[0].likes.filter(e => e !== req.user);
         else post.comments[0].likes.push(req.user);
 
-        await Post.updateOne(
+        const newPost = await Post.findOneAndUpdate(
             { "comments._id": id },
-            { $set: { "comments.$.likes": post.comments[0].likes } }
+            { $set: { "comments.$.likes": post.comments[0].likes } },
+            { new: true }
         );
-        res.json({ success: true, liked: !liked });
+        
+        res.json({ success: true, newPost });
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });
     }
-});
-
-
-// edit a comment
-router.put("/:id/edit", verifyToken, async (req, res) => {
-    
 });
 
 
@@ -52,14 +48,49 @@ router.post("/:id/reply", verifyToken, async (req, res) => {
         };
 
         const id = new mongoose.Types.ObjectId(req.params.id);
-        await Post.updateOne(
+        const newPost = await Post.findOneAndUpdate(
             { "comments._id": id },
-            { $push: { "comments.$.replies": newReply } }
+            { $push: { "comments.$.replies": newReply } },
+            { new : true }
         );
-        res.json({ success: true, reply: newReply });
+        res.json({ success: true, newPost });
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });
+    }
+});
+
+
+// edit a comment
+router.put("/:id", verifyToken, async (req, res) => {
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const newPost = await Post.findOneAndUpdate(
+            { comments: { $elemMatch: { _id: id, author: req.user } } },
+            { $set: { "comments.$.text": req.body.text } },
+            { new: true }
+        );
+        res.json({ success: true, newPost });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false });
+    }
+});
+
+
+// delete comment
+router.delete("/:id", verifyToken, async (req, res) => {
+    try {
+        const id = new mongoose.Types.ObjectId(req.params.id);
+        const newPost = await Post.findOneAndUpdate(
+            { comments: { $elemMatch: { _id: id, author: req.user } } },
+            { $pull: { comments: { _id: id } } },
+            { new: true }
+        );
+        res.json({ success: true, newPost });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false });
     }
 });
 

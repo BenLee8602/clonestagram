@@ -67,20 +67,11 @@ router.put("/:id/like", verifyToken, async (req, res) => {
             { new: true }
         );
 
-        res.json({
-            likes: post.likes,
-            liked: post.likes.includes(req.user)
-        });
+        res.json({ likes: post.likes });
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });
     }
-});
-
-
-// edit a post
-router.put("/:id/edit", verifyToken, async (req, res) => {
-
 });
 
 
@@ -104,6 +95,35 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
     } catch (err) {
         console.log(err);
         res.json({ success: false, err: err });
+    }
+});
+
+
+// edit a post
+router.put("/:id", verifyToken, async (req, res) => {
+    try {
+        const post = await Post.updateOne(
+            { _id: req.params.id, author: req.user },
+            { $set: { caption: req.body.caption } }
+        );
+        res.json({ success: !!post });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false });
+    }
+});
+
+
+// delete a post
+router.delete("/:id", verifyToken, async (req, res) => {
+    try {
+        const post = await Post.deleteOne(
+            { _id: req.params.id, author: req.user },
+        );
+        res.json({ success: !!post });
+    } catch (err) {
+        console.log(err);
+        res.json({ success: false });
     }
 });
 

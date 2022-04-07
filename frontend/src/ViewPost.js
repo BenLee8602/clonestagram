@@ -23,13 +23,13 @@ function ViewPost({ view }) {
     </div>);
 
     if (view === "comments") return (<div className="content">
-        <Post post={post.post} mini />
+        <Post data={post.post} mini />
         <h1>comments</h1>
         { post.post.comments.map((v, i) => <Comment key={i} comment={v} />) }
     </div>);
 
     return (<div className="content">
-        <Post post={post.post} />
+        <Post data={post.post} />
     </div>);
 }
 

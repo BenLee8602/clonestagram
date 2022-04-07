@@ -81,3 +81,7 @@ textarea {
     margin-top: 4px;
     padding: 0.4vw 0px;
 }
+
+.active {
+    background-color: rgb(194, 65, 70);
+}

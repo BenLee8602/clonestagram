@@ -62,7 +62,7 @@ function Profile() {
         <h1>{ profile.user.name }</h1>
         <h3>{ profile.user.nick }</h3>
         <p style={{"whiteSpace":"pre-wrap"}}>{ profile.user.bio }</p>
-        { content === "posts" ? (profile.posts.map((v, i) => <Post key={ i } post={ v } />)) : <></> }
+        { content === "posts" ? (profile.posts.map((v, i) => <Post key={ i } data={ v } />)) : <></> }
         { content === "followers" ? (<><h1>followers</h1><UserList names={profile.user.followers} /></>) : <></> }
         { content === "following" ? (<><h1>following</h1><UserList names={profile.user.following} /></>) : <></> }
     </div>);

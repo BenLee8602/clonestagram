@@ -14,7 +14,7 @@ function Home() {
     if (!allPosts) return <h1>loading</h1>
     return (<div className="content">
         <h1>home</h1>
-        { allPosts.map((v, i) => <Post key={ i } post={ v } />) }
+        { allPosts.map((v, i) => <Post key={ i } data={ v } />) }
     </div>);
 }
 
