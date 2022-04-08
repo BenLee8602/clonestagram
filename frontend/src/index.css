@@ -85,3 +85,12 @@ textarea {
 .active {
     background-color: rgb(194, 65, 70);
 }
+
+.comment {
+    padding-bottom: 16px;
+}
+
+.reply {
+    padding-left: 2vw;
+    padding-bottom: 8px;
+}

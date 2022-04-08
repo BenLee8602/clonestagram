@@ -58,19 +58,20 @@ function Reply({ reply, setPost }) {
     };
 
 
-    return (<div className="item">
+    return (<div className="reply">
         <strong>
             <Link to={`/users/${reply.author}/profile`}>{ reply.author }</Link>
             {" | "}
             { new Date(reply.posted).toLocaleString() }
         </strong>
 
-        <Like likes={ reply.likes } handleLike={ handleLike } showCount />
-
-        { reply.author === user ? (<>
-            <Delete handleDelete={ handleDelete } />
-            <Editable value={ reply.text } handleSubmit={ handleEdit } />
-        </>) : <></> }
+        <div style={{"display":"inline","float":"right"}}>
+            <Like likes={ reply.likes } handleLike={ handleLike } showCount />
+            { reply.author === user ? (<>
+                <Editable value={ reply.text } handleSubmit={ handleEdit } />
+                <Delete handleDelete={ handleDelete } />
+            </>) : <></> }
+        </div>
 
         <p style={{"margin":"0px","fontSize":"14px"}}>{ reply.text }</p>
     </div>);

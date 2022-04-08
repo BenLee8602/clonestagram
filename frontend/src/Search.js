@@ -29,7 +29,7 @@ function Search() {
                     )
                 ) : (
                     results.posts.length ? (
-                        results.posts.map((v, i) => <Post key={i} data={v} mini />)
+                        results.posts.map((v, i) => <Post key={i} data={v} view="mini" />)
                     ) : (
                         <p>No posts found for "{ results.query }"</p>
                     )

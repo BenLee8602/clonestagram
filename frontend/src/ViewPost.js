@@ -17,15 +17,15 @@ function ViewPost({ view }) {
     if (!post.success) return (<div className="content"><h1>{ post.msg }</h1></div>);
 
     if (view === "likes") return (<div className="content">
-        <Post post={post.post} mini />
+        <Post data={post.post} view="mini" />
         <h1>likes</h1>
         <UserList names={post.post.likes} />
     </div>);
 
     if (view === "comments") return (<div className="content">
-        <Post data={post.post} mini />
+        <Post data={post.post} view="mini" />
         <h1>comments</h1>
-        { post.post.comments.map((v, i) => <Comment key={i} comment={v} />) }
+        <Post data={post.post} view="comments" />
     </div>);
 
     return (<div className="content">
