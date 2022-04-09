@@ -12,8 +12,7 @@ import Login from "./Login";
 import Register from "./Register";
 import NewPost from "./NewPost";
 import Search from "./Search";
-import ViewPost from "./ViewPost";
-import UserList from"./UserList";
+import Post from "./Post";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -36,9 +35,9 @@ function App() {
                     <Route path="/" element={ <Home/> } />
                     <Route path="/users/:name/profile" element={ <Profile/> } />
                     <Route path="/search" element={ <Search/> } />
-                    <Route path="/posts/:id" element={ <ViewPost/> } />
-                    <Route path="/posts/:id/likes" element={ <ViewPost view="likes" /> } />
-                    <Route path="/posts/:id/comments" element={ <ViewPost view="comments" /> } />
+                    <Route path="/posts/:id" element={ <Post/> } />
+                    <Route path="/posts/:id/likes" element={ <Post view="likes" /> } />
+                    <Route path="/posts/:id/comments" element={ <Post view="comments" /> } />
                     <Route element={ <ProtectedRoute authorized={ !!user } /> }>
                         <Route path="/newpost" element={ <NewPost/> } />
                         <Route path="/edit/profile" element={ <ProfileEdit/> } />

@@ -1,5 +1,5 @@
-import React, { Fragment as Frag, useContext, useState } from "react";
-import { Link } from "react-router-dom";
+import React, { Fragment as Frag, useContext, useEffect, useState } from "react";
+import { Link, useParams } from "react-router-dom";
 import UserContext from "./UserContext";
 import Comment from "./Comment";
 import Delete from "./Delete";
@@ -11,7 +11,28 @@ import UserList from "./UserList";
 function Post({ data, view }) {
     const [user, setUser] = useContext(UserContext);
     const [post, setPost] = useState({ ...data });
-    const [deleted, setDeleted] = useState(false);
+    const [error, setError] = useState("loading");
+
+    
+    const id = useParams().id;
+    
+    useEffect(() => {
+        if (!id) {
+            setError(null);
+            return;
+        }
+        
+        fetch(`http://localhost:3000/posts/${id}`)
+        .then(res => res.json())
+        .then(res => {
+            if (res.success) {
+                setPost(res.post);
+                setError(null);
+            }
+            else setError("post not found");
+        })
+        .catch(err => console.log(err));
+    }, [id]);
 
 
     const handleLike = () => {
@@ -77,12 +98,12 @@ function Post({ data, view }) {
 
         fetch(`http://localhost:3000/posts/${post._id}`, req)
         .then(res => res.json())
-        .then(res => { if (res.success) setDeleted(true); })
+        .then(res => { if (res.success) setError("post deleted"); })
         .catch(err => console.log(err));
     };
     
-
-    if (deleted) return <h3>post deleted</h3>;
+    
+    if (error) return <h3>{ error }</h3>;
 
     if (view === "mini") return (<div className="item">
         <Link to={`/posts/${post._id}`}><img src={ post.image } alt="image not found" style={{"width":"64px", "height":"64px"}} /></Link>

@@ -41,7 +41,7 @@ router.post("/", verifyToken, async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
-        if (post) res.json({ success: true, post: post });
+        if (post) res.json({ success: true, post });
         else res.json({ success: false, msg: "post not found" });
     } catch (err) {
         console.log(err);
