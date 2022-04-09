@@ -18,14 +18,22 @@ function App() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const storedUser = localStorage.getItem("user");
-        if (storedUser) setUser(storedUser);
-    }, []);
+        const token = localStorage.getItem("token");
+        if (!token) return;
 
-    useEffect(() => {
-        if (user) localStorage.setItem("user", user);
-        else localStorage.removeItem("user");
-    }, [user]);
+        const req = {
+            method: "GET",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("token")
+            }
+        };
+
+        fetch("http://localhost:3000/users", req)
+        .then(res => res.json())
+        .then(res => setUser(res.name))
+        .catch(err => console.log(err));
+    }, []);
 
     return (<>
         <BrowserRouter>

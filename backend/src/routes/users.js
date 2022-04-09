@@ -57,6 +57,11 @@ router.post("/login", async (req, res) => {
 });
 
 
+router.get("/", verifyToken, (req, res) => {
+    res.json({ name: req.user });
+});
+
+
 // get user data for each name in list
 router.post("/", async (req, res) => {
     try {
