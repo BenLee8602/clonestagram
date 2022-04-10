@@ -1,0 +1,20 @@
+#search #bar {
+    width: 37.8vw;
+    margin-right: 0.5vw;
+    margin-bottom: 1vw;
+}
+
+#search #go {
+    width: 8vw;
+    margin-left: 0.5vw;
+}
+
+#search #showUsers {
+    margin: 0;
+    width: 24vw;
+}
+
+#search #showPosts {
+    margin: 0;
+    width: 24vw;
+}

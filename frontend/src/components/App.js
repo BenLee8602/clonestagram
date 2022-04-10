@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
-import UserContext from "./UserContext";
+import UserContext from "../UserContext";
 
-import ProtectedRoute from "./ProtectedRoute";
+import ProtectedRoute from "../ProtectedRoute";
 import NavigationBar from "./NavigationBar";
 import Home from "./Home";
 import Profile from "./Profile";

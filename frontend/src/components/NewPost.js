@@ -1,6 +1,7 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import UserContext from "./UserContext";
+import UserContext from "../UserContext";
+import "../style/NewPost.css";
 
 function NewPost() {
     const Navigate = useNavigate();
@@ -31,12 +32,12 @@ function NewPost() {
         });
     };
 
-    return (<div className="content">
+    return (<div id="newPost" className="tile padded">
         <h1>new post</h1>
         <input type="text" placeholder="image url" onChange={ e => setImage(e.target.value) } /><br/>
         <input type="text" placeholder="caption" onChange={ e => setCaption(e.target.value) } /><br/>
         <p>{ errMsg }</p><br/>
-        <button onClick={ handleSubmit }>Submit</button>
+        <button className="active" onClick={ handleSubmit }>Submit</button>
     </div>);
 }
 

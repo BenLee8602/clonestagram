@@ -3,7 +3,8 @@ import { Link } from "react-router-dom";
 import Delete from "./Delete";
 import Editable from "./Editable";
 import Like from "./Like";
-import UserContext from "./UserContext";
+import UserContext from "../UserContext";
+import "../style/Reply.css";
 
 function Reply({ reply, setPost }) {
     const [user, setUser] = useContext(UserContext);
@@ -58,22 +59,22 @@ function Reply({ reply, setPost }) {
     };
 
 
-    return (<div className="reply">
-        <strong>
+    return (<div id="reply">
+        <strong id="header">
             <Link to={`/users/${reply.author}/profile`}>{ reply.author }</Link>
-            {" | "}
-            { new Date(reply.posted).toLocaleString() }
+            {"  "}
+            <span className="faded">{ new Date(reply.posted).toLocaleString() }</span>
         </strong>
 
-        <div style={{"display":"inline","float":"right"}}>
+        <div id="controls">
             <Like likes={ reply.likes } handleLike={ handleLike } showCount />
             { reply.author === user ? (<>
                 <Editable value={ reply.text } handleSubmit={ handleEdit } />
                 <Delete handleDelete={ handleDelete } />
             </>) : <></> }
-        </div>
+        </div><br/>
 
-        <p style={{"margin":"0px","fontSize":"14px"}}>{ reply.text }</p>
+        <p id="text">{ reply.text }</p>
     </div>);
 }
 

@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import UserContext from "./UserContext";
+import UserContext from "../UserContext";
 
 function Login() {
     const Navigate = useNavigate();
@@ -29,12 +29,12 @@ function Login() {
         });
     };
 
-    return (<div className="content">
+    return (<div className="tile padded">
         <h1>login</h1>
         <input type="text" placeholder="username" onChange={ e => setCurName(e.target.value) } /><br/>
         <input type="password" placeholder="password" onChange={ e => setCurPass(e.target.value) } /><br/>
         <p>{ errMsg }</p>
-        <button onClick={ handleLogin }>Submit</button>
+        <button className="active" onClick={ handleLogin }>Submit</button>
     </div>);
 }
 

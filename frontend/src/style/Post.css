@@ -1,0 +1,38 @@
+#postHeader, #postBody {
+    margin: 0;
+    padding: 1vw;
+}
+
+#postImage {
+    width: 50vw;
+}
+
+#postCaption {
+    white-space: pre-wrap;
+}
+
+#postAuthorControls {
+    display: inline;
+    float: right;
+}
+
+#postMini {
+    height: 10vw;
+}
+
+#postMini #image {
+    width: 10vw;
+    height: 10vw;
+}
+
+#postMini #content {
+    display: inline-block;
+    vertical-align: middle;
+    transform: translateY(-5vw);
+    padding-left: 1vw;
+}
+
+#allComments {
+    width: 48vw;
+    padding: 1vw;
+}

@@ -1,12 +1,14 @@
 import React, { Fragment as Frag, useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import UserContext from "./UserContext";
+import UserContext from "../UserContext";
 import Comment from "./Comment";
 import Delete from "./Delete";
 import Editable from "./Editable";
 import Like from "./Like";
 import TextPost from "./TextPost";
 import UserList from "./UserList";
+import "../index.css";
+import "../style/Post.css";
 
 function Post({ data, view }) {
     const [user, setUser] = useContext(UserContext);
@@ -105,45 +107,65 @@ function Post({ data, view }) {
     
     if (error) return <h3>{ error }</h3>;
 
-    if (view === "mini") return (<div className="item">
-        <Link to={`/posts/${post._id}`}><img src={ post.image } alt="image not found" style={{"width":"64px", "height":"64px"}} /></Link>
-        <h3><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</h3>
-        <p style={{"whiteSpace":"pre-wrap"}}>{ post.caption }</p>
+    if (view === "mini") return (<div id= "postMini" className="tile">
+        <Link to={`/posts/${post._id}`}><img id="image" src={ post.image } alt="image not found" /></Link>
+        <div id="content">
+            <h3>
+                <Link to={`/users/${post.author}/profile`}>{ post.author }</Link>{"  "}
+                <span className="faded">{ new Date(post.posted).toLocaleString() }</span>
+            </h3>
+            <p id="caption">{ post.caption }</p>
+        </div>
     </div>);
 
     if (view === "likes") return <UserList names={ post.likes } />;
 
-    if (view === "comments") return (<>{ post.comments.map(v => <Comment key={v._id} comment={v} setPost={setPost} showReplies />) }</>);
+    if (view === "comments") { return (
+        <div id="allComments" className="tile">
+            { post.comments.map(v => <Comment
+                key={v._id}
+                comment={v}
+                setPost={setPost}
+                showReplies
+            />) }
+        </div>
+    ); }
 
-    return (<div className="item">
-        <h3><Link to={`/users/${post.author}/profile`}>{ post.author }</Link> | { new Date(post.posted).toLocaleString() }</h3>
-        <Link to={`/posts/${post._id}`}><img src={ post.image } alt="image not found" style={{"width": "56vw"}} /></Link><br/>
+    return (<div className="tile">
+        <h3 id="postHeader">
+            <Link to={`/users/${post.author}/profile`}>{ post.author }</Link>{"  "}
+            <span className="faded">{ new Date(post.posted).toLocaleString() }</span>
+        </h3>
 
-        <Like likes={ post.likes } handleLike={ handleLike } />
-        <TextPost handlePost={ handleComment } display="comment" />
-        { post.author === user ? (<div style={{"display":"inline","float":"right"}}>
-            <Editable value={ post.caption } handleSubmit={ handleEdit } />
-            <Delete handleDelete={ handleDelete } />
-        </div>) : <></> }<br/>
+        <Link to={`/posts/${post._id}`}><img id="postImage" src={ post.image } alt="image not found" /></Link><br/>
 
-        { post.likes.length ? <>
-            { "liked by: " }
-            { post.likes.length > 1 ? <>
-                { post.likes.slice(Math.max(0, post.likes.length - 3), Math.max(0, post.likes.length - 1))
-                .map((v, i) => <Frag key={i}><Link to={`/users/${v}/profile`}>{v}</Link>, </Frag>) }
-                { " and " }
+        <div id="postBody">
+            <Like likes={ post.likes } handleLike={ handleLike } />
+            <TextPost handlePost={ handleComment } display="comment" />
+            { post.author === user ? (<div id="postAuthorControls">
+                <Editable value={ post.caption } handleSubmit={ handleEdit } />
+                <Delete handleDelete={ handleDelete } />
+            </div>) : <></> }<br/>
+
+            { post.likes.length ? <>
+                { "liked by: " }
+                { post.likes.length > 1 ? <>
+                    { post.likes.slice(Math.max(0, post.likes.length - 3), Math.max(0, post.likes.length - 1))
+                    .map((v, i) => <Frag key={i}><Link to={`/users/${v}/profile`}>{v}</Link>, </Frag>) }
+                    { " and " }
+                </> : <></> }
+                <Link to={`/users/${post.likes[post.likes.length - 1]}/profile`}>{post.likes[post.likes.length - 1]}</Link>
             </> : <></> }
-            <Link to={`/users/${post.likes[post.likes.length - 1]}/profile`}>{post.likes[post.likes.length - 1]}</Link>
-        </> : <></> }
-        { post.likes.length ? <Link to={`/posts/${post._id}/likes`} style={{"color":"gray"}}> view all</Link> : <></> }<br/>
+            { post.likes.length ? <Link className="faded" to={`/posts/${post._id}/likes`}> view all</Link> : <></> }<br/>
 
-        <p style={{"whiteSpace":"pre-wrap"}}>{ post.caption }</p>
+            <p id="postCaption">{ post.caption }</p>
 
-        {
-            post.comments.slice(Math.max(0, post.comments.length - 3), Math.max(0, post.comments.length))
-            .map(v => <Comment key={v._id} comment={v} setPost={setPost} />)
-        }<br/>
-        <Link to={`/posts/${post._id}/comments`} style={{"color":"gray"}}>view all comments</Link>
+            {
+                post.comments.slice(Math.max(0, post.comments.length - 3), Math.max(0, post.comments.length))
+                .map(v => <Comment key={v._id} comment={v} setPost={setPost} />)
+            }<br/>
+            <Link to={`/posts/${post._id}/comments`} className="faded">view all comments</Link>
+        </div>
     </div>)
 }
 

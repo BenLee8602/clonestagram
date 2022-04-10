@@ -1,7 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Delete from "./Delete";
-import UserContext from "./UserContext";
+import UserContext from "../UserContext";
+import "../style/ProfileEdit.css";
 
 function ProfileEdit() {
     const Navigate = useNavigate();
@@ -83,7 +84,7 @@ function ProfileEdit() {
 
 
     if (!profile.success) return (<div className="content"><h1>loading</h1></div>);
-    return (<div className="content">
+    return (<div id="editProfile" className="tile padded">
         <input
             type="text"
             placeholder="profile icon url"
@@ -101,7 +102,12 @@ function ProfileEdit() {
             defaultValue={ profile.user.bio }
             onChange={ e => setBio(e.target.value) }
         /><br/>
-        <button onClick={ handleSubmit }>submit</button><br/>
+        <button className="active" onClick={ handleSubmit }>submit</button><br/><br/>
+
+        <span className="faded">
+            deleting your account removes all your posts, comments, etc.<br/>
+            it cannot be undone!
+        </span><br/><br/>
         <Delete handleDelete={handleDelete}/>
     </div>);
 }

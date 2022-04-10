@@ -11,11 +11,8 @@ function Home() {
         .catch(err => console.log(err));
     }, []);
 
-    if (!allPosts) return <h1>loading</h1>
-    return (<div className="content">
-        <h1>home</h1>
-        { allPosts.map((v, i) => <Post key={ i } data={ v } />) }
-    </div>);
+    if (!allPosts) return <h1 className="tile padded">loading</h1>
+    return <>{ allPosts.map((v, i) => <Post key={ i } data={ v } />) }</>;
 }
 
 export default Home;

@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import Post from "./Post";
 import ProfileMini from "./ProfileMini";
+import "../style/Search.css";
 
 function Search() {
     const [query, setQuery] = useState("");
@@ -14,29 +15,40 @@ function Search() {
         .then(res => setResults(res));
     };
 
-    return (<div className="content">
-        <h1>search</h1>
-        <input type="text" placeholder="Enter a user or post" onChange={ e => setQuery(e.target.value) } /><br/>
-        <button onClick={ handleSearch }>Search</button><br/>
-        <button onClick={ () => setShow(show === "users" ? "posts" : "users") }>{ show }</button><br/>
+    return (<>
+        <div id="search" className="tile padded">
+            <h1>search</h1>
+            <input id="bar" type="text" placeholder="Enter a user or post" onChange={ e => setQuery(e.target.value) } />
+            <button id="go" className="active" onClick={ handleSearch }>Search</button><br/>
+            <button
+                className={ show === "users" ? "active" : "" }
+                id="showUsers"
+                onClick={ () => setShow("users") }
+            >users</button>
+            <button
+                className={ show === "posts" ? "active" : "" }
+                id="showPosts"
+                onClick={ () => setShow("posts") }
+            >posts</button>
+        </div>
         {
             results ? (
                 show === "users" ? (
                     results.users.length ? (
                         results.users.map((v, i) => <ProfileMini key={i} user={v} />)
                     ) : (
-                        <p>No users found for "{ results.query }"</p>
+                        <h3 id="search" className="tile padded">No users found for "{ results.query }"</h3>
                     )
                 ) : (
                     results.posts.length ? (
                         results.posts.map((v, i) => <Post key={i} data={v} view="mini" />)
                     ) : (
-                        <p>No posts found for "{ results.query }"</p>
+                        <h3 id="search" className="tile padded">No posts found for "{ results.query }"</h3>
                     )
                 )
             ) : (<></>)
         }
-    </div>);
+    </>);
 }
 
 export default Search;

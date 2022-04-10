@@ -1,6 +1,5 @@
-import React, { Fragment as Frag, useContext } from "react";
-import { Link } from "react-router-dom";
-import UserContext from "./UserContext";
+import React, { useContext } from "react";
+import UserContext from "../UserContext";
 
 function Like({ likes, handleLike }) {
     const [user, setUser] = useContext(UserContext);

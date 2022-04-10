@@ -1,11 +1,12 @@
 import React, { useContext, useState } from "react";
 import { Link } from "react-router-dom";
-import UserContext from "./UserContext";
+import UserContext from "../UserContext";
 import Reply from "./Reply";
 import Delete from "./Delete";
 import Editable from "./Editable";
 import Like from "./Like";
 import TextPost from "./TextPost";
+import "../style/Comment.css";
 
 function Comment({ comment, setPost, showReplies }) {
     const [user, setUser] = useContext(UserContext);
@@ -78,14 +79,14 @@ function Comment({ comment, setPost, showReplies }) {
     };
 
 
-    return (<div className="comment">
-        <h3 style={{"display":"inline"}}>
+    return (<div id="comment">
+        <h3 id="header">
             <Link to={`/users/${comment.author}/profile`}>{ comment.author }</Link>
-            {" | "}
-            { new Date(comment.posted).toLocaleString() }
+            {"  "}
+            <span className="faded">{ new Date(comment.posted).toLocaleString() }</span>
         </h3>
 
-        <div style={{"display":"inline","float":"right"}}>
+        <div id="controls">
             <Like likes={ comment.likes } handleLike={ handleLike } showCount />
             <TextPost handlePost={ handleReply } display="reply" />
             { comment.author === user ? (<>
@@ -94,14 +95,22 @@ function Comment({ comment, setPost, showReplies }) {
             </>) : <></> }<br/>
         </div><br/>
 
-        <div style={{"whiteSpace":"pre-wrap","display":"inline"}}>{ comment.text }</div><br/>
+        <div id="text">{ comment.text }</div><br/>
         
         { showReplies && comment.replies.length ? <>
-            <button onClick={ () => setReplyCount(Math.max(0, replyCount - 3)) }>show less</button>
-            <button onClick={ () => setReplyCount(Math.min(replyCount + 3, comment.replies.length)) }>show more</button>
+            <button
+                className="replyButton"
+                onClick={ () => setReplyCount(Math.max(0, replyCount - 3)) }
+            >show less</button>
+            <button
+                className="replyButton"
+                onClick={ () => setReplyCount(Math.min(replyCount + 3, comment.replies.length)) }
+            >show more</button>
             {
-                comment.replies.slice(Math.max(0, comment.replies.length - replyCount), Math.max(0, comment.replies.length))
-                .map(v => <Reply key={v._id} reply={v} setPost={setPost} />)
+                comment.replies.slice(
+                    Math.max(0, comment.replies.length - replyCount),
+                    Math.max(0, comment.replies.length)
+                ).map(v => <Reply key={v._id} reply={v} setPost={setPost} />)
             }
         </> : <></> }
     </div>);

@@ -1,0 +1,35 @@
+#profilenav {
+    height: 15vw;
+}
+
+#pfp {
+    width: 15vw;
+    height: 15vw;
+}
+
+#profilenav button {
+    margin: 1.5vw;
+    width: 8vw;
+    height: 8vw;
+    transform: translateY(-8.5vw);
+    border-bottom: 2px;
+    border-color: 0xffffff;
+}
+
+#editprofile, #follow {
+    display: inline-block;
+    width: 15vw;
+    text-align: center;
+    background-color: rgb(75, 68, 64);
+    margin-top: 4px;
+    padding: 0.4vw 0px;
+}
+
+#bio {
+    white-space: pre-wrap;
+}
+
+.postview {
+    margin: 0;
+    width: 25vw;
+}
