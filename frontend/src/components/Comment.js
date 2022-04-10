@@ -87,7 +87,7 @@ function Comment({ comment, setPost, showReplies }) {
         </h3>
 
         <div id="controls">
-            <Like likes={ comment.likes } handleLike={ handleLike } showCount />
+            <Like likes={ comment.likes } handleLike={ handleLike } />
             <TextPost handlePost={ handleReply } display="reply" />
             { comment.author === user ? (<>
                 <Editable value={ comment.text } handleSubmit={ handleEdit } />

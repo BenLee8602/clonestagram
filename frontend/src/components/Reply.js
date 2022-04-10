@@ -67,7 +67,7 @@ function Reply({ reply, setPost }) {
         </strong>
 
         <div id="controls">
-            <Like likes={ reply.likes } handleLike={ handleLike } showCount />
+            <Like likes={ reply.likes } handleLike={ handleLike } />
             { reply.author === user ? (<>
                 <Editable value={ reply.text } handleSubmit={ handleEdit } />
                 <Delete handleDelete={ handleDelete } />
