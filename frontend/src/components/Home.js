@@ -5,7 +5,7 @@ function Home() {
     const [allPosts, setAllPosts] = useState(null);
 
     useEffect(() => {
-        fetch(`http://localhost:3000/posts`)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/posts`)
         .then(res => res.json())
         .then(res => setAllPosts(res))
         .catch(err => console.log(err));

@@ -19,7 +19,7 @@ function Reply({ reply, setPost }) {
             }
         };
         
-        fetch(`http://localhost:3000/replies/${reply._id}/like`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}/like`, req)
         .then(res => res.json())
         .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err));
@@ -36,7 +36,7 @@ function Reply({ reply, setPost }) {
             body: JSON.stringify({ text })
         };
 
-        fetch(`http://localhost:3000/replies/${reply._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}`, req)
         .then(res => res.json())
         .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err));
@@ -52,7 +52,7 @@ function Reply({ reply, setPost }) {
             }
         };
 
-        fetch(`http://localhost:3000/replies/${reply._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}`, req)
         .then(res => res.json())
         .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err));

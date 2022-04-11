@@ -23,7 +23,7 @@ function ProfileEdit() {
             }
         };
 
-        fetch("http://localhost:3000/users/profile", req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
         .then(res => res.json())
         .then(res => {
             setProfile(res);
@@ -49,7 +49,7 @@ function ProfileEdit() {
             })
         };
 
-        fetch(`http://localhost:3000/users/profile`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
         .then(res => res.json())
         .then(res => {
             if (res.success)
@@ -69,7 +69,7 @@ function ProfileEdit() {
             }
         };
 
-        fetch(`http://localhost:3000/users/profile`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
         .then(res => res.json())
         .then(res => {
             if (!res.success)

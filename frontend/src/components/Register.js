@@ -22,7 +22,7 @@ function Register() {
             body: JSON.stringify({ name: curName, pass: curPass })
         };
 
-        fetch("http://localhost:3000/users/register", req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/register`, req)
         .then(res => res.json())
         .then(res => {
             if (res.success) {

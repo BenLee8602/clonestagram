@@ -23,7 +23,7 @@ function NewPost() {
             })
         };
 
-        fetch("http://localhost:3000/posts", req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/posts`, req)
         .then(res => res.json())
         .then(res => {
             if (res.success) Navigate(`/users/${user}/profile`);

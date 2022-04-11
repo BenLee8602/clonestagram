@@ -22,7 +22,7 @@ function Comment({ comment, setPost, showReplies }) {
             }
         };
         
-        fetch(`http://localhost:3000/comments/${comment._id}/like`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/like`, req)
         .then(res => res.json())
         .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err));
@@ -39,7 +39,7 @@ function Comment({ comment, setPost, showReplies }) {
             body: JSON.stringify({ reply: newReply })
         };
 
-        fetch(`http://localhost:3000/comments/${comment._id}/reply`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/reply`, req)
         .then(res => res.json())
         .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err));
@@ -56,7 +56,7 @@ function Comment({ comment, setPost, showReplies }) {
             body: JSON.stringify({ text })
         };
 
-        fetch(`http://localhost:3000/comments/${comment._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json())
         .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err));
@@ -72,7 +72,7 @@ function Comment({ comment, setPost, showReplies }) {
             }
         };
 
-        fetch(`http://localhost:3000/comments/${comment._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json())
         .then(res => setPost({ ...res.newPost }))
         .catch(err => console.log(err))

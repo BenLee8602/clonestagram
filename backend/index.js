@@ -2,13 +2,14 @@ require("dotenv").config();
 
 const express = require("express");
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 80;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(express.static("static"));
 
 const cors = require("cors");
-app.use(cors({ origin: "http://localhost:3001" }));
+app.use(cors({ origin: "*" }));
 
 const mongoose = require("mongoose");
 mongoose.connect(process.env.DB_URL)
@@ -23,13 +24,13 @@ const postsRouter = require("./src/routes/posts");
 const commentsRouter = require("./src/routes/comments");
 const repliesRouter = require("./src/routes/replies");
 
-app.use("/users", usersRouter);
-app.use("/posts", postsRouter);
-app.use("/comments", commentsRouter);
-app.use("/replies", repliesRouter);
+app.use("/api/users", usersRouter);
+app.use("/api/posts", postsRouter);
+app.use("/api/comments", commentsRouter);
+app.use("/api/replies", repliesRouter);
 
 
-app.get("/search/:query", async (req, res) => {
+app.get("/api/search/:query", async (req, res) => {
     const query = { $regex: req.params.query, $options: "i" };
     try {
         const users = await User.find({ name: query }, "-_id -pass");

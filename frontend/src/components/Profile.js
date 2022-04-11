@@ -20,14 +20,14 @@ function Profile() {
 
     useEffect(() => {
         setContent("posts");
-        fetch(`http://localhost:3000/users/${name}/profile`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/${name}/profile`, req)
         .then(res => res.json())
         .then(res => setProfile(res))
         .catch(err => console.log(err));
     }, [name]);
 
     const handleFollow = () => {
-        fetch(`http://localhost:3000/users/${name}/follow`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/${name}/follow`, req)
         .then(res => res.json())
         .then(res => setProfile({
             ...profile,

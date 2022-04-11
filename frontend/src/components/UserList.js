@@ -11,7 +11,7 @@ function UserList({ names }) {
             body: JSON.stringify({ names: names })
         };
 
-        fetch(`http://localhost:3000/users`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users`, req)
         .then(res => res.json())
         .then(res => setUsers(res))
         .catch(err => console.log(err))

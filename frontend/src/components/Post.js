@@ -24,7 +24,7 @@ function Post({ data, view }) {
             return;
         }
         
-        fetch(`http://localhost:3000/posts/${id}`)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${id}`)
         .then(res => res.json())
         .then(res => {
             if (res.success) {
@@ -46,7 +46,7 @@ function Post({ data, view }) {
             }
         };
         
-        fetch(`http://localhost:3000/posts/${post._id}/like`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}/like`, req)
         .then(res => res.json())
         .then(res => setPost({ ...post, likes: res.likes }))
         .catch(err => console.log(err));
@@ -63,7 +63,7 @@ function Post({ data, view }) {
             body: JSON.stringify({ comment: newComment })
         };
 
-        fetch(`http://localhost:3000/posts/${post._id}/comment`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}/comment`, req)
         .then(res => res.json())
         .then(res => {
             if (res.success) setPost({ ...post, comments: [...post.comments, res.comment] });
@@ -82,7 +82,7 @@ function Post({ data, view }) {
             body: JSON.stringify({ caption })
         };
 
-        fetch(`http://localhost:3000/posts/${post._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
         .then(res => res.json())
         .then(res => { if (res.success) setPost({ ...post, caption: caption }); })
         .catch(err => console.log(err));
@@ -98,7 +98,7 @@ function Post({ data, view }) {
             }
         };
 
-        fetch(`http://localhost:3000/posts/${post._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
         .then(res => res.json())
         .then(res => { if (res.success) setError("post deleted"); })
         .catch(err => console.log(err));

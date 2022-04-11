@@ -10,7 +10,7 @@ function Search() {
 
     const handleSearch = () => {
         if (query === "") return;
-        fetch(`http://localhost:3000/search/${query}`)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/search/${query}`)
         .then(res => res.json())
         .then(res => setResults(res));
     };

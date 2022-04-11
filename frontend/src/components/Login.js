@@ -16,7 +16,7 @@ function Login() {
             body: JSON.stringify({ name: curName, pass: curPass })
         };
 
-        fetch("http://localhost:3000/users/login", req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/login`, req)
         .then(res => res.json())
         .then(res => {
             if (res.success) {
