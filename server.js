@@ -1,12 +1,14 @@
 require("dotenv").config();
 
+const path = require("path");
+
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(express.static("static"));
+app.use(express.static("client/build"));
 
 const cors = require("cors");
 app.use(cors({ origin: "*" }));
@@ -44,7 +46,7 @@ app.get("/api/search/:query", async (req, res) => {
 
 
 app.get("*", (req, res) => {
-    res.sendFile(__dirname + "/static/index.html");
+    res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
 });
 
 
