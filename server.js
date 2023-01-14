@@ -37,10 +37,10 @@ app.get("/api/search/:query", async (req, res) => {
     try {
         const users = await User.find({ name: query }, "-_id -pass");
         const posts = await Post.find({ $or: [{ author: query }, { caption: query }] });
-        res.json({ query: req.params.query, users, posts });
+        res.status(200).json({ query: req.params.query, users, posts });
     } catch (err) {
         console.log(err);
-        res.json(err);
+        res.status(500).json(err);
     }
 });
 

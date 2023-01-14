@@ -17,7 +17,7 @@ router.post("/register", async (req, res) => {
     
     try {
         const doc = await User.findOne({ name: name }, "-_id name");
-        if (doc) return res.json({ success: false, msg: "username is taken" });
+        if (doc) return res.status(409).json("username is taken");
 
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(pass, salt);
@@ -27,10 +27,10 @@ router.post("/register", async (req, res) => {
 
         const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
 
-        res.json({ success: true, msg: `user ${name} created`, token: token });
+        res.status(200).json(token);
     } catch (err) {
         console.log(err);
-        res.json(err);
+        res.status(500).json(err);
     }
 });
 
@@ -42,23 +42,19 @@ router.post("/login", async (req, res) => {
 
     try {
         const user = await User.findOne({ name: name });
-        if (user) {
-            if (await bcrypt.compare(pass, user.pass)) {
-                const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
-                res.json({ success: true, msg: `logged in as ${name}`, token: token });
-            }
-            else res.json({ success: false, msg: `incorrect password` });
-        }
-        else res.json({ success: false, msg: `user ${name} not found` });
+        if (!user) return res.status(404).json(`user ${name} not found`);
+        if (!await bcrypt.compare(pass, user.pass)) return res.status(401).json("incorrect password");
+        const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
+        res.status(200).json(token);
     } catch (err) {
         console.log(err);
-        res.json(err);
+        res.status(500).json(err);
     }
 });
 
 
 router.get("/", verifyToken, (req, res) => {
-    res.json({ name: req.user });
+    res.status(200).json({ name: req.user });
 });
 
 
@@ -66,10 +62,10 @@ router.get("/", verifyToken, (req, res) => {
 router.post("/", async (req, res) => {
     try {
         const users = await User.find({ name: { $in: req.body.names } });
-        res.json(users);
+        res.status(200).json(users);
     } catch (err) {
         console.log(err);
-        res.json({ users: [] });
+        res.status(500).json(err);
     }
 });
 
@@ -78,29 +74,22 @@ router.post("/", async (req, res) => {
 router.get("/:name/profile", async (req, res) => {
     try {
         const user = await User.findOne({ name: req.params.name }, "-_id -pass");
-        if (!user) return res.json({ success: false, posts: [] });
+        if (!user) return res.status(404).json("user not found");
         const posts = await Post.find({ author: req.params.name }).sort({ posted: "desc" });
 
         const token = req.headers["authorization"].split(' ')[1];
         var isThisUser = false;
         var isFollowing = false;
         jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, tokenUser) => {
-            if (!err) {
-                isThisUser = tokenUser === req.params.name;
-                isFollowing = user.followers.includes(tokenUser);
-            }
+            if (err) return;
+            isThisUser = tokenUser === req.params.name;
+            isFollowing = user.followers.includes(tokenUser);
         });
 
-        res.json({
-            success: true,
-            user: user,
-            posts: posts,
-            isThisUser: isThisUser,
-            isFollowing: isFollowing
-        });
+        res.status(200).json({ user, posts, isThisUser, isFollowing });
     } catch (err) {
         console.log(err);
-        res.json({success: false, err: err });
+        res.status(500).json(err);
     }
 });
 
@@ -111,8 +100,7 @@ router.get("/:name/follow", verifyToken, async (req, res) => {
         const thisUser  = req.user;
         const otherUser = req.params.name;
 
-        if (thisUser === otherUser)
-            return res.json({ success: false, msg: "cant follow yourself" });
+        if (thisUser === otherUser) return res.status(400).json("cant follow yourself");
         
         // this user
         await User.updateOne(
@@ -143,10 +131,10 @@ router.get("/:name/follow", verifyToken, async (req, res) => {
             { new: true }
         );
         
-        res.json({ success: true, user: updated });
+        res.status(200).json(updated);
     } catch (err) {
         console.log(err);
-        res.json({ success: false, msg: err });
+        res.status(500).json(err);
     }
 });
 
@@ -155,11 +143,11 @@ router.get("/:name/follow", verifyToken, async (req, res) => {
 router.get("/profile", verifyToken, async (req, res) => {
     try {
         const user = await User.findOne({ name: req.user }, "-_id -pass");
-        if (user) res.json({ success: true, user: user });
-        else res.json({ success: false });
+        if (user) res.status(200).json(user);
+        else res.status(404).json("user not found");
     } catch (err) {
         console.log(err);
-        res.json({ success: false, err: err });
+        res.status(500).json(err);
     }
 });
 
@@ -167,7 +155,7 @@ router.get("/profile", verifyToken, async (req, res) => {
 // edit the logged in user's profile
 router.put("/profile", verifyToken, async (req, res) => {
     try {
-        await User.updateOne(
+        const user = await User.findOneAndUpdate(
             { name: req.user },
             { $set: {
                 pfp: req.body.pfp,
@@ -175,10 +163,10 @@ router.put("/profile", verifyToken, async (req, res) => {
                 bio: req.body.bio
             } }
         );
-        res.json({ success: true });
+        res.status(200).json(user);
     } catch (err) {
         console.log(err);
-        res.json({success: false, err: err });
+        res.status(500).json(err);
     }
 });
 
@@ -236,10 +224,10 @@ router.delete("/profile", verifyToken, async (req, res) => {
             { name: req.user }
         );
 
-        res.json({ success: true });
+        res.status(200).json("user deleted");
     } catch (err) {
         console.log(err);
-        res.json({ success: false });
+        res.status(500).json(err);
     }
 });
 

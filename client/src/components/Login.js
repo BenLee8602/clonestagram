@@ -17,15 +17,12 @@ function Login() {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/login`, req)
-        .then(res => res.json())
+        .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => {
-            if (res.success) {
-                localStorage.setItem("token", res.token);
-                setUser(curName);
-                Navigate("/");
-            }
-            else setErrMsg(res.msg);
-            console.log(res.msg);
+            if (res.status !== 200) return setErrMsg(res.body);
+            localStorage.setItem("token", res.body);
+            setUser(curName);
+            Navigate("/");
         });
     };
 

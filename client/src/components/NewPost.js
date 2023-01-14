@@ -24,12 +24,9 @@ function NewPost() {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts`, req)
-        .then(res => res.json())
-        .then(res => {
-            if (res.success) Navigate(`/users/${user}/profile`);
-            else setErrMsg(res.msg);
-            console.log(res.msg);
-        });
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? Navigate(`/users/${user}/profile`) : console.log(res.body))
+        .catch(err => console.log(err));
     };
 
     return (<div id="newPost" className="tile padded">

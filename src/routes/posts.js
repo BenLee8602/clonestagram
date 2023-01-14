@@ -12,10 +12,10 @@ const { verifyToken } = require("../middleware/authorize");
 router.get("/", async (req, res) => {
     try {
         const posts = await Post.find({}).sort({ posted: "desc" });
-        res.json(posts);
+        res.status(200).json(posts);
     } catch (err) {
         console.log(err);
-        res.json(err);
+        res.status(500).json(err);
     }
 });
 
@@ -29,10 +29,10 @@ router.post("/", verifyToken, async (req, res) => {
             caption: req.body.caption
         });
         await newPost.save();
-        res.json({ success: true, msg: "New post added" });
+        res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.json(err);
+        res.status(500).json(err);
     }
 });
 
@@ -41,11 +41,11 @@ router.post("/", verifyToken, async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
-        if (post) res.json({ success: true, post });
-        else res.json({ success: false, msg: "post not found" });
+        if (post) res.status(200).json(post);
+        else res.status(404).json("post not found");
     } catch (err) {
         console.log(err);
-        res.json({ success: false, msg: err });
+        res.status(500).json(err);
     }
 });
 
@@ -67,10 +67,10 @@ router.put("/:id/like", verifyToken, async (req, res) => {
             { new: true }
         );
 
-        res.json({ likes: post.likes });
+        res.status(200).json(post.likes);
     } catch (err) {
         console.log(err);
-        res.json({ success: false, err: err });
+        res.status(500).json(err);
     }
 });
 
@@ -91,10 +91,10 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
             { _id: req.params.id },
             { $push: { comments: newComment } }
         );
-        res.json({ success: true, comment: newComment });
+        res.status(200).json(newComment);
     } catch (err) {
         console.log(err);
-        res.json({ success: false, err: err });
+        res.status(500).json(err);
     }
 });
 
@@ -106,10 +106,11 @@ router.put("/:id", verifyToken, async (req, res) => {
             { _id: req.params.id, author: req.user },
             { $set: { caption: req.body.caption } }
         );
-        res.json({ success: !!post });
+        if (post) res.status(200).json(req.body.caption);
+        else res.status(400).json(req.body.caption);
     } catch (err) {
         console.log(err);
-        res.json({ success: false });
+        res.status(500).json(err);
     }
 });
 
@@ -120,10 +121,11 @@ router.delete("/:id", verifyToken, async (req, res) => {
         const post = await Post.deleteOne(
             { _id: req.params.id, author: req.user },
         );
-        res.json({ success: !!post });
+        if (post) res.status(200).json(req.params.id);
+        else res.status(400).json(req.params.id);
     } catch (err) {
         console.log(err);
-        res.json({ success: false });
+        res.status(500).json(err);
     }
 });
 

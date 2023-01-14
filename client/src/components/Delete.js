@@ -6,7 +6,7 @@ function Delete({ handleDelete }) {
     const [delConf, setDelConf] = useState(false);
     const [name, setName] = useState("");
 
-    const handleConfirm = () => { if (name == user) handleDelete() };
+    const handleConfirm = () => { if (name === user) handleDelete() };
 
     if (delConf) return (<>
         <input

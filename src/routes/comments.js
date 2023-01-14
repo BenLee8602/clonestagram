@@ -16,7 +16,7 @@ router.put("/:id/like", verifyToken, async (req, res) => {
             { "comments._id": id },
             "comments.$"
         );
-        if (!post) return res.json({ success: false, msg: "comment not found" });
+        if (!post) return res.status(404).json("comment not found");
         
         const liked = post.comments[0].likes.includes(req.user);
         if (liked) post.comments[0].likes = post.comments[0].likes.filter(e => e !== req.user);
@@ -28,10 +28,10 @@ router.put("/:id/like", verifyToken, async (req, res) => {
             { new: true }
         );
         
-        res.json({ success: true, newPost });
+        res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.json({ success: false, err: err });
+        res.status(500).json(err);
     }
 });
 
@@ -53,10 +53,10 @@ router.post("/:id/reply", verifyToken, async (req, res) => {
             { $push: { "comments.$.replies": newReply } },
             { new : true }
         );
-        res.json({ success: true, newPost });
+        res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.json({ success: false, err: err });
+        res.status(500).json(err);
     }
 });
 
@@ -70,10 +70,10 @@ router.put("/:id", verifyToken, async (req, res) => {
             { $set: { "comments.$.text": req.body.text } },
             { new: true }
         );
-        res.json({ success: true, newPost });
+        res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.json({ success: false });
+        res.status(500).json(err);
     }
 });
 
@@ -87,10 +87,10 @@ router.delete("/:id", verifyToken, async (req, res) => {
             { $pull: { comments: { _id: id } } },
             { new: true }
         );
-        res.json({ success: true, newPost });
+        res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.json({ success: false });
+        res.status(500).json(err);
     }
 });
 

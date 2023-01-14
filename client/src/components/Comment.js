@@ -23,8 +23,8 @@ function Comment({ comment, setPost, showReplies }) {
         };
         
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/like`, req)
-        .then(res => res.json())
-        .then(res => setPost({ ...res.newPost }))
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -40,8 +40,8 @@ function Comment({ comment, setPost, showReplies }) {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/reply`, req)
-        .then(res => res.json())
-        .then(res => setPost({ ...res.newPost }))
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -57,8 +57,8 @@ function Comment({ comment, setPost, showReplies }) {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
-        .then(res => res.json())
-        .then(res => setPost({ ...res.newPost }))
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -73,8 +73,8 @@ function Comment({ comment, setPost, showReplies }) {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
-        .then(res => res.json())
-        .then(res => setPost({ ...res.newPost }))
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err))
     };
 

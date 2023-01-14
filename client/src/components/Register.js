@@ -10,7 +10,7 @@ function Register() {
     const [curPassConf, setCurPassConf] = useState("");
     const [errMsg, setErrMsg] = useState("");
 
-    const handleLogin = () => {
+    const handleRegister = () => {
         if (curPass !== curPassConf) {
             setErrMsg("Passwords do not match");
             return;
@@ -23,15 +23,12 @@ function Register() {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/register`, req)
-        .then(res => res.json())
+        .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => {
-            if (res.success) {
-                localStorage.setItem("token", res.token);
-                setUser(curName);
-                Navigate("/");
-            }
-            else setErrMsg(res.msg);
-            console.log(res.msg);
+            if (res.status !== 200) return setErrMsg(res.body);
+            localStorage.setItem("token", res.body);
+            setUser(curName);
+            Navigate("/");
         });
     };
 
@@ -41,7 +38,7 @@ function Register() {
         <input type="password" placeholder="password" onChange={ e => setCurPass(e.target.value) } /><br/>
         <input type="password" placeholder="confirm" onChange={ e => setCurPassConf(e.target.value) } /><br/>
         <p>{ errMsg }</p>
-        <button className="active" onClick={ handleLogin }>Submit</button>
+        <button className="active" onClick={ handleRegister }>Submit</button>
     </div>);
 }
 

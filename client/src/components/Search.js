@@ -11,8 +11,8 @@ function Search() {
     const handleSearch = () => {
         if (query === "") return;
         fetch(`${process.env.REACT_APP_BACKEND_API}/search/${query}`)
-        .then(res => res.json())
-        .then(res => setResults(res));
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setResults(res.body) : console.log(res.body));
     };
 
     return (<>

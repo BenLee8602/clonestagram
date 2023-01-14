@@ -25,13 +25,11 @@ function Post({ data, view }) {
         }
         
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${id}`)
-        .then(res => res.json())
+        .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => {
-            if (res.success) {
-                setPost(res.post);
-                setError(null);
-            }
-            else setError("post not found");
+            if (res.status !== 200) return setError(res.body);
+            setPost(res.body);
+            setError(null);
         })
         .catch(err => console.log(err));
     }, [id]);
@@ -47,8 +45,8 @@ function Post({ data, view }) {
         };
         
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}/like`, req)
-        .then(res => res.json())
-        .then(res => setPost({ ...post, likes: res.likes }))
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setPost({ ...post, likes: res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -64,10 +62,8 @@ function Post({ data, view }) {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}/comment`, req)
-        .then(res => res.json())
-        .then(res => {
-            if (res.success) setPost({ ...post, comments: [...post.comments, res.comment] });
-        })
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setPost({ ...post, comments: [...post.comments, res.body] }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -83,8 +79,8 @@ function Post({ data, view }) {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
-        .then(res => res.json())
-        .then(res => { if (res.success) setPost({ ...post, caption: caption }); })
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setPost({ ...post, caption: res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -99,8 +95,8 @@ function Post({ data, view }) {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
-        .then(res => res.json())
-        .then(res => { if (res.success) setError("post deleted"); })
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setError("post deleted") : console.log(res.body))
         .catch(err => console.log(err));
     };
     

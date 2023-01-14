@@ -6,7 +6,6 @@ const mongoose = require("mongoose");
 const Post = require("../models/post");
 
 const { verifyToken } = require("../middleware/authorize");
-const { findOneAndUpdate } = require("../models/post");
 
 
 // like a reply
@@ -31,10 +30,10 @@ router.put("/:id/like", verifyToken, async (req, res) => {
             { new: true }
         );
 
-        res.json({ success: true, newPost });
+        res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.json({ success: false, err: err });
+        res.status(500).json(err);
     }
 });
 
@@ -59,10 +58,10 @@ router.put("/:id", verifyToken, async (req, res) => {
             { new: true }
         );
 
-        res.json({ success: true, newPost });
+        res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.json({ success: false });
+        res.status(500).json(err);
     }
 });
 
@@ -76,10 +75,10 @@ router.delete("/:id", verifyToken, async (req, res) => {
             { $pull: { "comments.$.replies": { _id: id } } },
             { new: true }
         );
-        res.json({ success: !!newPost, newPost });
+        res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
-        res.json({ success: false, err });
+        res.status(500).json(err);
     }
 });
 

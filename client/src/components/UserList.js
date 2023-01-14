@@ -12,8 +12,8 @@ function UserList({ names }) {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users`, req)
-        .then(res => res.json())
-        .then(res => setUsers(res))
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setUsers(res.body) : console.log(res.body))
         .catch(err => console.log(err))
     }, [names]);
 

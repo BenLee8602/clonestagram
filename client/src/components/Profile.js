@@ -6,7 +6,7 @@ import "../style/Profile.css";
 
 function Profile() {
     const name = useParams().name;
-    const [profile, setProfile] = useState({ success: false });
+    const [profile, setProfile] = useState(null);
     const [content, setContent] = useState("posts");
     const [postSize, setPostSize] = useState(true);
 
@@ -21,23 +21,25 @@ function Profile() {
     useEffect(() => {
         setContent("posts");
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/${name}/profile`, req)
-        .then(res => res.json())
-        .then(res => setProfile(res))
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setProfile(res.body) : console.log(res.body))
         .catch(err => console.log(err));
     }, [name]);
 
     const handleFollow = () => {
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/${name}/follow`, req)
-        .then(res => res.json())
-        .then(res => setProfile({
-            ...profile,
-            user: res.user,
-            isFollowing: !profile.isFollowing
-        }))
-        .catch(err => console.log(err));
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => {
+            if (res.status !== 200) return console.log(res.body);
+            setProfile({
+                ...profile,
+                user: res.body,
+                isFollowing: !profile.isFollowing
+            })
+        }).catch(err => console.log(err));
     };
 
-    if (!profile.success) return (<h1 className="tile">profile not found</h1>);
+    if (!profile) return (<h1 className="tile">profile not found</h1>);
     return (<>
         <div id="profileBody" className="tile padded">
             <div id="profilenav">

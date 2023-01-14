@@ -7,7 +7,7 @@ import "../style/ProfileEdit.css";
 function ProfileEdit() {
     const Navigate = useNavigate();
     const [user, setUser] = useContext(UserContext);
-    const [profile, setProfile] = useState({ success: false });
+    const [profile, setProfile] = useState(null);
 
     const [pfp, setPfp] = useState("");
     const [nick, setNick] = useState("");
@@ -24,12 +24,13 @@ function ProfileEdit() {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
-        .then(res => res.json())
+        .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => {
-            setProfile(res);
-            setPfp(res.user.pfp);
-            setNick(res.user.nick);
-            setBio(res.user.bio);
+            if (res.status !== 200) return console.log(res.body);
+            setProfile(res.body);
+            setPfp(res.body.pfp);
+            setNick(res.body.nick);
+            setBio(res.body.bio);
         })
         .catch(err => console.log(err));
     }, []);
@@ -42,20 +43,12 @@ function ProfileEdit() {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            body: JSON.stringify({
-                pfp: pfp,
-                nick: nick,
-                bio: bio
-            })
+            body: JSON.stringify({ pfp, nick, bio })
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
-        .then(res => res.json())
-        .then(res => {
-            if (res.success)
-                return Navigate(`/users/${profile.user.name}/profile`);
-            console.log("error in editing profile");
-        })
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? Navigate(`/users/${profile.name}/profile`) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -70,10 +63,9 @@ function ProfileEdit() {
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
-        .then(res => res.json())
+        .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => {
-            if (!res.success)
-                return console.log("error in deleting account");
+            if (res.status !== 200) return console.log(res.body);
             setUser(null);
             localStorage.removeItem("user");
             localStorage.removeItem("token");
@@ -83,23 +75,23 @@ function ProfileEdit() {
     };
 
 
-    if (!profile.success) return (<div className="content"><h1>loading</h1></div>);
+    if (!profile) return (<div className="content"><h1>loading</h1></div>);
     return (<div id="editProfile" className="tile padded">
         <input
             type="text"
             placeholder="profile icon url"
-            defaultValue={ profile.user.pfp }
+            defaultValue={ profile.pfp }
             onChange={ e => setPfp(e.target.value) }
         /><br/>
         <input
             type="text"
             placeholder="nickname"
-            defaultValue={ profile.user.nick }
+            defaultValue={ profile.nick }
             onChange={ e => setNick(e.target.value) }
         /><br/>
         <textarea
             placeholder="bio"
-            defaultValue={ profile.user.bio }
+            defaultValue={ profile.bio }
             onChange={ e => setBio(e.target.value) }
         /><br/>
         <button className="active" onClick={ handleSubmit }>submit</button><br/><br/>
