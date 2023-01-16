@@ -15,7 +15,7 @@ function Reply({ reply, updateComments }) {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
         };
         
@@ -31,7 +31,7 @@ function Reply({ reply, updateComments }) {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
             body: JSON.stringify({ text })
         };
@@ -48,7 +48,7 @@ function Reply({ reply, updateComments }) {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
         };
 

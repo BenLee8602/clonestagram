@@ -11,10 +11,19 @@ const upload = multer({ storage });
 const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
 const { s3client, getImageUrl, generateImageName } = require("../utils/s3");
 
-const User = require("../models/user");
-const Post = require("../models/post");
+const User  = require("../models/user");
+const Post  = require("../models/post");
+const Token = require("../models/token");
 
-const { verifyToken } = require("../middlewares/authorize");
+const { requireLogin } = require("../middlewares/auth");
+
+function genAccessToken(user) {
+    return jwt.sign(
+        { user },
+        process.env.ACCESS_TOKEN_SECRET,
+        { expiresIn: "15m" }
+    );
+}
 
 
 // register new user
@@ -23,18 +32,18 @@ router.post("/register", async (req, res) => {
     const pass = req.body.pass;
     
     try {
-        const doc = await User.findOne({ name: name }, "-_id name");
+        const doc = await User.findOne({ name }, "-_id name");
         if (doc) return res.status(409).json("username is taken");
 
         const salt = await bcrypt.genSalt();
         const hash = await bcrypt.hash(pass, salt);
+        await User.create({ name, pass: hash });
 
-        const user = await User.create({ name, pass: hash });
-        await user.save();
+        const refreshToken = jwt.sign({ user: name }, process.env.REFRESH_TOKEN_SECRET);
+        const accessToken = genAccessToken(name);
+        await Token.create({ token: refreshToken });
 
-        const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
-
-        res.status(200).json(token);
+        res.status(200).json({ refreshToken, accessToken });
     } catch (err) {
         console.log(err);
         res.status(500).json(err);
@@ -51,8 +60,12 @@ router.post("/login", async (req, res) => {
         const user = await User.findOne({ name: name });
         if (!user) return res.status(404).json(`user ${name} not found`);
         if (!await bcrypt.compare(pass, user.pass)) return res.status(401).json("incorrect password");
-        const token = jwt.sign(user.name, process.env.ACCESS_TOKEN_SECRET);
-        res.status(200).json(token);
+
+        const refreshToken = jwt.sign({ user: name }, process.env.REFRESH_TOKEN_SECRET);
+        const accessToken = genAccessToken(name);
+        await Token.create({ token: refreshToken });
+
+        res.status(200).json({ refreshToken, accessToken });
     } catch (err) {
         console.log(err);
         res.status(500).json(err);
@@ -60,7 +73,34 @@ router.post("/login", async (req, res) => {
 });
 
 
-router.get("/", verifyToken, (req, res) => {
+router.post("/refresh", async (req, res) => {
+    const refreshToken = req.body.refreshToken;
+    try {
+        jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, token) => {
+            if (err) return res.status(401).json("invalid refresh token");
+            if (!Token.findOne({ token: refreshToken })) return res.status(401).json("old refresh token");
+            const accessToken = genAccessToken(token.user);
+            res.status(200).json({ accessToken, user: token.user });
+        });
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err);
+    }
+});
+
+
+router.delete("/logout", async (req, res) => {
+    try {
+        await Token.deleteOne({ token: req.body.token });
+        res.status(200).json("logged out");
+    } catch (err) {
+        console.log(err);
+        res.status(500).json(err);
+    }
+});
+
+
+router.get("/", requireLogin, (req, res) => {
     res.status(200).json({ name: req.user });
 });
 
@@ -107,7 +147,7 @@ router.get("/:name/profile", async (req, res) => {
 
 
 // follow a user
-router.get("/:name/follow", verifyToken, async (req, res) => {
+router.get("/:name/follow", requireLogin, async (req, res) => {
     try {
         const thisUser  = req.user;
         const otherUser = req.params.name;
@@ -155,7 +195,7 @@ router.get("/:name/follow", verifyToken, async (req, res) => {
 
 
 // get the logged in user's profile
-router.get("/profile", verifyToken, async (req, res) => {
+router.get("/profile", requireLogin, async (req, res) => {
     try {
         const user = await User.findOne({ name: req.user }, "-_id -pass -__v");
         if (user) res.status(200).json(user);
@@ -168,7 +208,7 @@ router.get("/profile", verifyToken, async (req, res) => {
 
 
 // edit the logged in user's profile
-router.put("/profile", verifyToken, upload.single("image"), async (req, res) => {
+router.put("/profile", requireLogin, upload.single("image"), async (req, res) => {
     try {
         const user = await User.findOneAndUpdate(
             { name: req.user },
@@ -211,7 +251,7 @@ router.put("/profile", verifyToken, upload.single("image"), async (req, res) => 
 
 
 // delete the logged in user
-router.delete("/profile", verifyToken, async (req, res) => {
+router.delete("/profile", requireLogin, async (req, res) => {
     try {
         // delete user post images from s3
         const posts = await Post.find({ author: req.user });

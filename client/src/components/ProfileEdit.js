@@ -19,7 +19,7 @@ function ProfileEdit() {
             method: "GET",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
         };
 
@@ -45,7 +45,7 @@ function ProfileEdit() {
         const req = {
             method: "PUT",
             headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
             body: formData
         };
@@ -62,7 +62,7 @@ function ProfileEdit() {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
         };
 

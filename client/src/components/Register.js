@@ -26,7 +26,8 @@ function Register() {
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => {
             if (res.status !== 200) return setErrMsg(res.body);
-            localStorage.setItem("token", res.body);
+            localStorage.setItem("refreshToken", res.body.refreshToken);
+            localStorage.setItem("accessToken",  res.body.accessToken);
             setUser(curName);
             Navigate("/");
         });

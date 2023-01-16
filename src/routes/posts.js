@@ -12,7 +12,7 @@ const { s3client, getImageUrl, generateImageName } = require("../utils/s3");
 
 const Post = require("../models/post");
 
-const { verifyToken } = require("../middlewares/authorize");
+const { requireLogin } = require("../middlewares/auth");
 
 
 // get all posts (feed)
@@ -30,7 +30,7 @@ router.get("/", async (req, res) => {
 
 
 // create new post
-router.post("/", verifyToken, upload.single("image"), async (req, res) => {
+router.post("/", requireLogin, upload.single("image"), async (req, res) => {
     try {
         const imageName = generateImageName();
 
@@ -73,7 +73,7 @@ router.get("/:id", async (req, res) => {
 
 
 // like a post
-router.put("/:id/like", verifyToken, async (req, res) => {
+router.put("/:id/like", requireLogin, async (req, res) => {
     try {
         const post = await Post.findOneAndUpdate(
             { _id: req.params.id },
@@ -98,7 +98,7 @@ router.put("/:id/like", verifyToken, async (req, res) => {
 
 
 // comment on a post
-router.post("/:id/comment", verifyToken, async (req, res) => {
+router.post("/:id/comment", requireLogin, async (req, res) => {
     try {
         const newComment = {
             _id: new mongoose.Types.ObjectId(),
@@ -122,7 +122,7 @@ router.post("/:id/comment", verifyToken, async (req, res) => {
 
 
 // edit a post
-router.put("/:id", verifyToken, async (req, res) => {
+router.put("/:id", requireLogin, async (req, res) => {
     try {
         const post = await Post.updateOne(
             { _id: req.params.id, author: req.user },
@@ -138,7 +138,7 @@ router.put("/:id", verifyToken, async (req, res) => {
 
 
 // delete a post
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:id", requireLogin, async (req, res) => {
     try {
         const post = await Post.findOneAndDelete(
             { _id: req.params.id, author: req.user },

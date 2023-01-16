@@ -17,7 +17,7 @@ function NewPost() {
         const req = {
             method: "POST",
             headers: {
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
             body: formData
         };

@@ -18,21 +18,35 @@ function App() {
     const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const token = localStorage.getItem("token");
-        if (!token) return;
+        const refresh = () => {
+            const refreshToken = localStorage.getItem("refreshToken");
+            if (!refreshToken) return;
 
-        const req = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
-            }
+            const req = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ refreshToken })
+            };
+
+            fetch(`${process.env.REACT_APP_BACKEND_API}/users/refresh`, req)
+            .then(res => res.json().then(body => ({ status: res.status, body })))
+            .then(res => {
+                if (res.status === 200) {
+                    localStorage.setItem("accessToken", res.body.accessToken);
+                    setUser(res.body.user);
+                } else {
+                    localStorage.removeItem("refreshToken");
+                    localStorage.removeItem("accessToken");
+                    setUser(null);
+                    console.log(res.body);
+                }
+            })
+            .catch(err => console.log(err));
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/users`, req)
-        .then(res => res.json())
-        .then(res => setUser(res.name))
-        .catch(err => console.log(err));
+        refresh();
+        const interval = setInterval(refresh, 870000); // 14:30
+        return () => clearInterval(interval);
     }, []);
 
     return (<>

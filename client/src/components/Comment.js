@@ -18,7 +18,7 @@ function Comment({ comment, updateComments, showReplies }) {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
         };
         
@@ -34,7 +34,7 @@ function Comment({ comment, updateComments, showReplies }) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
             body: JSON.stringify({ reply: newReply })
         };
@@ -51,7 +51,7 @@ function Comment({ comment, updateComments, showReplies }) {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
             body: JSON.stringify({ text })
         };
@@ -68,7 +68,7 @@ function Comment({ comment, updateComments, showReplies }) {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
         };
 

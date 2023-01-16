@@ -14,7 +14,8 @@ function Post({ data, view }) {
     const [user, setUser] = useContext(UserContext);
     const [post, setPost] = useState({ ...data });
     const [error, setError] = useState("loading");
-    //useEffect(() => console.log(post), [post]);
+
+    
     const id = useParams().id;
     
     useEffect(() => {
@@ -39,7 +40,7 @@ function Post({ data, view }) {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
         };
         
@@ -55,7 +56,7 @@ function Post({ data, view }) {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
             body: JSON.stringify({ comment: newComment })
         };
@@ -72,7 +73,7 @@ function Post({ data, view }) {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
             body: JSON.stringify({ caption })
         };
@@ -89,7 +90,7 @@ function Post({ data, view }) {
             method: "DELETE",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("token")
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
             }
         };
 

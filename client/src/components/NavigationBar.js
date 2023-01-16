@@ -8,8 +8,20 @@ function NavigationBar() {
 
 
     const logout = () => {
+        const req = {
+            method: "DELETE",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token: localStorage.getItem("refreshToken") })
+        };
+
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/logout`, req)
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => { if (res.status !== 200) console.log(res.body); })
+        .catch(err => console.log(err));
+
         setUser(null);
-        localStorage.removeItem("token");
+        localStorage.removeItem("accessToken");
+        localStorage.removeItem("refreshToken");
     };
 
 

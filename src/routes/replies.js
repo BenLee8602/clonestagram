@@ -5,11 +5,11 @@ const mongoose = require("mongoose");
 
 const Post = require("../models/post");
 
-const { verifyToken } = require("../middlewares/authorize");
+const { requireLogin } = require("../middlewares/auth");
 
 
 // like a reply
-router.put("/:id/like", verifyToken, async (req, res) => {
+router.put("/:id/like", requireLogin, async (req, res) => {
     try {
         const id = new mongoose.Types.ObjectId(req.params.id);
         const post = await Post.findOne(
@@ -39,7 +39,7 @@ router.put("/:id/like", verifyToken, async (req, res) => {
 
 
 // edit a reply
-router.put("/:id", verifyToken, async (req, res) => {
+router.put("/:id", requireLogin, async (req, res) => {
     try {
         const id = new mongoose.Types.ObjectId(req.params.id);
         const post = await Post.findOne(
@@ -67,7 +67,7 @@ router.put("/:id", verifyToken, async (req, res) => {
 
 
 // delete a reply
-router.delete("/:id", verifyToken, async (req, res) => {
+router.delete("/:id", requireLogin, async (req, res) => {
     try {
         const id = new mongoose.Types.ObjectId(req.params.id);
         const newPost = await Post.findOneAndUpdate(
