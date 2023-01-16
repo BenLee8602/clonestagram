@@ -5,7 +5,7 @@ const mongoose = require("mongoose");
 
 const Post = require("../models/post");
 
-const { verifyToken } = require("../middleware/authorize");
+const { verifyToken } = require("../middlewares/authorize");
 
 
 // like a reply
@@ -30,7 +30,7 @@ router.put("/:id/like", verifyToken, async (req, res) => {
             { new: true }
         );
 
-        res.status(200).json(newPost);
+        res.status(200).json(newPost.comments);
     } catch (err) {
         console.log(err);
         res.status(500).json(err);
@@ -58,7 +58,7 @@ router.put("/:id", verifyToken, async (req, res) => {
             { new: true }
         );
 
-        res.status(200).json(newPost);
+        res.status(200).json(newPost.comments);
     } catch (err) {
         console.log(err);
         res.status(500).json(err);
@@ -75,7 +75,7 @@ router.delete("/:id", verifyToken, async (req, res) => {
             { $pull: { "comments.$.replies": { _id: id } } },
             { new: true }
         );
-        res.status(200).json(newPost);
+        res.status(200).json(newPost.comments);
     } catch (err) {
         console.log(err);
         res.status(500).json(err);

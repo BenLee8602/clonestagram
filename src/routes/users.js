@@ -4,10 +4,17 @@ const router = express.Router();
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { s3client, getImageUrl, generateImageName } = require("../utils/s3");
+
 const User = require("../models/user");
 const Post = require("../models/post");
 
-const { verifyToken } = require("../middleware/authorize");
+const { verifyToken } = require("../middlewares/authorize");
 
 
 // register new user
@@ -61,7 +68,8 @@ router.get("/", verifyToken, (req, res) => {
 // get user data for each name in list
 router.post("/", async (req, res) => {
     try {
-        const users = await User.find({ name: { $in: req.body.names } });
+        const users = await User.find({ name: { $in: req.body.names } }, "-_id -pass -__v");
+        for (let i = 0; i < users.length; ++i) users[i].pfp = await getImageUrl(users[i].pfp);
         res.status(200).json(users);
     } catch (err) {
         console.log(err);
@@ -73,9 +81,13 @@ router.post("/", async (req, res) => {
 // get the given user's profile data
 router.get("/:name/profile", async (req, res) => {
     try {
-        const user = await User.findOne({ name: req.params.name }, "-_id -pass");
+        const user = await User.findOne({ name: req.params.name }, "-_id -pass -__v");
         if (!user) return res.status(404).json("user not found");
+        user.pfp = await getImageUrl(user.pfp);
+
         const posts = await Post.find({ author: req.params.name }).sort({ posted: "desc" });
+        for (let i = 0; i < posts.length; ++i)
+            posts[i].image = await getImageUrl(posts[i].image);
 
         const token = req.headers["authorization"].split(' ')[1];
         var isThisUser = false;
@@ -128,9 +140,12 @@ router.get("/:name/follow", verifyToken, async (req, res) => {
                     }
                 }
             } }],
-            { new: true }
+            {
+                fields: { "_id": 0, "pass": 0, "pfp": 0, "__v": 0 },
+                new: true
+            }
         );
-        
+
         res.status(200).json(updated);
     } catch (err) {
         console.log(err);
@@ -142,7 +157,7 @@ router.get("/:name/follow", verifyToken, async (req, res) => {
 // get the logged in user's profile
 router.get("/profile", verifyToken, async (req, res) => {
     try {
-        const user = await User.findOne({ name: req.user }, "-_id -pass");
+        const user = await User.findOne({ name: req.user }, "-_id -pass -__v");
         if (user) res.status(200).json(user);
         else res.status(404).json("user not found");
     } catch (err) {
@@ -153,16 +168,40 @@ router.get("/profile", verifyToken, async (req, res) => {
 
 
 // edit the logged in user's profile
-router.put("/profile", verifyToken, async (req, res) => {
+router.put("/profile", verifyToken, upload.single("image"), async (req, res) => {
     try {
         const user = await User.findOneAndUpdate(
             { name: req.user },
             { $set: {
-                pfp: req.body.pfp,
                 nick: req.body.nick,
                 bio: req.body.bio
-            } }
+            } },
+            {
+                fields: { "_id": 0, "pass": 0, "__v": 0 },
+                new: true
+            }
         );
+
+        if (!req.file) return res.status(200).json(user);
+        if (!user.pfp) {
+            user.pfp = generateImageName();
+            await User.updateOne(
+                { name: req.user },
+                { $set: { pfp: user.pfp } },
+                {
+                    fields: { "_id": 0, "pass": 0, "__v": 0 },
+                    new: true
+                }
+            );
+        }
+        await s3client.send(new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: user.pfp,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype
+        }));
+
+        user.pfp = getImageUrl(user.pfp);
         res.status(200).json(user);
     } catch (err) {
         console.log(err);
@@ -174,6 +213,15 @@ router.put("/profile", verifyToken, async (req, res) => {
 // delete the logged in user
 router.delete("/profile", verifyToken, async (req, res) => {
     try {
+        // delete user post images from s3
+        const posts = await Post.find({ author: req.user });
+        for (let i = 0; i < posts.length; ++i) {
+            await s3client.send(new DeleteObjectCommand({
+                Bucket: process.env.AWS_BUCKET_NAME,
+                Key: posts[i].image
+            }));
+        }
+
         // delete user posts
         await Post.deleteMany(
             { author: req.user }
@@ -220,9 +268,16 @@ router.delete("/profile", verifyToken, async (req, res) => {
         );
 
         // delete account
-        await User.deleteOne(
+        const user = await User.findOneAndDelete(
             { name: req.user }
         );
+
+        // delete user profile picture from s3
+        if (!user.pfp) return res.status(200).json("user deleted");
+        await s3client.send(new DeleteObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: user.pfp
+        }));
 
         res.status(200).json("user deleted");
     } catch (err) {

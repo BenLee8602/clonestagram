@@ -33,7 +33,7 @@ function Profile() {
             if (res.status !== 200) return console.log(res.body);
             setProfile({
                 ...profile,
-                user: res.body,
+                user: { ...profile.user, ...res.body },
                 isFollowing: !profile.isFollowing
             })
         }).catch(err => console.log(err));
@@ -43,7 +43,7 @@ function Profile() {
     return (<>
         <div id="profileBody" className="tile padded">
             <div id="profilenav">
-                <img id="pfp" src={ profile.user.pfp } alt="pfp not found" />
+                <img id="pfp" src={ profile.user.pfp ? profile.user.pfp : "/default_pfp.png" } alt="pfp" />
                 <button className={ content === "posts" ? "active" : "" } onClick={ () => setContent("posts") }>
                     <h3>posts</h3>
                     <h2>{ profile.posts.length }</h2>

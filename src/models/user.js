@@ -13,7 +13,7 @@ const UserSchema = new Schema({
     },
     pfp: {
         type: String,
-        default: "/default_pfp.png"
+        default: ""
     },
     nick: {
         type: String,

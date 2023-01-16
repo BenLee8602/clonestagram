@@ -14,8 +14,7 @@ function Post({ data, view }) {
     const [user, setUser] = useContext(UserContext);
     const [post, setPost] = useState({ ...data });
     const [error, setError] = useState("loading");
-
-    
+    //useEffect(() => console.log(post), [post]);
     const id = useParams().id;
     
     useEffect(() => {
@@ -99,6 +98,11 @@ function Post({ data, view }) {
         .then(res => res.status === 200 ? setError("post deleted") : console.log(res.body))
         .catch(err => console.log(err));
     };
+
+
+    const updateComments = newComments => {
+        setPost({ ...post, comments: [...newComments] });
+    };
     
     
     if (error) return <h3>{ error }</h3>;
@@ -121,7 +125,7 @@ function Post({ data, view }) {
             { post.comments.map(v => <Comment
                 key={v._id}
                 comment={v}
-                setPost={setPost}
+                updateComments={updateComments}
                 showReplies
             />) }
         </div>
@@ -158,7 +162,7 @@ function Post({ data, view }) {
 
             {
                 post.comments.slice(Math.max(0, post.comments.length - 3), Math.max(0, post.comments.length))
-                .map(v => <Comment key={v._id} comment={v} setPost={setPost} />)
+                .map(v => <Comment key={v._id} comment={v} updateComments={updateComments} />)
             }<br/>
             <Link to={`/posts/${post._id}/comments`} className="faded">view all comments</Link>
         </div>

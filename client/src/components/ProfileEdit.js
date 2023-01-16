@@ -37,13 +37,17 @@ function ProfileEdit() {
 
 
     const handleSubmit = () => {
+        const formData = new FormData();
+        formData.append("image", pfp);
+        formData.append("nick", nick);
+        formData.append("bio", bio);
+
         const req = {
             method: "PUT",
             headers: {
-                "Content-Type": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("token")
             },
-            body: JSON.stringify({ pfp, nick, bio })
+            body: formData
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
@@ -78,10 +82,9 @@ function ProfileEdit() {
     if (!profile) return (<div className="content"><h1>loading</h1></div>);
     return (<div id="editProfile" className="tile padded">
         <input
-            type="text"
-            placeholder="profile icon url"
-            defaultValue={ profile.pfp }
-            onChange={ e => setPfp(e.target.value) }
+            type="file"
+            name="image"
+            onChange={ e => setPfp(e.target.files ? e.target.files[0] : null) }
         /><br/>
         <input
             type="text"

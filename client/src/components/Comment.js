@@ -8,7 +8,7 @@ import Like from "./Like";
 import TextPost from "./TextPost";
 import "../style/Comment.css";
 
-function Comment({ comment, setPost, showReplies }) {
+function Comment({ comment, updateComments, showReplies }) {
     const [user, setUser] = useContext(UserContext);
     const [replyCount, setReplyCount] = useState(3);
     
@@ -24,7 +24,7 @@ function Comment({ comment, setPost, showReplies }) {
         
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/like`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -41,7 +41,7 @@ function Comment({ comment, setPost, showReplies }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/reply`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -58,7 +58,7 @@ function Comment({ comment, setPost, showReplies }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -74,7 +74,7 @@ function Comment({ comment, setPost, showReplies }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
         .catch(err => console.log(err))
     };
 
@@ -110,7 +110,7 @@ function Comment({ comment, setPost, showReplies }) {
                 comment.replies.slice(
                     Math.max(0, comment.replies.length - replyCount),
                     Math.max(0, comment.replies.length)
-                ).map(v => <Reply key={v._id} reply={v} setPost={setPost} />)
+                ).map(v => <Reply key={v._id} reply={v} updateComments={updateComments} />)
             }
         </> : <></> }
     </div>);

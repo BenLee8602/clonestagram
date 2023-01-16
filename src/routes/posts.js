@@ -3,15 +3,24 @@ const router = express.Router();
 
 const mongoose = require("mongoose");
 
+const multer = require("multer");
+const storage = multer.memoryStorage();
+const upload = multer({ storage });
+
+const { PutObjectCommand, DeleteObjectCommand } = require("@aws-sdk/client-s3");
+const { s3client, getImageUrl, generateImageName } = require("../utils/s3");
+
 const Post = require("../models/post");
 
-const { verifyToken } = require("../middleware/authorize");
+const { verifyToken } = require("../middlewares/authorize");
 
 
 // get all posts (feed)
 router.get("/", async (req, res) => {
     try {
         const posts = await Post.find({}).sort({ posted: "desc" });
+        for (let i = 0; i < posts.length; ++i)
+            posts[i].image = await getImageUrl(posts[i].image);
         res.status(200).json(posts);
     } catch (err) {
         console.log(err);
@@ -21,14 +30,26 @@ router.get("/", async (req, res) => {
 
 
 // create new post
-router.post("/", verifyToken, async (req, res) => {
+router.post("/", verifyToken, upload.single("image"), async (req, res) => {
     try {
+        const imageName = generateImageName();
+
+        // upload image to s3
+        await s3client.send(new PutObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: imageName,
+            Body: req.file.buffer,
+            ContentType: req.file.mimetype
+        }));
+
+        // upload info to database
         const newPost = await Post.create({
             author: req.user,
-            image: req.body.image,
+            image: imageName,
             caption: req.body.caption
         });
         await newPost.save();
+
         res.status(200).json(newPost);
     } catch (err) {
         console.log(err);
@@ -41,8 +62,9 @@ router.post("/", verifyToken, async (req, res) => {
 router.get("/:id", async (req, res) => {
     try {
         const post = await Post.findById(req.params.id);
-        if (post) res.status(200).json(post);
-        else res.status(404).json("post not found");
+        if (!post) return res.status(404).json("post not found");
+        post.image = await getImageUrl(post.image);
+        res.status(200).json(post);
     } catch (err) {
         console.log(err);
         res.status(500).json(err);
@@ -118,11 +140,17 @@ router.put("/:id", verifyToken, async (req, res) => {
 // delete a post
 router.delete("/:id", verifyToken, async (req, res) => {
     try {
-        const post = await Post.deleteOne(
+        const post = await Post.findOneAndDelete(
             { _id: req.params.id, author: req.user },
         );
-        if (post) res.status(200).json(req.params.id);
-        else res.status(400).json(req.params.id);
+        if (!post) res.status(404).json(req.params.id);
+
+        await s3client.send(new DeleteObjectCommand({
+            Bucket: process.env.AWS_BUCKET_NAME,
+            Key: post.image
+        }));
+
+        res.status(200).json(req.params.id);
     } catch (err) {
         console.log(err);
         res.status(500).json(err);

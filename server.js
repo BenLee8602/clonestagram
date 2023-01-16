@@ -6,8 +6,8 @@ const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
 
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
+app.use(express.urlencoded({ extended: true, limit: "50mb" }));
+app.use(express.json({ limit: "50mb" }));
 app.use(express.static("client/build"));
 
 const cors = require("cors");
@@ -17,6 +17,8 @@ const mongoose = require("mongoose");
 mongoose.connect(process.env.DB_URL)
 .then(() => console.log("Connected to database"))
 .catch(err => console.log("Failed to connect to database: " + err));
+
+const { s3client, getImageUrl } = require("./src/utils/s3");
 
 const User = require("./src/models/user");
 const Post = require("./src/models/post");
@@ -36,7 +38,11 @@ app.get("/api/search/:query", async (req, res) => {
     const query = { $regex: req.params.query, $options: "i" };
     try {
         const users = await User.find({ name: query }, "-_id -pass");
+        for (let i = 0; i < users.length; ++i) users[i].pfp = await getImageUrl(users[i].pfp);
+
         const posts = await Post.find({ $or: [{ author: query }, { caption: query }] });
+        for (let i = 0; i < posts.length; ++i) posts[i].image = await getImageUrl(posts[i].image);
+
         res.status(200).json({ query: req.params.query, users, posts });
     } catch (err) {
         console.log(err);

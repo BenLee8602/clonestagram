@@ -6,7 +6,7 @@ import Like from "./Like";
 import UserContext from "../UserContext";
 import "../style/Reply.css";
 
-function Reply({ reply, setPost }) {
+function Reply({ reply, updateComments }) {
     const [user, setUser] = useContext(UserContext);
 
 
@@ -21,7 +21,7 @@ function Reply({ reply, setPost }) {
         
         fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}/like`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -38,7 +38,7 @@ function Reply({ reply, setPost }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -54,7 +54,7 @@ function Reply({ reply, setPost }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
