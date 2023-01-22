@@ -51,23 +51,6 @@ function Post({ data, view }) {
     };
 
 
-    const handleComment = newComment => {
-        const req = {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("accessToken")
-            },
-            body: JSON.stringify({ comment: newComment })
-        };
-
-        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}/comment`, req)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...post, comments: [...post.comments, res.body] }) : console.log(res.body))
-        .catch(err => console.log(err));
-    };
-
-
     const handleEdit = caption => {
         const req = {
             method: "PUT",
@@ -121,17 +104,6 @@ function Post({ data, view }) {
 
     if (view === "likes") return <UserList names={ post.likes } />;
 
-    if (view === "comments") { return (
-        <div id="allComments" className="tile">
-            { post.comments.map(v => <Comment
-                key={v._id}
-                comment={v}
-                updateComments={updateComments}
-                showReplies
-            />) }
-        </div>
-    ); }
-
     return (<div className="tile">
         <h3 id="postHeader">
             <Link to={`/users/${post.author}/profile`}>{ post.author }</Link>{"  "}
@@ -142,7 +114,6 @@ function Post({ data, view }) {
 
         <div id="postBody">
             <Like likes={ post.likes } handleLike={ handleLike } />
-            <TextPost handlePost={ handleComment } display="comment" />
             { post.author === user ? (<div id="postAuthorControls">
                 <Editable value={ post.caption } handleSubmit={ handleEdit } />
                 <Delete handleDelete={ handleDelete } />
@@ -159,13 +130,9 @@ function Post({ data, view }) {
             </> : <></> }
             { post.likes.length ? <Link className="faded" to={`/posts/${post._id}/likes`}> view all</Link> : <></> }<br/>
 
-            <p id="postCaption">{ post.caption }</p>
+            <p id="postCaption">{ post.caption }</p><br/>
 
-            {
-                post.comments.slice(Math.max(0, post.comments.length - 3), Math.max(0, post.comments.length))
-                .map(v => <Comment key={v._id} comment={v} updateComments={updateComments} />)
-            }<br/>
-            <Link to={`/posts/${post._id}/comments`} className="faded">view all comments</Link>
+            <Link to={`/posts/${post._id}/comments`} className="faded">view comments</Link>
         </div>
     </div>)
 }

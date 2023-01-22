@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UserContext from "../UserContext";
 import Reply from "./Reply";
@@ -8,10 +8,19 @@ import Like from "./Like";
 import TextPost from "./TextPost";
 import "../style/Comment.css";
 
-function Comment({ comment, updateComments, showReplies }) {
+function Comment({ commentProp }) {
     const [user, setUser] = useContext(UserContext);
-    const [replyCount, setReplyCount] = useState(3);
-    
+    const [comment, setComment] = useState(null);
+    const [replies, setReplies] = useState(null);
+
+    useEffect(() => setComment({ ...commentProp }), [commentProp]);
+
+    const getReplies = () => {
+        fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${comment._id}`)
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setReplies([...res.body]) : console.log(res.body))
+        .catch(err => console.log(err));
+    };
 
     const handleLike = () => {
         const req = {
@@ -24,24 +33,24 @@ function Comment({ comment, updateComments, showReplies }) {
         
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/like`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
+        .then(res => res.status === 200 ? setComment({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
 
-    const handleReply = newReply => {
+    const handleReply = reply => {
         const req = {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
-            body: JSON.stringify({ reply: newReply })
+            body: JSON.stringify({ text: reply })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/reply`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
+        .then(res => res.status === 200 ? setReplies([res.body, ...replies]) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -58,7 +67,7 @@ function Comment({ comment, updateComments, showReplies }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
+        .then(res => res.status === 200 ? setComment({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -74,11 +83,11 @@ function Comment({ comment, updateComments, showReplies }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
+        .then(res => res.status === 200 ? setComment(null) : console.log(res.body))
         .catch(err => console.log(err))
     };
 
-
+    if (!comment) return <></>;
     return (<div id="comment">
         <h3 id="header">
             <Link to={`/users/${comment.author}/profile`}>{ comment.author }</Link>
@@ -97,22 +106,11 @@ function Comment({ comment, updateComments, showReplies }) {
 
         <div id="text">{ comment.text }</div><br/>
         
-        { showReplies && comment.replies.length ? <>
-            <button
-                className="replyButton"
-                onClick={ () => setReplyCount(Math.max(0, replyCount - 3)) }
-            >show less</button>
-            <button
-                className="replyButton"
-                onClick={ () => setReplyCount(Math.min(replyCount + 3, comment.replies.length)) }
-            >show more</button>
-            {
-                comment.replies.slice(
-                    Math.max(0, comment.replies.length - replyCount),
-                    Math.max(0, comment.replies.length)
-                ).map(v => <Reply key={v._id} reply={v} updateComments={updateComments} />)
-            }
-        </> : <></> }
+        { replies === null ? (
+            <button onClick={getReplies}>show replies</button>
+        ) : (<>
+            { replies.map(v => <Reply key={v._id} replyProp={v} />) }
+        </>) }
     </div>);
 }
 

@@ -6,9 +6,11 @@ import Like from "./Like";
 import UserContext from "../UserContext";
 import "../style/Reply.css";
 
-function Reply({ reply, updateComments }) {
+function Reply({ replyProp }) {
     const [user, setUser] = useContext(UserContext);
+    const [reply, setReply] = useState(null);
 
+    useEffect(() => setReply({ ...replyProp }), [replyProp]);
 
     const handleLike = () => {
         const req = {
@@ -21,7 +23,7 @@ function Reply({ reply, updateComments }) {
         
         fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}/like`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
+        .then(res => res.status === 200 ? setReply({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -38,7 +40,7 @@ function Reply({ reply, updateComments }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
+        .then(res => res.status === 200 ? setReply({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -54,11 +56,12 @@ function Reply({ reply, updateComments }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${reply._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? updateComments(res.body) : console.log(res.body))
+        .then(res => res.status === 200 ? setReply(null) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
-
+    
+    if (!reply) return <></>;
     return (<div id="reply">
         <strong id="header">
             <Link to={`/users/${reply.author}/profile`}>{ reply.author }</Link>

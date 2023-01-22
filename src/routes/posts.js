@@ -86,30 +86,6 @@ function getPostsRouter(db, img) {
     });
 
 
-    // comment on a post
-    router.post("/:id/comment", requireLogin, async (req, res) => {
-        try {
-            const newComment = {
-                _id: db.objectId(),
-                author: req.user,
-                posted: Date.now(),
-                text: req.body.comment,
-                likes: [],
-                replies: []
-            };
-
-            await db.posts.updateOne(
-                { _id: req.params.id },
-                { $push: { comments: newComment } }
-            );
-            res.status(200).json(newComment);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
     // edit a post
     router.put("/:id", requireLogin, async (req, res) => {
         try {

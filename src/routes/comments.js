@@ -7,27 +7,11 @@ function getCommentsRouter(db) {
     const router = express.Router();
 
 
-    // like a comment
-    router.put("/:id/like", requireLogin, async (req, res) => {
+    // get comments for a post
+    router.get("/:id", async (req, res) => {
         try {
-            const id = db.objectId(req.params.id);
-            const post = await db.posts.findOne(
-                { "comments._id": id },
-                "comments.$"
-            );
-            if (!post) return res.status(404).json("comment not found");
-            
-            const liked = post.comments[0].likes.includes(req.user);
-            if (liked) post.comments[0].likes = post.comments[0].likes.filter(e => e !== req.user);
-            else post.comments[0].likes.push(req.user);
-
-            const newPost = await db.posts.findOneAndUpdate(
-                { "comments._id": id },
-                { $set: { "comments.$.likes": post.comments[0].likes } },
-                { new: true }
-            );
-            
-            res.status(200).json(newPost.comments);
+            const comments = await db.comments.find({ parent: req.params.id });
+            res.status(200).json(comments);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -35,24 +19,43 @@ function getCommentsRouter(db) {
     });
 
 
-    // reply to a comment
-    router.post("/:id/reply", requireLogin, async (req, res) => {
+    // create comment
+    router.post("/:id", requireLogin, async (req, res) => {
         try {
-            const newReply = {
-                _id: db.objectId(),
-                author: req.user,
-                posted: Date.now(),
-                text: req.body.reply,
-                likes: []
-            };
+            const post = await db.posts.findOne({ _id: req.params.id });
+            if (!post) return res.status(404).json("post not found");
 
-            const id = db.objectId(req.params.id);
-            const newPost = await db.posts.findOneAndUpdate(
-                { "comments._id": id },
-                { $push: { "comments.$.replies": newReply } },
-                { new : true }
+            const comment = await db.comments.create({
+                parent: req.params.id,
+                author: req.user,
+                text: req.body.text,
+            });
+            await comment.save();
+            
+            res.status(200).json(comment);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    });
+
+
+    // like a comment
+    router.put("/:id/like", requireLogin, async (req, res) => {
+        try {
+            const comment = await db.comments.findOne({ _id: req.params.id });
+            if (!comment) return res.status(404).json("comment not found");
+            
+            const liked = comment.likes.includes(req.user);
+            if (liked) comment.likes = comment.likes.filter(e => e !== req.user);
+            else comment.likes.push(req.user);
+
+            await db.comments.updateOne(
+                { _id: req.params.id },
+                { $set: { likes: comment.likes } }
             );
-            res.status(200).json(newPost.comments);
+            
+            res.status(200).json(comment);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -63,13 +66,13 @@ function getCommentsRouter(db) {
     // edit a comment
     router.put("/:id", requireLogin, async (req, res) => {
         try {
-            const id = db.objectId(req.params.id);
-            const newPost = await db.posts.findOneAndUpdate(
-                { comments: { $elemMatch: { _id: id, author: req.user } } },
-                { $set: { "comments.$.text": req.body.text } },
+            const comment = await db.comments.findOneAndUpdate(
+                { _id: req.params.id, author: req.user },
+                { $set: { text: req.body.text } },
                 { new: true }
             );
-            res.status(200).json(newPost.comments);
+            if (!comment) return res.status(404).json("comment not found");
+            res.status(200).json(comment);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -80,13 +83,9 @@ function getCommentsRouter(db) {
     // delete comment
     router.delete("/:id", requireLogin, async (req, res) => {
         try {
-            const id = db.objectId(req.params.id);
-            const newPost = await db.posts.findOneAndUpdate(
-                { comments: { $elemMatch: { _id: id, author: req.user } } },
-                { $pull: { comments: { _id: id } } },
-                { new: true }
-            );
-            res.status(200).json(newPost.comments);
+            const comment = await db.comments.findOneAndDelete({ _id: req.params.id, author: req.user });
+            if (!comment) return res.status(404).json("comment not found");
+            res.status(200).json(comment);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);

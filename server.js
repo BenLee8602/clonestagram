@@ -1,6 +1,6 @@
 require("dotenv").config();
 
-const db = require("./src/config/mongodb");
+const db = require("./src/config/db");
 const img = require("./src/config/s3");
 
 const createApp = require("./app");

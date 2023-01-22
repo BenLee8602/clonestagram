@@ -7,29 +7,55 @@ function getRepliesRouter(db) {
     const router = express.Router();
 
 
+    // get replies for a comment
+    router.get("/:id", async (req, res) => {
+        try {
+            const replies = await db.replies.find({ parent: req.params.id });
+            res.status(200).json(replies);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    });
+
+
+    // reply to a comment
+    router.post("/:id", requireLogin, async (req, res) => {
+        try {
+            const comment = db.comments.findOne({ _id: req.params.id });
+            if (!comment) return res.status(404).json("comment not found");
+
+            const reply = await db.replies.create({
+                parent: req.params.id,
+                author: req.user,
+                text: req.body.text,
+            });
+            await reply.save();
+
+            res.status(200).json(reply);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    });
+
+
     // like a reply
     router.put("/:id/like", requireLogin, async (req, res) => {
         try {
-            const id = db.objectId(req.params.id);
-            const post = await db.posts.findOne(
-                { "comments.replies._id": id },
-                "comments.$"
-            );
-            if (!post) return res.status(404).json("reply not found");
+            const reply = await db.replies.findOne({ _id: req.params.id });
+            if (!reply) return res.status(404).json("reply not found");
             
-            const i = post.comments[0].replies.map(r => r._id.toString()).indexOf(id.toString());
-            
-            const liked = post.comments[0].replies[i].likes.includes(req.user);
-            if (liked) post.comments[0].replies[i].likes = post.comments[0].replies[i].likes.filter(e => e !== req.user);
-            else post.comments[0].replies[i].likes.push(req.user);
-            
-            const newPost = await db.posts.findOneAndUpdate(
-                { "comments.replies._id": id },
-                { $set: { "comments.$.replies": post.comments[0].replies } },
-                { new: true }
-            );
+            const liked = reply.likes.includes(req.user);
+            if (liked) reply.likes = reply.likes.filter(e => e !== req.user);
+            else reply.likes.push(req.user);
 
-            res.status(200).json(newPost.comments);
+            await db.replies.updateOne(
+                { _id: req.params.id },
+                { $set: { likes: reply.likes } }
+            );
+            
+            res.status(200).json(reply);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -40,24 +66,13 @@ function getRepliesRouter(db) {
     // edit a reply
     router.put("/:id", requireLogin, async (req, res) => {
         try {
-            const id = db.objectId(req.params.id);
-            const post = await db.posts.findOne(
-                { "comments.replies": { $elemMatch: { _id: id, author: req.user } } },
-                "comments.$"
-            );
-            if (!post) return res.json({ success: false, msg: "reply not found" });
-            
-            const i = post.comments[0].replies.map(r => r._id.toString()).indexOf(id.toString());
-
-            post.comments[0].replies[i].text = req.body.text;
-
-            const newPost = await db.posts.findOneAndUpdate(
-                { "comments.replies": { $elemMatch: { _id: id, author: req.user } } },
-                { $set: { "comments.$.replies": post.comments[0].replies } },
+            const reply = await db.replies.findOneAndUpdate(
+                { _id: req.params.id, author: req.user },
+                { $set: { text: req.body.text } },
                 { new: true }
             );
-
-            res.status(200).json(newPost.comments);
+            if (!reply) return res.status(404).json("reply not found");
+            res.status(200).json(reply);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -68,13 +83,9 @@ function getRepliesRouter(db) {
     // delete a reply
     router.delete("/:id", requireLogin, async (req, res) => {
         try {
-            const id = db.objectId(req.params.id);
-            const newPost = await db.posts.findOneAndUpdate(
-                { "comments.replies": { $elemMatch: { _id: id, author: req.user } } },
-                { $pull: { "comments.$.replies": { _id: id } } },
-                { new: true }
-            );
-            res.status(200).json(newPost.comments);
+            const reply = await db.replies.findOneAndDelete({ _id: req.params.id, author: req.user });
+            if (!reply) return res.status(404).json("reply not found");
+            res.status(200).json(reply);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
