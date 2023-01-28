@@ -21,8 +21,10 @@ function getCommentsRouter(db) {
 
     // create comment
     router.post("/:id", requireLogin, async (req, res) => {
+        const text = req.body.text;
+        if (!text) return res.status(400).json("missing comment");
         try {
-            const post = await db.posts.findOne({ _id: req.params.id });
+            const post = await db.posts.findById(req.params.id);
             if (!post) return res.status(404).json("post not found");
 
             const comment = await db.comments.create({
@@ -40,21 +42,24 @@ function getCommentsRouter(db) {
     });
 
 
-    // like a comment
+    // like comment
     router.put("/:id/like", requireLogin, async (req, res) => {
         try {
-            const comment = await db.comments.findOne({ _id: req.params.id });
-            if (!comment) return res.status(404).json("comment not found");
-            
-            const liked = comment.likes.includes(req.user);
-            if (liked) comment.likes = comment.likes.filter(e => e !== req.user);
-            else comment.likes.push(req.user);
-
-            await db.comments.updateOne(
+            const comment = await db.comments.findOneAndUpdate(
                 { _id: req.params.id },
-                { $set: { likes: comment.likes } }
+                [{ $set: {
+                    likes: {
+                        $cond: {
+                            if: { $in: [req.user, "$likes"] },
+                            then: { $setDifference: ["$likes", [req.user]] },
+                            else: { $concatArrays:  ["$likes", [req.user]] }
+                        }
+                    }
+                } }],
+                { new: true }
             );
             
+            if (!comment) return res.status(404).json("comment not found");
             res.status(200).json(comment);
         } catch (err) {
             console.log(err);
@@ -63,12 +68,14 @@ function getCommentsRouter(db) {
     });
 
 
-    // edit a comment
+    // edit comment
     router.put("/:id", requireLogin, async (req, res) => {
+        const text = req.body.text;
+        if (!text) return res.status(400).send("new text missing");
         try {
             const comment = await db.comments.findOneAndUpdate(
                 { _id: req.params.id, author: req.user },
-                { $set: { text: req.body.text } },
+                { $set: { text: text } },
                 { new: true }
             );
             if (!comment) return res.status(404).json("comment not found");

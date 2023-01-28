@@ -14,7 +14,7 @@ function getPostsRouter(db, img) {
     // get all posts
     router.get("/", async (req, res) => {
         try {
-            const posts = await db.posts.find({}).sort({ posted: "desc" });
+            const posts = await db.posts.find({}, "-__v").sort({ posted: "desc" });
             for (let i = 0; i < posts.length; ++i)
                 posts[i].image = await img.getImage(posts[i].image);
             res.status(200).json(posts);
@@ -25,21 +25,13 @@ function getPostsRouter(db, img) {
     });
 
 
-    // create new post
-    router.post("/", requireLogin, upload.single("image"), async (req, res) => {
+    // get a post by id
+    router.get("/:id", async (req, res) => {
         try {
-            const imageName = img.generateImageName();
-
-            await img.putImage(imageName, req.file.buffer, req.file.mimetype);
-
-            const newPost = await db.posts.create({
-                author: req.user,
-                image: imageName,
-                caption: req.body.caption
-            });
-            await newPost.save();
-
-            res.status(200).json(newPost);
+            const post = await db.posts.findById(req.params.id, "-__v");
+            if (!post) return res.status(404).json("post not found");
+            post.image = await img.getImage(post.image);
+            res.status(200).json(post);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -47,13 +39,21 @@ function getPostsRouter(db, img) {
     });
 
 
-    // get a post by id
-    router.get("/:id", async (req, res) => {
+    // create new post
+    router.post("/", requireLogin, upload.single("image"), async (req, res) => {
+        const caption = req.body.caption || "";
         try {
-            const post = await db.posts.findById(req.params.id);
-            if (!post) return res.status(404).json("post not found");
-            post.image = await img.getImage(post.image);
-            res.status(200).json(post);
+            const imageName = img.generateImageName();
+            await img.putImage(imageName, req.file.buffer, req.file.mimetype);
+
+            const newPost = await db.posts.create({
+                author: req.user,
+                image: imageName,
+                caption: caption
+            });
+            await newPost.save();
+
+            res.status(200).json(newPost);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -77,7 +77,8 @@ function getPostsRouter(db, img) {
                 } }],
                 { new: true }
             );
-
+            
+            if (!post) return res.status(404).json("post not found");
             res.status(200).json(post.likes);
         } catch (err) {
             console.log(err);
@@ -88,13 +89,15 @@ function getPostsRouter(db, img) {
 
     // edit a post
     router.put("/:id", requireLogin, async (req, res) => {
+        const caption = req.body.caption;
+        if (!caption) return res.status(400).json("new caption missing");
         try {
-            const post = await db.posts.updateOne(
+            const post = await db.posts.findOneAndUpdate(
                 { _id: req.params.id, author: req.user },
-                { $set: { caption: req.body.caption } }
+                { $set: { caption: caption } }
             );
-            if (post) res.status(200).json(req.body.caption);
-            else res.status(400).json(req.body.caption);
+            if (!post) return res.status(404).json("post not found");
+            res.status(200).json(caption);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -108,7 +111,7 @@ function getPostsRouter(db, img) {
             const post = await db.posts.findOneAndDelete(
                 { _id: req.params.id, author: req.user },
             );
-            if (!post) res.status(404).json(req.params.id);
+            if (!post) return res.status(404).json(req.params.id);
             
             await img.deleteImage(post.image);
 

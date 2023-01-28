@@ -11,7 +11,7 @@ function NavigationBar() {
         const req = {
             method: "DELETE",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token: localStorage.getItem("refreshToken") })
+            body: JSON.stringify({ refreshToken: localStorage.getItem("refreshToken") })
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/logout`, req)

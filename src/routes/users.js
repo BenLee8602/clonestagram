@@ -26,6 +26,7 @@ function getUsersRouter(db, img) {
     router.post("/register", async (req, res) => {
         const name = req.body.name;
         const pass = req.body.pass;
+        if (!name || !pass) return res.status(400).json("missing username or password");
 
         try {
             const doc = await db.users.findOne({ name }, "-_id name");
@@ -51,6 +52,7 @@ function getUsersRouter(db, img) {
     router.post("/login", async (req, res) => {
         const name = req.body.name;
         const pass = req.body.pass;
+        if (!name || !pass) return res.status(400).json("missing username or password");
 
         try {
             const user = await db.users.findOne({ name: name });
@@ -69,8 +71,10 @@ function getUsersRouter(db, img) {
     });
 
 
+    // get new access token
     router.post("/refresh", async (req, res) => {
         const refreshToken = req.body.refreshToken;
+        if (!refreshToken) return res.status(400).json("missing refresh token");
         try {
             jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, token) => {
                 if (err) return res.status(401).json("invalid refresh token");
@@ -85,9 +89,10 @@ function getUsersRouter(db, img) {
     });
 
 
+    // logout user
     router.delete("/logout", async (req, res) => {
         try {
-            await db.tokens.deleteOne({ token: req.body.token });
+            await db.tokens.deleteOne({ token: req.body.refreshToken });
             res.status(200).json("logged out");
         } catch (err) {
             console.log(err);
@@ -96,13 +101,10 @@ function getUsersRouter(db, img) {
     });
 
 
-    router.get("/", requireLogin, (req, res) => {
-        res.status(200).json({ name: req.user });
-    });
-
-
     // get user data for each name in list
     router.post("/", async (req, res) => {
+        const names = req.body.names;
+        if (!names) return res.status(400).json("missing names list");
         try {
             const users = await db.users.find({ name: { $in: req.body.names } }, "-_id -pass -__v");
             for (let i = 0; i < users.length; ++i) users[i].pfp = await img.getImage(users[i].pfp);
@@ -121,18 +123,20 @@ function getUsersRouter(db, img) {
             if (!user) return res.status(404).json("user not found");
             user.pfp = await img.getImage(user.pfp);
 
-            const posts = await db.posts.find({ author: req.params.name }).sort({ posted: "desc" });
+            const posts = await db.posts.find({ author: req.params.name }, "-__v").sort({ posted: "desc" });
             for (let i = 0; i < posts.length; ++i)
                 posts[i].image = await img.getImage(posts[i].image);
 
-            const token = req.headers["authorization"].split(' ')[1];
-            var isThisUser = false;
-            var isFollowing = false;
-            jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
-                if (err) return;
-                isThisUser = data.user === req.params.name;
-                isFollowing = user.followers.includes(data.user);
-            });
+            let isThisUser = false;
+            let isFollowing = false;
+            if (req.headers["authorization"]) {
+                const token = req.headers["authorization"].split(' ')[1];
+                jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
+                    if (err) return;
+                    isThisUser = data.user === req.params.name;
+                    isFollowing = user.followers.includes(data.user);
+                });
+            }
 
             res.status(200).json({ user, posts, isThisUser, isFollowing });
         } catch (err) {
@@ -205,13 +209,14 @@ function getUsersRouter(db, img) {
 
     // edit the logged in user's profile
     router.put("/profile", requireLogin, upload.single("image"), async (req, res) => {
+        const nick = req.body.nick;
+        const bio = req.body.bio;
+        if (!nick || !bio) return res.status(400).json("missing nickname or bio");
+
         try {
             const user = await db.users.findOneAndUpdate(
                 { name: req.user },
-                { $set: {
-                    nick: req.body.nick,
-                    bio: req.body.bio
-                } },
+                { $set: { nick, bio } },
                 {
                     fields: { "_id": 0, "pass": 0, "__v": 0 },
                     new: true

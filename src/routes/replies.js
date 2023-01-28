@@ -19,10 +19,12 @@ function getRepliesRouter(db) {
     });
 
 
-    // reply to a comment
+    // create reply
     router.post("/:id", requireLogin, async (req, res) => {
+        const text = req.body.text;
+        if (!text) return res.status(400).send("missing reply text");
         try {
-            const comment = db.comments.findOne({ _id: req.params.id });
+            const comment = await db.comments.findById(req.params.id);
             if (!comment) return res.status(404).json("comment not found");
 
             const reply = await db.replies.create({
@@ -40,21 +42,24 @@ function getRepliesRouter(db) {
     });
 
 
-    // like a reply
+    // like reply
     router.put("/:id/like", requireLogin, async (req, res) => {
         try {
-            const reply = await db.replies.findOne({ _id: req.params.id });
-            if (!reply) return res.status(404).json("reply not found");
-            
-            const liked = reply.likes.includes(req.user);
-            if (liked) reply.likes = reply.likes.filter(e => e !== req.user);
-            else reply.likes.push(req.user);
-
-            await db.replies.updateOne(
+            const reply = await db.replies.findOneAndUpdate(
                 { _id: req.params.id },
-                { $set: { likes: reply.likes } }
+                [{ $set: {
+                    likes: {
+                        $cond: {
+                            if: { $in: [req.user, "$likes"] },
+                            then: { $setDifference: ["$likes", [req.user]] },
+                            else: { $concatArrays:  ["$likes", [req.user]] }
+                        }
+                    }
+                } }],
+                { new: true }
             );
             
+            if (!reply) return res.status(404).json("reply not found");
             res.status(200).json(reply);
         } catch (err) {
             console.log(err);
@@ -63,12 +68,14 @@ function getRepliesRouter(db) {
     });
 
 
-    // edit a reply
+    // edit reply
     router.put("/:id", requireLogin, async (req, res) => {
+        const text = req.body.text;
+        if (!text) return res.status(400).send("new text missing");
         try {
             const reply = await db.replies.findOneAndUpdate(
                 { _id: req.params.id, author: req.user },
-                { $set: { text: req.body.text } },
+                { $set: { text: text } },
                 { new: true }
             );
             if (!reply) return res.status(404).json("reply not found");
@@ -80,7 +87,7 @@ function getRepliesRouter(db) {
     });
 
 
-    // delete a reply
+    // delete reply
     router.delete("/:id", requireLogin, async (req, res) => {
         try {
             const reply = await db.replies.findOneAndDelete({ _id: req.params.id, author: req.user });
