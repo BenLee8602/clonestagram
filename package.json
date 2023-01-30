@@ -6,7 +6,8 @@
   "scripts": {
     "test": "jest --runInBand",
     "devStart": "nodemon server.js",
-    "build": "npm i && npm i dotenv && cd client && npm run build"
+    "build": "npm i && cd client && npm run build",
+    "start": "node server.js"
   },
   "author": "",
   "license": "ISC",
