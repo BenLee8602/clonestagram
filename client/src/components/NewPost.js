@@ -1,7 +1,9 @@
 import React, { useContext, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import UserContext from "../UserContext";
-import "../style/NewPost.css";
+
+import "../style/content.css";
+import "../style/Login.css";
 
 function NewPost() {
     const Navigate = useNavigate();
@@ -28,11 +30,11 @@ function NewPost() {
         .catch(err => console.log(err));
     };
 
-    return (<div id="newPost" className="tile padded">
+    return (<div id="login" className="content">
         <h1>new post</h1>
-        <input type="file" name="image" onChange={ e => setImage(e.target.files ? e.target.files[0] : null) } /><br/>
-        <input type="text" placeholder="caption" onChange={ e => setCaption(e.target.value) } /><br/>
-        <button className="active" onClick={ handleSubmit }>Submit</button>
+        <input type="file" name="image" onChange={ e => setImage(e.target.files ? e.target.files[0] : null) } />
+        <input type="text" placeholder="caption" onChange={ e => setCaption(e.target.value) } />
+        <button onClick={ handleSubmit }>Submit</button>
     </div>);
 }
 

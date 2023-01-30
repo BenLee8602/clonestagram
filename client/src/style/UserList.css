@@ -1,0 +1,32 @@
+.userlist-item {
+    width: 800px;
+    height: 80px;
+    margin: auto;
+    margin-top: 10px;
+    background-color: white;
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    text-decoration: none;
+    color: black;
+}
+
+.userlist-item .userlist-item-img {
+    display: inline-block;
+    width: 80px;
+    height: 80px;
+}
+
+.userlist-item .userlist-item-text {
+    padding-left: 20px;
+}
+
+.userlist-item .userlist-item-nick {
+    font-size: 24px;
+    font-weight: bolder;
+}
+
+.userlist-item .userlist-item-name {
+    color: #999;
+}

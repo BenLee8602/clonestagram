@@ -1,38 +1,73 @@
-#postHeader, #postBody {
-    margin: 0;
-    padding: 1vw;
+.post {
+    background-color: white;
+    width: 600px;
+    margin: auto;
+    margin-top: 20px;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
-#postImage {
-    width: 50vw;
+.post .post-image {
+    width: 600px;
 }
 
-#postCaption {
-    white-space: pre-wrap;
-}
-
-#postAuthorControls {
-    display: inline;
-    float: right;
-}
-
-#postMini {
-    height: 10vw;
-}
-
-#postMini #image {
-    width: 10vw;
-    height: 10vw;
-}
-
-#postMini #content {
+.post .post-actions {
     display: inline-block;
-    vertical-align: middle;
-    transform: translateY(-5vw);
-    padding-left: 1vw;
+    width: 40px;
+    height: 160px;
 }
 
-#allComments {
-    width: 48vw;
-    padding: 1vw;
+.post .post-actions button {
+    text-decoration: none;
+    border: none;
+    background-color: white;
+    width: 40px;
+    height: 40px;
+}
+
+.post .post-actions button:hover {
+    background-color: #eee;
+}
+
+.post .post-body {
+    display: inline-block;
+    vertical-align: top;
+    width: 536px;
+    padding: 10px;
+}
+
+.post .post-body .post-body-button {
+    text-decoration: none;
+    border: none;
+    background-color: black;
+    color: white;
+    height: 20px;
+}
+
+.post .post-body .post-body-input {
+    height: 16px;
+    border: none;
+}
+
+.post .post-author {
+    text-decoration: none;
+    color: black;
+    font-size: 20px;
+    font-weight: bolder;
+}
+
+.post .post-date {
+    color: #444;
+    font-size: 12px;
+    font-weight: lighter;
+    margin: 0px;
+}
+
+.post .post-caption {
+    font-size: 16px;
+}
+
+.post .post-comments {
+    max-height: 200px;
+    overflow: auto;
 }

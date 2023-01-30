@@ -1,35 +1,84 @@
-#profilenav {
-    height: 15vw;
+.profile {
+    width: 800px;
+    margin: auto;
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
-#pfp {
-    width: 15vw;
-    height: 15vw;
+.profile .profile-img {
+    display: block;
+    width: 320px;
+    height: 320px;
 }
 
-#profilenav button {
-    margin: 1.5vw;
-    width: 8vw;
-    height: 8vw;
-    transform: translateY(-8.5vw);
-    border-bottom: 2px;
-    border-color: 0xffffff;
-}
-
-#editprofile, #follow {
+.profile .profile-col1 {
     display: inline-block;
-    width: 15vw;
-    text-align: center;
-    background-color: rgb(75, 68, 64);
-    margin-top: 4px;
-    padding: 0.4vw 0px;
+    vertical-align: top;
+    width: 320px;
 }
 
-#bio {
+.profile .profile-col2 {
+    display: inline-block;
+    vertical-align: top;
+    width: 480px;
+}
+
+.profile .profile-switch {
+    border: none;
+    background-color: white;
+    width: 160px;
+    height: 160px;
+    display: inline-block;
+    vertical-align: top;
+}
+
+.profile .profile-switch:hover {
+    background-color: #eee;
+}
+
+.profile .profile-switch .profile-switch-title {
+    font-size: 20px;
+    margin: 0px;
+}
+
+.profile .profile-switch .profile-switch-subtitle {
+    font-size: 32px;
+    font-weight: bolder;
+    margin: 0px;
+}
+
+.profile .profile-name {
+    padding-left: 20px;
+}
+
+.profile .profile-nick {
+    padding-left: 20px;
+}
+
+.profile .profile-bio {
+    padding-left: 20px;
     white-space: pre-wrap;
 }
 
-.postview {
-    margin: 0;
-    width: 25vw;
+.profile .profile-under-pfp {
+    display: inline-block;
+    text-decoration: none;
+    border: none;
+    padding: 0px;
+    margin: 0px;
+    background-color: black;
+    color: white;
+    width: 320px;
+    line-height: 32px;
+    text-align: center;
+    border-radius: 0px 0px 4px 0px;
+}
+
+.profile .profile-post {
+    display: inline-block;
+    width: 266.666666px;
+    height: 266.666666px;
+    border: 1px solid black;
 }

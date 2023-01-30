@@ -1,18 +1,57 @@
-#reply {
-    padding-left: 2vw;
-    margin-top: 1vw;
+.reply {
+    margin-top: 8px;
+    display: inline-block;
+    width: 92%;
+    padding-left: 8%;
 }
 
-#reply #header {
-    display: inline;
+.reply-modify {
+    margin-top: 8px;
+    padding: 8px 0px 8px 8%;
+    width: 92%;
 }
 
-#reply #controls {
-    display: inline;
+.reply-modify button {
+    border: none;
+    background-color: black;
+    color: white;
+}
+
+.reply-modify input {
+    border: none;
+}
+
+.reply .reply-body {
+    float: left;
+}
+
+.reply .reply-author {
+    text-decoration: none;
+    color: black;
+}
+
+.reply .reply-date {
+    color: #888;
+    font-size: 12px;
+    font-weight: lighter;
+}
+
+.reply .reply-text {
+    font-weight: lighter;
+    font-size: 14px;
+}
+
+.reply .reply-actions {
     float: right;
+    margin-top: 10px;
 }
 
-#reply #text {
-    display: inline;
-    white-space: pre-wrap;
+.reply .reply-actions button {
+    border: none;
+    background-color: white;
+    color: black;
+}
+
+.reply .reply-actions button:hover {
+    background-color: #eee;
 }

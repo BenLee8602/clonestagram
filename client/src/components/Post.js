@@ -1,38 +1,40 @@
-import React, { Fragment as Frag, useContext, useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import UserContext from "../UserContext";
 import Comment from "./Comment";
-import Delete from "./Delete";
-import Editable from "./Editable";
-import Like from "./Like";
-import TextPost from "./TextPost";
-import UserList from "./UserList";
-import "../index.css";
+
+import "../style/content.css";
 import "../style/Post.css";
 
-function Post({ data, view }) {
+function Post({ data }) {
     const [user, setUser] = useContext(UserContext);
-    const [post, setPost] = useState({ ...data });
-    const [error, setError] = useState("loading");
+    const [post, setPost] = useState(null);
+    const [view, setView] = useState("default");
+    const [input, setInput] = useState("");
+    const [comments, setComments] = useState(null);
 
     
     const id = useParams().id;
     
     useEffect(() => {
         if (!id) {
-            setError(null);
+            setPost({ ...data });
             return;
         }
-        
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${id}`)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => {
-            if (res.status !== 200) return setError(res.body);
-            setPost(res.body);
-            setError(null);
-        })
+        .then(res => setPost(res.body))
         .catch(err => console.log(err));
     }, [id]);
+
+
+    useEffect(() => {
+        if (view !== "comment") return;
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${post._id}`)
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setComments([...res.body]) : console.log(res.body))
+        .catch(err => console.log(err));
+    }, [view]);
 
 
     const handleLike = () => {
@@ -51,24 +53,47 @@ function Post({ data, view }) {
     };
 
 
-    const handleEdit = caption => {
+    const handleComment = () => {
+        const req = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + localStorage.getItem("accessToken")
+            },
+            body: JSON.stringify({ text: input })
+        };
+
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${post._id}`, req)
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setComments([res.body, ...comments]) : console.log(res.body))
+        .catch(err => console.log(err));
+
+        setInput("");
+    };
+
+
+    const handleEdit = () => {
         const req = {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
-            body: JSON.stringify({ caption })
+            body: JSON.stringify({ caption: input })
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setPost({ ...post, caption: res.body }) : console.log(res.body))
         .catch(err => console.log(err));
+
+        setView("default");
     };
 
 
     const handleDelete = () => {
+        if (input !== user) return;
+
         const req = {
             method: "DELETE",
             headers: {
@@ -79,62 +104,44 @@ function Post({ data, view }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setError("post deleted") : console.log(res.body))
+        .then(res => setPost(null))
         .catch(err => console.log(err));
     };
 
-
-    const updateComments = newComments => {
-        setPost({ ...post, comments: [...newComments] });
-    };
     
-    
-    if (error) return <h3>{ error }</h3>;
+    if (!post) return <></>;
 
-    if (view === "mini") return (<div id= "postMini" className="tile">
-        <Link to={`/posts/${post._id}`}><img id="image" src={ post.image } alt="image not found" /></Link>
-        <div id="content">
-            <h3>
-                <Link to={`/users/${post.author}/profile`}>{ post.author }</Link>{"  "}
-                <span className="faded">{ new Date(post.posted).toLocaleString() }</span>
-            </h3>
-            <p id="caption">{ post.caption }</p>
+    return (<div className="post">
+        <Link to={`/posts/${post._id}`}><img src={ post.image } className="post-image"/></Link>
+        <div className="post-actions">
+            <button onClick={handleLike}>{ post.likes.length }{ " ♥" }</button>
+            <button onClick={ () => setView(view === "comment" ? "default" : "comment") }>🗨</button>
+            { post.author === user ? <>
+                <button onClick={ () => setView(view === "edit" ? "default" :  "edit") }>✎</button>
+                <button onClick={ () => setView(view === "delete" ? "default" :  "delete") }>🗑</button>
+            </> : <></> }
+        </div>
+        <div className="post-body">
+            { view === "default" ? <>
+                <Link to={`/users/${post.author}/profile`} className="post-author">{ post.author }</Link>
+                <p className="post-date">{ new Date(post.posted).toLocaleString() }</p>
+                <p className="post-caption">{ post.caption }</p>
+            </> : <></> }
+            { view === "comment" ? <>
+                <input type="text" placeholder="add a comment" onChange={ e => setInput(e.target.value) } className="post-body-input" />
+                <button onClick={handleComment} className="post-body-button">done</button>
+                { comments ? <div className="post-comments">{ comments.map(v => <Comment key={v._id} data={v} />) }</div> : <></> }
+            </> : <></> }
+            { view === "edit" ? <>
+                <input type="text" placeholder="new caption" onChange={ e => setInput(e.target.value) } className="post-body-input" />
+                <button onClick={handleEdit} className="post-body-button">done</button>
+            </> : <></> }
+            { view === "delete" ? <>
+                <input type="text" placeholder="enter username to confirm" onChange={ e => setInput(e.target.value) } className="post-body-input" />
+                <button onClick={handleDelete} className="post-body-button">delete</button>
+            </> : <></> }
         </div>
     </div>);
-
-    if (view === "likes") return <UserList names={ post.likes } />;
-
-    return (<div className="tile">
-        <h3 id="postHeader">
-            <Link to={`/users/${post.author}/profile`}>{ post.author }</Link>{"  "}
-            <span className="faded">{ new Date(post.posted).toLocaleString() }</span>
-        </h3>
-
-        <Link to={`/posts/${post._id}`}><img id="postImage" src={ post.image } alt="image not found" /></Link><br/>
-
-        <div id="postBody">
-            <Like likes={ post.likes } handleLike={ handleLike } />
-            { post.author === user ? (<div id="postAuthorControls">
-                <Editable value={ post.caption } handleSubmit={ handleEdit } />
-                <Delete handleDelete={ handleDelete } />
-            </div>) : <></> }<br/>
-
-            { post.likes.length ? <>
-                { "liked by: " }
-                { post.likes.length > 1 ? <>
-                    { post.likes.slice(Math.max(0, post.likes.length - 3), Math.max(0, post.likes.length - 1))
-                    .map((v, i) => <Frag key={i}><Link to={`/users/${v}/profile`}>{v}</Link>, </Frag>) }
-                    { " and " }
-                </> : <></> }
-                <Link to={`/users/${post.likes[post.likes.length - 1]}/profile`}>{post.likes[post.likes.length - 1]}</Link>
-            </> : <></> }
-            { post.likes.length ? <Link className="faded" to={`/posts/${post._id}/likes`}> view all</Link> : <></> }<br/>
-
-            <p id="postCaption">{ post.caption }</p><br/>
-
-            <Link to={`/posts/${post._id}/comments`} className="faded">view comments</Link>
-        </div>
-    </div>)
 }
 
 export default Post;

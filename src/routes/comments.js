@@ -60,7 +60,7 @@ function getCommentsRouter(db) {
             );
             
             if (!comment) return res.status(404).json("comment not found");
-            res.status(200).json(comment);
+            res.status(200).json(comment.likes);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);

@@ -2,25 +2,28 @@ import React, { useContext, useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import UserContext from "../UserContext";
 import Reply from "./Reply";
-import Delete from "./Delete";
-import Editable from "./Editable";
-import Like from "./Like";
-import TextPost from "./TextPost";
+
 import "../style/Comment.css";
 
-function Comment({ commentProp }) {
+
+function Comment({ data }) {
     const [user, setUser] = useContext(UserContext);
     const [comment, setComment] = useState(null);
     const [replies, setReplies] = useState(null);
+    const [view, setView] = useState(null);
+    const [input, setInput] = useState("");
 
-    useEffect(() => setComment({ ...commentProp }), [commentProp]);
 
-    const getReplies = () => {
+    useEffect(() => setComment({ ...data }), [data]);
+
+    useEffect(() => {
+        if (view !== "reply") return;
         fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${comment._id}`)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setReplies([...res.body]) : console.log(res.body))
         .catch(err => console.log(err));
-    };
+    }, [view]);
+
 
     const handleLike = () => {
         const req = {
@@ -33,42 +36,46 @@ function Comment({ commentProp }) {
         
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/like`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setComment({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? setComment({ ...comment, likes: res.body }) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
 
-    const handleReply = reply => {
+    const handleReply = () => {
         const req = {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
-            body: JSON.stringify({ text: reply })
+            body: JSON.stringify({ text: input })
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setReplies([res.body, ...replies]) : console.log(res.body))
         .catch(err => console.log(err));
+
+        setView(null);
     };
 
 
-    const handleEdit = text => {
+    const handleEdit = () => {
         const req = {
             method: "PUT",
             headers: {
                 "Content-Type": "application/json",
                 "Authorization": "Bearer " + localStorage.getItem("accessToken")
             },
-            body: JSON.stringify({ text })
+            body: JSON.stringify({ text: input })
         };
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setComment({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
+
+        setView(null);
     };
 
 
@@ -84,33 +91,46 @@ function Comment({ commentProp }) {
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setComment(null) : console.log(res.body))
-        .catch(err => console.log(err))
+        .catch(err => console.log(err));
     };
 
+
     if (!comment) return <></>;
-    return (<div id="comment">
-        <h3 id="header">
-            <Link to={`/users/${comment.author}/profile`}>{ comment.author }</Link>
-            {"  "}
-            <span className="faded">{ new Date(comment.posted).toLocaleString() }</span>
-        </h3>
+    
+    if (view === "reply") return (<div className="comment-modify">
+        <input type="text" placeholder="new reply" onChange={ e => setInput(e.target.value) } />
+        <button onClick={ () => setView(null) }>✕</button>
+        <button onClick={handleReply}>✓</button>
+        { replies ? <div className="comment-replies">{ replies.map(v => <Reply key={v._id} data={v} />) }</div> : <></> }
+    </div>);
 
-        <div id="controls">
-            <Like likes={ comment.likes } handleLike={ handleLike } />
-            <TextPost handlePost={ handleReply } display="reply" />
-            { comment.author === user ? (<>
-                <Editable value={ comment.text } handleSubmit={ handleEdit } />
-                <Delete handleDelete={ handleDelete } />
-            </>) : <></> }<br/>
-        </div><br/>
+    if (view === "edit") return (<div className="comment-modify">
+        <input type="text" placeholder="new comment text" onChange={ e => setInput(e.target.value) } />
+        <button onClick={ () => setView(null) }>✕</button>
+        <button onClick={handleEdit}>✓</button>
+    </div>);
 
-        <div id="text">{ comment.text }</div><br/>
-        
-        { replies === null ? (
-            <button onClick={getReplies}>show replies</button>
-        ) : (<>
-            { replies.map(v => <Reply key={v._id} replyProp={v} />) }
-        </>) }
+    if (view === "delete") return (<div className="comment-modify">
+        <input type="text" placeholder="enter username to confirm" onChange={ e => setInput(e.target.value) } />
+        <button onClick={ () => setView(null) }>✕</button>
+        <button onClick={handleDelete}>✓</button>
+    </div>);
+
+    return (<div className="comment">
+        <div className="comment-body">
+            <Link to={`/users/${comment.author}/profile`} className="comment-author">{ comment.author }</Link>
+            <span className="comment-date">{ new Date(comment.posted).toLocaleString() }</span><br/>
+            { comment.text }
+        </div>
+        <div className="comment-actions">
+            { comment.likes.length }
+            <button onClick={handleLike}>{ " ♥" }</button>
+            <button onClick={ () => setView("reply") }>🗨</button>
+            { comment.author === user ? <>
+                <button onClick={ () => setView("edit") }>✎</button>
+                <button onClick={ () => setView("delete") }>🗑</button>
+            </> : <></> }
+        </div>
     </div>);
 }
 

@@ -1,9 +1,0 @@
-#editProfile input {
-    width: 47vw;
-}
-
-#editProfile textarea {
-    resize: vertical;
-    width: 47vw;
-    height: 256px;
-}

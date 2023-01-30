@@ -16,7 +16,7 @@ function Home() {
         .catch(err => console.log(err));
     }, []);
 
-    if (!allPosts) return <h1 className="tile padded">{ msg }</h1>
+    if (!allPosts) return <h1>{ msg }</h1>
     return <>{ allPosts.map((v, i) => <Post key={ i } data={ v } />) }</>;
 }
 

@@ -60,7 +60,7 @@ function getRepliesRouter(db) {
             );
             
             if (!reply) return res.status(404).json("reply not found");
-            res.status(200).json(reply);
+            res.status(200).json(reply.likes);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);

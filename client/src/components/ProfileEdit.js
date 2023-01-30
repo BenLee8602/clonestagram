@@ -1,13 +1,17 @@
 import React, { useContext, useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import Delete from "./Delete";
 import UserContext from "../UserContext";
-import "../style/ProfileEdit.css";
+
+import "../style/content.css";
+import "../style/Login.css";
+
 
 function ProfileEdit() {
     const Navigate = useNavigate();
     const [user, setUser] = useContext(UserContext);
     const [profile, setProfile] = useState(null);
+    const [deleting, setDeleting] = useState(false);
+    const [input, setInput] = useState("");
 
     const [pfp, setPfp] = useState("");
     const [nick, setNick] = useState("");
@@ -58,6 +62,8 @@ function ProfileEdit() {
 
 
     const handleDelete = async () => {
+        if (input !== user) return;
+
         const req = {
             method: "DELETE",
             headers: {
@@ -79,8 +85,8 @@ function ProfileEdit() {
     };
 
 
-    if (!profile) return (<div className="content"><h1>loading</h1></div>);
-    return (<div id="editProfile" className="tile padded">
+    if (!profile) return (<div><h1>loading</h1></div>);
+    return (<div className="content" id="login">
         <input
             type="file"
             name="image"
@@ -97,13 +103,14 @@ function ProfileEdit() {
             defaultValue={ profile.bio }
             onChange={ e => setBio(e.target.value) }
         /><br/>
-        <button className="active" onClick={ handleSubmit }>submit</button><br/><br/>
+        <button onClick={ handleSubmit }>submit</button><br/><br/>
 
-        <span className="faded">
-            deleting your account removes all your posts, comments, etc.<br/>
-            it cannot be undone!
-        </span><br/><br/>
-        <Delete handleDelete={handleDelete}/>
+        { deleting ? <>
+            <span>deleting your account removes all your posts, comments, etc. it cannot be undone!</span>
+            <input type="text" placeholder="enter username to confirm" onChange={ e => setInput(e.target.value) } />
+            <button onClick={ () => setDeleting(false) }>cancel</button>
+            <button onClick={handleDelete}>confirm</button>
+        </> : <button onClick={ () => setDeleting(true) }>delete account</button> }
     </div>);
 }
 

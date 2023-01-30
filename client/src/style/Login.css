@@ -1,0 +1,24 @@
+#login {
+    width: 380px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+#login h1 {
+    text-align: center;
+    margin: 0px 0px 10px 0px;
+}
+
+#login input {
+    width: 374px;
+}
+
+#login textarea {
+    resize: vertical;
+    width: 374px;
+}
+
+#login button {
+    width: 156px;
+    margin: 0px 112px;
+}

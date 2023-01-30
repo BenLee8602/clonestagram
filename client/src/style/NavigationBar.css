@@ -1,31 +1,46 @@
+#navspacer {
+    height: 51.2px;
+}
+
 nav {
-    background-color: rgb(54, 49, 47);
+    background-color: black;
+    width: 100vw;
+    position: fixed;
+    overflow: hidden;
+    top: 0;
+    left: 0;
 }
 
 nav ul {
     list-style-type: none;
-    width: 50vw;
+    width: 1000px;
     margin: auto;
     padding: 0;
-    overflow: hidden;
 }
 
 nav li {
     float: left;
+}
+
+nav li .navitem {
     display: block;
-    font-size: larger;
-    padding: 0.5vw 1.5vw 0.5vw 1.5vw;
+    color: white;
+    text-align: center;
+    padding: 16px;
+    text-decoration: none;
+    background-color: black;
+    font-size: 16px;
+    border: 0;
 }
 
-.navActive {
-    list-style-position: inside;
-    border-bottom: 4px solid rgb(210, 0, 190);
+nav li .navitem:hover {
+    background-color: #00322A;
 }
 
-nav .left {
-    float: left;
+nav li #title {
+    padding: 12px;
 }
 
-nav .right {
-    float: right;
+nav li h1 {
+    margin: 0;
 }

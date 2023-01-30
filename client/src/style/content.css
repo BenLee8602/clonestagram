@@ -1,0 +1,33 @@
+.content {
+    background-color: white;
+    margin: 20px;
+    padding: 20px;
+    border-radius: 4px;
+}
+
+.content input {
+    margin: 2px 0px;
+    border: 1px solid black;
+    border-radius: 4px;
+    height: 24px;
+    font-size: 16px;
+}
+
+.content textarea {
+    margin: 2px 0px;
+    border: 1px solid black;
+    border-radius: 4px;
+    height: 100px;
+    font-size: 16px;
+    font-family: Helvetica, sans-serif;
+    white-space: pre-wrap;
+}
+
+.content button {
+    border: none;
+    background-color: black;
+    color: white;
+    height: 24px;
+    font-size: 16px;
+    border-radius: 4px;
+}

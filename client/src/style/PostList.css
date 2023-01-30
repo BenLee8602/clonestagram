@@ -1,0 +1,16 @@
+.postlist {
+    width: 800px;
+    margin: auto;
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: auto auto auto;
+    background-color: white;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.postlist-image {
+    object-fit: cover;
+    width: 266.666667px;
+    height: 266.666667px;
+}

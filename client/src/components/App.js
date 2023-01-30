@@ -13,7 +13,6 @@ import Register from "./Register";
 import NewPost from "./NewPost";
 import Search from "./Search";
 import Post from "./Post";
-import CommentSection from "./CommentSection";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -59,8 +58,6 @@ function App() {
                     <Route path="/users/:name/profile" element={ <Profile/> } />
                     <Route path="/search" element={ <Search/> } />
                     <Route path="/posts/:id" element={ <Post/> } />
-                    <Route path="/posts/:id/likes" element={ <Post view="likes" /> } />
-                    <Route path="/posts/:id/comments" element={ <CommentSection/> } />
                     <Route element={ <ProtectedRoute authorized={ !!user } /> }>
                         <Route path="/newpost" element={ <NewPost/> } />
                         <Route path="/edit/profile" element={ <ProfileEdit/> } />

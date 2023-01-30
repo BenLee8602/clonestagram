@@ -1,20 +1,43 @@
-#search #bar {
-    width: 37.8vw;
-    margin-right: 0.5vw;
-    margin-bottom: 1vw;
+.search {
+    width: 800px;
+    margin: auto;
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 4px;
+    overflow: hidden;
 }
 
-#search #go {
-    width: 8vw;
-    margin-left: 0.5vw;
+.search .search-bar {
+    border: none;
+    padding: 0px;
+    margin: 0px;
+    width: 600px;
+    height: 32px;
+    font-size: 18px;
 }
 
-#search #showUsers {
-    margin: 0;
-    width: 24vw;
+.search .search-button {
+    text-decoration: none;
+    border: none;
+    display: inline-block;
+    width: 200px;
+    height: 32px;
+    background-color: black;
+    color: white;
+    font-size: 18px;
 }
 
-#search #showPosts {
-    margin: 0;
-    width: 24vw;
+.search .search-switch {
+    border: none;
+    margin: 0px;
+    padding: 0px;
+    width: 400px;
+    height: 32px;
+    background-color: white;
+    color: black;
+}
+
+.search #search-switch-active {
+    background-color: black;
+    color: white;
 }
