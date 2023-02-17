@@ -9,7 +9,7 @@
     overflow: hidden;
 }
 
-.postlist-image {
+.postlist-image, .postlist a {
     object-fit: cover;
     width: 266.666667px;
     height: 266.666667px;

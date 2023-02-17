@@ -52,7 +52,7 @@ function Profile() {
     return (<>
         <div className="profile">
             <div className="profile-col1">
-                <img src={ profile.user.pfp ? profile.user.pfp : "/default_pfp.png" } alt="pfp" className="profile-img"/>
+                <img src={ profile.user.pfp ? profile.user.pfp : "/icons/user.png" } alt="pfp" className="profile-img"/>
                 { profile.user.name === user ? (
                     <Link to="/edit/profile" className="profile-under-pfp">edit profile</Link>
                 ) : (<button id="follow" onClick={ handleFollow } className="profile-under-pfp">

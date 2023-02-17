@@ -6,7 +6,7 @@
   "scripts": {
     "test": "jest --runInBand",
     "devStart": "nodemon server.js",
-    "build": "npm i",
+    "build": "npm i && npm run build --prefix client",
     "start": "node server.js"
   },
   "author": "",

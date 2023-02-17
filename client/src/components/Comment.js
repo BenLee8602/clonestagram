@@ -80,6 +80,8 @@ function Comment({ data }) {
 
 
     const handleDelete = () => {
+        if (input !== user) return;
+
         const req = {
             method: "DELETE",
             headers: {
@@ -123,12 +125,14 @@ function Comment({ data }) {
             { comment.text }
         </div>
         <div className="comment-actions">
-            { comment.likes.length }
-            <button onClick={handleLike}>{ " ♥" }</button>
-            <button onClick={ () => setView("reply") }>🗨</button>
+            <span className="comment-likes-count">{ comment.likes.length }</span>
+            <button onClick={handleLike} className={ comment.likes.includes(user) ? "comment-action-active" : "" }>
+                <img src={ comment.likes.includes(user) ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
+            </button>
+            <button onClick={ () => setView("reply") }><img src="/icons/comment.png" alt="comment" /></button>
             { comment.author === user ? <>
-                <button onClick={ () => setView("edit") }>✎</button>
-                <button onClick={ () => setView("delete") }>🗑</button>
+                <button onClick={ () => setView("edit") }><img src="/icons/edit.png" alt="edit" /></button>
+                <button onClick={ () => setView("delete") }><img src="/icons/delete.png" alt="delete" /></button>
             </> : <></> }
         </div>
     </div>);
