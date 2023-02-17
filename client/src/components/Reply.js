@@ -50,6 +50,8 @@ function Reply({ data }) {
 
 
     const handleDelete = () => {
+        if (input !== user) return;
+
         const req = {
             method: "DELETE",
             headers: {
@@ -86,11 +88,13 @@ function Reply({ data }) {
             <span className="reply-text">{ reply.text }</span>
         </div>
         <div className="reply-actions">
-            { reply.likes.length }
-            <button onClick={handleLike}>{ " ♥" }</button>
+            <span className="reply-likes-count">{ reply.likes.length }</span>
+            <button onClick={handleLike} className={ reply.likes.includes(user) ? "reply-action-active" : "" }>
+                <img src={ reply.likes.includes(user) ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
+            </button>
             { reply.author === user ? <>
-                <button onClick={ () => setView("edit") }>✎</button>
-                <button onClick={ () => setView("delete") }>🗑</button>
+                <button onClick={ () => setView("edit") }><img src="/icons/edit.png" alt="edit" /></button>
+                <button onClick={ () => setView("delete") }><img src="/icons/delete.png" alt="delete" /></button>
             </> : <></> }
         </div>
     </div>);

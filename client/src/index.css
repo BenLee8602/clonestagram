@@ -5,5 +5,6 @@ html {
 body {
     width: 1000px;
     margin: auto;
-    background-color: #00c8aa;
+    background-image: url("../public/background.svg");
+    background-size: cover;
 }

@@ -10,6 +10,6 @@ RUN npm i
 RUN npm i --prefix client
 
 COPY . ./
-RUN npm run build --prefix client
+RUN npm run build2 --prefix client
 
 CMD ["npm", "start"]
