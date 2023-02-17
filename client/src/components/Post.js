@@ -112,19 +112,30 @@ function Post({ data }) {
     if (!post) return <></>;
 
     return (<div className="post">
-        <Link to={`/posts/${post._id}`}><img src={ post.image } className="post-image"/></Link>
+        <Link to={`/posts/${post._id}`} className="post-image-link">
+            <img src={ post.image } className="post-image"/>
+        </Link>
         <div className="post-actions">
-            <button onClick={handleLike}>{ post.likes.length }{ " ♥" }</button>
-            <button onClick={ () => setView(view === "comment" ? "default" : "comment") }>🗨</button>
+            <button onClick={handleLike} className={ post.likes.includes(user) ? "post-action-active" : "" }>
+                <img src={ post.likes.includes(user) ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
+            </button>
+            <button onClick={ () => setView(view === "comment" ? "default" : "comment") }>
+                <img src="/icons/comment.png" alt="comment" />
+            </button>
             { post.author === user ? <>
-                <button onClick={ () => setView(view === "edit" ? "default" :  "edit") }>✎</button>
-                <button onClick={ () => setView(view === "delete" ? "default" :  "delete") }>🗑</button>
+                <button onClick={ () => setView(view === "edit" ? "default" :  "edit") }>
+                    <img src="/icons/edit.png" alt="edit" />
+                </button>
+                <button onClick={ () => setView(view === "delete" ? "default" :  "delete") }>
+                    <img src="/icons/delete.png" alt="delete" />
+                </button>
             </> : <></> }
         </div>
         <div className="post-body">
             { view === "default" ? <>
                 <Link to={`/users/${post.author}/profile`} className="post-author">{ post.author }</Link>
-                <p className="post-date">{ new Date(post.posted).toLocaleString() }</p>
+                <p className="post-sub">{ new Date(post.posted).toLocaleString() }</p>
+                <p className="post-sub">{ post.likes.length }{ post.likes.length === 1 ? " like " : " likes" }</p>
                 <p className="post-caption">{ post.caption }</p>
             </> : <></> }
             { view === "comment" ? <>

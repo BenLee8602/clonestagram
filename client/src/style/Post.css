@@ -11,6 +11,10 @@
     width: 600px;
 }
 
+.post .post-image-link {
+    height: 0px;
+}
+
 .post .post-actions {
     display: inline-block;
     width: 40px;
@@ -23,10 +27,17 @@
     background-color: white;
     width: 40px;
     height: 40px;
+    padding: 0px;
 }
 
-.post .post-actions button:hover {
-    background-color: #eee;
+.post .post-actions .post-action-active {
+    background-color: black;
+}
+
+.post .post-actions img {
+    width: 24px;
+    height: 24px;
+    padding: 8px;
 }
 
 .post .post-body {
@@ -56,7 +67,7 @@
     font-weight: bolder;
 }
 
-.post .post-date {
+.post .post-sub {
     color: #444;
     font-size: 12px;
     font-weight: lighter;
