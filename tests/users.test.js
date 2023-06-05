@@ -184,6 +184,16 @@ describe("logout user", () => {
 });
 
 
+describe("search users", () => {
+    it("should accept partial match and ignore case", async () => {
+        const res = await request(app).get("/api/users/search/En").send();
+        expect(res.statusCode).toBe(200);
+        expect(res.body.length).toBe(1);
+        for (const user of res.body) expect(user.name).toMatch(/En/i);
+    });
+});
+
+
 describe("get many user's data", () => {
     it("should fail if names list is missing", async () => {
         const res = await request(app).post("/api/users").send({

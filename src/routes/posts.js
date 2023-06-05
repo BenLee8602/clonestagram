@@ -39,6 +39,20 @@ function getPostsRouter(db, img) {
     });
 
 
+    // search posts by author and caption
+    router.get("/search/:query", async (req, res) => {
+        const query = { $regex: req.params.query, $options: "i" };
+        try {
+            const posts = await db.posts.find({ $or: [{ author: query }, { caption: query }] });
+            for (let i = 0; i < posts.length; ++i) posts[i].image = await img.getImage(posts[i].image);
+            res.status(200).json(posts);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    });
+
+
     // create new post
     router.post("/", requireLogin, upload.single("image"), async (req, res) => {
         const caption = req.body.caption || "";

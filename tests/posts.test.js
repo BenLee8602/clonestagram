@@ -75,6 +75,24 @@ describe("get post by id", () => {
 });
 
 
+describe("search posts", () => {
+    it("should search by author", async () => {
+        const res = await request(app).get("/api/posts/search/ben").send();
+        expect(res.statusCode).toBe(200);
+        expect(res.body.length).toBe(2);
+        for (const post of res.body) expect(post.author).toMatch(/ben/i);
+    });
+
+
+    it("should search by caption", async () => {
+        const res = await request(app).get("/api/posts/search/cool").send();
+        expect(res.statusCode).toBe(200);
+        expect(res.body.length).toBe(1);
+        for (const post of res.body) expect(post.caption).toMatch(/cool/i);
+    })
+});
+
+
 describe("create new post", () => {
     it("should add the post to the database", async () => {
         const accessToken = genTestAccessToken("someguy");
