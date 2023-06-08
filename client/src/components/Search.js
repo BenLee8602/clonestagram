@@ -5,15 +5,23 @@ import UserList from "./UserList";
 import "../style/Search.css";
 
 function Search() {
+    const [input, setInput] = useState("");
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState(null);
+    const [users, setUsers] = useState([]);
+    const [posts, setPosts] = useState([]);
     const [show, setShow] = useState("users");
 
     const handleSearch = () => {
-        if (query === "") return;
-        fetch(`${process.env.REACT_APP_BACKEND_API}/search/${query}`)
+        if (input === "") return;
+        setQuery(input);
+        
+        fetch(`${process.env.REACT_APP_BACKEND_API}/users/search/${input}`)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setResults(res.body) : console.log(res.body));
+        .then(res => res.status === 200 ? setUsers(res.body) : console.log(res.body));
+
+        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/search/${input}`)
+        .then(res => res.json().then(body => ({ status: res.status, body })))
+        .then(res => res.status === 200 ? setPosts(res.body) : console.log(res.body));
     };
 
     return (<>
@@ -21,13 +29,13 @@ function Search() {
             <input
                 type="text"
                 placeholder="search users and posts"
-                onChange={ e => setQuery(e.target.value) }
+                onChange={ e => setInput(e.target.value) }
                 className="search-bar"
             />
             <button onClick={ handleSearch } className="search-button">search</button>
         </div>
         
-        { results ? <>
+        { query ? <>
             <div className="search">
                 <button
                     onClick={ () => setShow("users") }
@@ -42,9 +50,9 @@ function Search() {
             </div>
 
             { show === "users" ? (
-                results.users.length ? <UserList data={ results.users } /> : <h3>No users found for "{ results.query }"</h3>
+                users.length ? <UserList data={ users } /> : <h3>No users found for "{ query }"</h3>
             ) : (
-                results.posts.length ? <PostList posts={ results.posts } /> : <h3>No posts found for "{ results.query }"</h3>
+                posts.length ? <PostList posts={ posts } /> : <h3>No posts found for "{ query }"</h3>
             ) }
         </> : <></> }
     </>);

@@ -105,7 +105,7 @@ function getUsersRouter(db, img) {
     router.get("/search/:query", async (req, res) => {
         const query = { $regex: req.params.query, $options: "i" };
         try {
-            const users = await db.users.find({ name: query }, "-_id -pass");
+            const users = await db.users.find({ name: query }, "-pass");
             for (let i = 0; i < users.length; ++i) users[i].pfp = await img.getImage(users[i].pfp);
             res.status(200).json(users);
         } catch (err) {
