@@ -1,10 +1,8 @@
-html {
-    font-family: Helvetica, sans-serif;
-}
-
 body {
-    width: 1000px;
-    margin: auto;
+    font-family: Helvetica, sans-serif;
+    margin: 0px;
+    width: 100vw;
+    height: 100vh;
     background-image: url("../public/background.svg");
     background-size: cover;
 }
