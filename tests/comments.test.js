@@ -47,17 +47,6 @@ describe("create comment", () => {
     });
 
 
-    it("should fail if post doesnt exist", async () => {
-        const accessToken = genTestAccessToken("ben");
-        const res = await request(app).post("/api/comments/d368d481cae2ad2fe90f6741").set({
-            "Authorization": "Bearer " + accessToken
-        }).send({
-            text: "new comment from test 2"
-        });
-        expect(res.statusCode).toBe(404);
-    });
-
-
     it("should create comment for valid post given comment text", async () => {
         const accessToken = genTestAccessToken("ben");
         const res = await request(app).post("/api/comments/63cf2bb1bc581a02576784e8").set({

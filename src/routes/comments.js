@@ -7,7 +7,7 @@ function getCommentsRouter(db) {
     const router = express.Router();
 
 
-    // get comments for a post
+    // get comments
     router.get("/:id", async (req, res) => {
         try {
             const comments = await db.comments.find({ parent: req.params.id });
@@ -20,15 +20,12 @@ function getCommentsRouter(db) {
 
 
     // create comment
-    router.post("/:id", requireLogin, async (req, res) => {
+    router.post("/:parent", requireLogin, async (req, res) => {
         const text = req.body.text;
         if (!text) return res.status(400).json("missing comment");
         try {
-            const post = await db.posts.findById(req.params.id);
-            if (!post) return res.status(404).json("post not found");
-
             const comment = await db.comments.create({
-                parent: req.params.id,
+                parent: req.params.parent,
                 author: req.user,
                 text: req.body.text,
             });

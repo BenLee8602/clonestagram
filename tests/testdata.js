@@ -7,7 +7,6 @@ async function resetDbTestData() {
     await db.tokens.deleteMany({});
     await db.posts.deleteMany({});
     await db.comments.deleteMany({});
-    await db.replies.deleteMany({});
 
     await db.users.insertMany([
         {
@@ -84,11 +83,7 @@ async function resetDbTestData() {
             "text": "cool",
             "likes": ["someguy", "ben"],
             "posted": 1674521666418
-        }
-    ]);
-    
-    await db.replies.insertMany([
-        {
+        }, {
             "_id": db.objectId("63cf29d5bc581a02576784bb"),
             "parent": db.objectId("63cf29c0bc581a02576784b3"),
             "author": "ben",

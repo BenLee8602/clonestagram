@@ -5,7 +5,6 @@ const cors = require("cors");
 const usersRouter = require("./src/routes/users");
 const postsRouter = require("./src/routes/posts");
 const commentsRouter = require("./src/routes/comments");
-const repliesRouter = require("./src/routes/replies");
 
 
 function createApp(database, imageStorage) {
@@ -20,7 +19,6 @@ function createApp(database, imageStorage) {
     app.use("/api/users", usersRouter(database, imageStorage));
     app.use("/api/posts", postsRouter(database, imageStorage));
     app.use("/api/comments", commentsRouter(database));
-    app.use("/api/replies", repliesRouter(database));
     
     app.get("*", (req, res) => {
         res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
