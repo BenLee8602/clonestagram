@@ -8,6 +8,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 const { requireLogin } = require("../middlewares/auth");
+const { getPageInfo } = require("../middlewares/page");
 
 function genAccessToken(user) {
     return jwt.sign(
@@ -102,10 +103,16 @@ function getUsersRouter(db, img) {
 
 
     // search users
-    router.get("/search/:query", async (req, res) => {
+    router.get("/search/:query", getPageInfo, async (req, res) => {
         const query = { $regex: req.params.query, $options: "i" };
         try {
-            const users = await db.users.find({ name: query }, "-pass");
+            const users = await db.users.find({
+                name: query,
+                posted: { $lt: req.page.start }
+            }, "-pass", {
+                skip: db.pageSize * req.page.number,
+                limit: db.pageSize
+            });
             for (let i = 0; i < users.length; ++i) users[i].pfp = await img.getImage(users[i].pfp);
             res.status(200).json(users);
         } catch (err) {

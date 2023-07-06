@@ -1,6 +1,7 @@
 const express = require("express");
 
 const { requireLogin } = require("../middlewares/auth");
+const { getPageInfo } = require("../middlewares/page");
 
 
 function getCommentsRouter(db) {
@@ -8,9 +9,16 @@ function getCommentsRouter(db) {
 
 
     // get comments
-    router.get("/:id", async (req, res) => {
+    router.get("/:parent", getPageInfo, async (req, res) => {
         try {
-            const comments = await db.comments.find({ parent: req.params.id });
+            const comments = await db.comments.find({
+                parent: req.params.parent,
+                posted: { $lt: req.page.start }
+            }, null, {
+                skip: db.pageSize * req.page.number,
+                limit: db.pageSize
+            });
+
             res.status(200).json(comments);
         } catch (err) {
             console.log(err);

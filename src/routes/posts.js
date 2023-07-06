@@ -5,6 +5,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 const { requireLogin } = require("../middlewares/auth");
+const { getPageInfo } = require("../middlewares/page");
 
 
 function getPostsRouter(db, img) {
@@ -12,9 +13,14 @@ function getPostsRouter(db, img) {
 
 
     // get all posts
-    router.get("/", async (req, res) => {
+    router.get("/", getPageInfo, async (req, res) => {
         try {
-            const posts = await db.posts.find({}, "-__v").sort({ posted: "desc" });
+            const posts = await db.posts.find({
+                posted: { $lt: req.page.start },
+            }, null, {
+                skip: db.pageSize * req.page.number,
+                limit: db.pageSize
+            }).sort({ posted: "desc" });
             for (let i = 0; i < posts.length; ++i)
                 posts[i].image = await img.getImage(posts[i].image);
             res.status(200).json(posts);
@@ -40,10 +46,16 @@ function getPostsRouter(db, img) {
 
 
     // search posts by author and caption
-    router.get("/search/:query", async (req, res) => {
+    router.get("/search/:query", getPageInfo, async (req, res) => {
         const query = { $regex: req.params.query, $options: "i" };
         try {
-            const posts = await db.posts.find({ $or: [{ author: query }, { caption: query }] });
+            const posts = await db.posts.find({
+                $or: [{ author: query }, { caption: query }],
+                posted: { $lt: req.page.start }
+            }, null, {
+                skip: db.pageSize * req.page.number,
+                limit: db.pageSize
+            });
             for (let i = 0; i < posts.length; ++i) posts[i].image = await img.getImage(posts[i].image);
             res.status(200).json(posts);
         } catch (err) {
