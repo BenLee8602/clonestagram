@@ -1,27 +1,16 @@
 const request = require("supertest");
-const { MongoMemoryServer } = require("mongodb-memory-server");
-const mongoose = require("mongoose");
-const { resetDbTestData, genTestAccessToken } = require("./testdata");
-const app = require("./testapp");
-const db = require("../src/config/db");
-const img = require("../src/config/mocks3");
+
+const app = require("./config/testapp");
+const db = require("./config/db");
+const img = require("./config/s3");
 
 
-let mongodb;
-
-beforeAll(async () => {
-    mongodb = await MongoMemoryServer.create();
-    await mongoose.connect(mongodb.getUri());
-});
+beforeAll(db.start);
+afterAll(db.stop);
 
 beforeEach(async () => {
-    await resetDbTestData();
+    await db.resetData();
     img.resetImages();
-});
-
-afterAll(async () => {
-    await mongoose.disconnect();
-    await mongodb.stop();
 });
 
 
@@ -30,25 +19,9 @@ describe("get all posts", () => {
         const res = await request(app).get("/api/posts").send();
         expect(res.statusCode).toBe(200);
         
-        const expected = [
-            {
-                "_id": db.objectId("63cf2bb1bc581a02576784e8"),
-                "author": "ben",
-                "posted": "2023-01-24T00:52:01.675Z",
-                "image": "linkToPost2Image",
-                "caption": "cccc",
-                "likes": ["someguy"]
-            }, {
-                "_id": db.objectId("63cf287bbc581a02576784aa"),
-                "author": "ben",
-                "posted": "2023-01-24T00:38:19.476Z",
-                "image": "linkToPost1Image",
-                "caption": "a cool caption",
-                "likes": ["ben", "someguy"]
-            }
-        ];
-
-        expect(JSON.stringify(res.body)).toBe(JSON.stringify(expected));
+        expect(res.body.length).toBe(2);
+        expect(res.body[0]._id).toBe("63cf2bb1bc581a02576784e8");
+        expect(res.body[1]._id).toBe("63cf287bbc581a02576784aa");
     });
 });
 
@@ -95,7 +68,7 @@ describe("search posts", () => {
 
 describe("create new post", () => {
     it("should add the post to the database", async () => {
-        const accessToken = genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("someguy");
         const res = await request(app).post("/api/posts").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("new post image buffer"), "image").field({
@@ -111,7 +84,7 @@ describe("create new post", () => {
 
 describe("like a post", () => {
     it("should fail if post doesnt exist", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).put("/api/posts/05224502d0ca37c7afd61f6e/like").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -120,7 +93,7 @@ describe("like a post", () => {
 
 
     it("should like if not already", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).put("/api/posts/63cf2bb1bc581a02576784e8/like").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -132,7 +105,7 @@ describe("like a post", () => {
 
 
     it("should unlike if already liked", async () => {
-        const accessToken = genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("someguy");
         const res = await request(app).put("/api/posts/63cf287bbc581a02576784aa/like").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -146,7 +119,7 @@ describe("like a post", () => {
 
 describe("edit a post", () => {
     it("should fail if caption is not given", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).put("/api/posts/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -157,7 +130,7 @@ describe("edit a post", () => {
 
 
     it("should fail if post doesnt exist", async () => {
-        const accessToken = genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("someguy");
         const res = await request(app).put("/api/posts/01abe3720d6e382d80970673").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -168,7 +141,7 @@ describe("edit a post", () => {
 
 
     it("should update a valid post given a caption", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).put("/api/posts/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -184,7 +157,7 @@ describe("edit a post", () => {
 
 describe("delete a post", () => {
     it("should fail if post doesnt exist", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).delete("/api/posts/cb760905e8fa1745e1457e0b").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -193,7 +166,7 @@ describe("delete a post", () => {
 
 
     it("should delete post if exists", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).delete("/api/posts/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send();

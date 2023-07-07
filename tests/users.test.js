@@ -1,27 +1,16 @@
 const request = require("supertest");
-const { MongoMemoryServer } = require("mongodb-memory-server");
-const mongoose = require("mongoose");
-const { resetDbTestData, genTestAccessToken } = require("./testdata");
-const app = require("./testapp");
-const db = require("../src/config/db");
-const img = require("../src/config/mocks3");
+
+const app = require("./config/testapp");
+const db = require("./config/db");
+const img = require("./config/s3");
 
 
-let mongodb;
-
-beforeAll(async () => {
-    mongodb = await MongoMemoryServer.create();
-    await mongoose.connect(mongodb.getUri());
-});
+beforeAll(db.start);
+afterAll(db.stop);
 
 beforeEach(async () => {
-    await resetDbTestData();
+    await db.resetData();
     img.resetImages();
-});
-
-afterAll(async () => {
-    await mongoose.disconnect();
-    await mongodb.stop();
 });
 
 
@@ -240,7 +229,7 @@ describe("get one user's data", () => {
 
 
     it("should pass if user exists", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).get("/api/users/ben/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -284,7 +273,7 @@ describe("get one user's data", () => {
 
 describe("follow a user", () => {
     it("should not allow following oneself", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).get("/api/users/ben/follow").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -297,7 +286,7 @@ describe("follow a user", () => {
 
 
     it("should follow if not already following", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).get("/api/users/someguy/follow").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -311,7 +300,7 @@ describe("follow a user", () => {
 
 
     it("should unfollow if already following", async () => {
-        const accessToken = genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("someguy");
         const res = await request(app).get("/api/users/ben/follow").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -327,7 +316,7 @@ describe("follow a user", () => {
 
 describe("get the logged in user's data", () => {
     it("should fail if user doesnt exist", async () => {
-        const accessToken = genTestAccessToken("doesntExist");
+        const accessToken = db.genTestAccessToken("doesntExist");
         const res = await request(app).get("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -336,7 +325,7 @@ describe("get the logged in user's data", () => {
 
 
     it("should return user stored in access token", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).get("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -357,7 +346,7 @@ describe("get the logged in user's data", () => {
 
 describe("edit user profile", () => {
     it("should fail if nickname or bio is missing", async () => {
-        const accessToken = genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("someguy");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -373,7 +362,7 @@ describe("edit user profile", () => {
 
 
     it("should only update nickname and bio if no pfp given", async () => {
-        const accessToken = genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("someguy");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -390,7 +379,7 @@ describe("edit user profile", () => {
 
 
     it("should replace old pfp if it exists", async () => {
-        const accessToken = genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("test 3 pfp buffer"), "image").field({
@@ -407,7 +396,7 @@ describe("edit user profile", () => {
 
 
     it("should create new pfp if not exists", async () => {
-        const accessToken = genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("someguy");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("test 4 pfp buffer"), "image").field({

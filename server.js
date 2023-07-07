@@ -9,7 +9,7 @@ mongoose.connect(process.env.DB_CONNECTION_URI)
 const db = require("./src/config/db");
 const img = require("./src/config/s3");
 
-const createApp = require("./app");
+const createApp = require("./src/app");
 const app = createApp(db, img);
 
 const port = process.env.PORT || 3000;

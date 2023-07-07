@@ -2,9 +2,9 @@ const path = require("path");
 const express = require("express");
 const cors = require("cors");
 
-const usersRouter = require("./src/routes/users");
-const postsRouter = require("./src/routes/posts");
-const commentsRouter = require("./src/routes/comments");
+const usersRouter = require("./routes/users");
+const postsRouter = require("./routes/posts");
+const commentsRouter = require("./routes/comments");
 
 
 function createApp(database, imageStorage) {
