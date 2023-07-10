@@ -16,13 +16,15 @@ function getPostsRouter(db, img) {
     router.get("/", getPageInfo, async (req, res) => {
         try {
             const posts = await db.posts.find({
-                posted: { $lt: req.page.start },
+                posted: { $lt: req.page.start }
             }, null, {
                 skip: db.pageSize * req.page.number,
                 limit: db.pageSize
             }).sort({ posted: "desc" });
+
             for (let i = 0; i < posts.length; ++i)
                 posts[i].image = await img.getImage(posts[i].image);
+
             res.status(200).json(posts);
         } catch (err) {
             console.log(err);
@@ -38,6 +40,28 @@ function getPostsRouter(db, img) {
             if (!post) return res.status(404).json("post not found");
             post.image = await img.getImage(post.image);
             res.status(200).json(post);
+        } catch (err) {
+            console.log(err);
+            res.status(500).json(err);
+        }
+    });
+
+
+    // get posts by author
+    router.get("/author/:name", getPageInfo, async (req, res) => {
+        try {
+            const posts = await db.posts.find({
+                author: req.params.name,
+                posted: { $lt: req.page.start }
+            }, null, {
+                skip: db.pageSize * req.page.number,
+                limit: db.pageSize
+            }).sort({ posted: "desc" });
+
+            for (let i = 0; i < posts.length; ++i)
+                posts[i].image = await img.getImage(posts[i].image);
+
+            res.status(200).json(posts);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);

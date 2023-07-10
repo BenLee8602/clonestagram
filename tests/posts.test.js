@@ -48,6 +48,16 @@ describe("get post by id", () => {
 });
 
 
+describe("get posts by author", () => {
+    it("should return all posts created by author", async () => {
+        const res = await request(app).get("/api/posts/author/ben").send();
+        expect(res.statusCode).toBe(200);
+        expect(res.body.length).toBe(2);
+        for (const post of res.body) expect(post.author).toBe("ben");
+    });
+});
+
+
 describe("search posts", () => {
     it("should search by author", async () => {
         const res = await request(app).get("/api/posts/search/ben").send();
