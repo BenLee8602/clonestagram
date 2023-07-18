@@ -21,7 +21,7 @@ function createApp(database, imageStorage) {
     app.use("/api/comments", commentsRouter(database));
     
     app.get("*", (req, res) => {
-        res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+        res.sendFile(path.resolve(__dirname, "..", "client", "build", "index.html"));
     });
 
     return app;
