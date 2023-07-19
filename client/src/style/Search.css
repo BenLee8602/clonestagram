@@ -59,3 +59,7 @@
     font-size: 18px;
     border-radius: 0px 8px 8px 0px;
 }
+
+.search .search-spacer {
+    height: 112px;
+}

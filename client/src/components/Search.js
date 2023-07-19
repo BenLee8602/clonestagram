@@ -1,39 +1,24 @@
 import React, { useState } from "react";
-import PostList from "./PostList";
-import UserList from "./UserList";
+import { Link } from "react-router-dom";
+import BigList from "./BigList";
+
 
 import "../style/Search.css";
+import "../style/UserList.css";
+import "../style/PostList.css";
 
 
 function Search() {
     const [input, setInput] = useState("");
-
-    const [userQuery, setUserQuery] = useState("");
-    const [userResults, setUserResults] = useState([]);
-
-    const [postQuery, setPostQuery] = useState("");
-    const [postResults, setPostResults] = useState([]);
-
+    const [query, setQuery] = useState("");
     const [view, setView] = useState("users");
 
 
-    const handleUserSearch = () => {
+    const handleSearch = () => {
         if (input === "") return;
-        setUserQuery(input);
-        fetch(`${process.env.REACT_APP_BACKEND_API}/users/search/${input}`)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setUserResults(res.body) : console.log(res.body));
+        console.log(input);
+        setQuery(input);
     };
-
-    const handlePostSearch = () => {
-        if (input === "") return;
-        setPostQuery(input);
-        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/search/${input}`)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPostResults(res.body) : console.log(res.body));
-    };
-
-    const handleSearch = () => view === "users" ? handleUserSearch() : handlePostSearch();
 
 
     return (<div className="search">
@@ -56,22 +41,29 @@ function Search() {
                 className="search-bar"
             />
             <button onClick={ handleSearch } className="search-button">search</button>
-
-            { userQuery && view === "users" ? (
-                userResults.length ? (
-                    <UserList data={ userResults } />
-                ) : (
-                    <p className="no-results">No users found for "{ userQuery }"</p>
-                )
-            ) : <></> }
-            { postQuery && view === "posts" ? (
-                postResults.length ? (
-                    <PostList posts={ postResults } />
-                ) : (
-                    <p className="no-results">No posts found for "{ postQuery }"</p>
-                )
-            ) : <></> }
         </div>
+
+        <div className="search-spacer"></div>
+
+        { query && view === "users" ? <BigList
+            key={query}
+            route={`users/search/${query}`}
+            map={ v => <Link key={v._id} to={`/users/${v.name}/profile`} className="userlist-item">
+                <img src={ v.pfp ? v.pfp : "/icons/user.png" } alt="pfp" className="userlist-item-img" />
+                <div className="userlist-item-text">
+                    <span className="userlist-item-nick">{ v.nick ? v.nick : v.name }</span>{' '}
+                    <span className="userlist-item-name">{v.name}</span>
+                </div>
+            </Link> }
+        /> : <></> }
+
+        { query && view === "posts" ? <div className="postlist"><BigList
+            key={query}
+            route={`posts/search/${query}`}
+            map={ v => <Link key={v._id} to={`/posts/${v._id}`} className="postlist-item">
+                <img src={v.image} alt="post" className="postlist-image" />
+            </Link> }
+        /></div> : <></> }
     </div>);
 }
 

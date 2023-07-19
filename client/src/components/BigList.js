@@ -20,7 +20,6 @@ function BigList({ route, req = undefined, map, container = null }) {
         setGood(false);
         try {
             const url = `${process.env.REACT_APP_BACKEND_API}/${route}?page=${pageRef.current}&start=${start}`;
-            console.log(url);
             const res = await fetch(url, req);
             const body = await res.json();
             if (res.status !== 200 || body.length === 0) return setGood(false);
