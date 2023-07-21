@@ -1,40 +1,20 @@
 import React, { useContext, useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import UserContext from "../UserContext";
+import BigList from "./BigList";
 import Comment from "./Comment";
 
-import "../style/content.css";
 import "../style/Post.css";
+
 
 function Post({ data }) {
     const [user, setUser] = useContext(UserContext);
     const [post, setPost] = useState(null);
     const [view, setView] = useState("default");
     const [input, setInput] = useState("");
-    const [comments, setComments] = useState(null);
+    const [comments, setComments] = useState([]);
 
-    
-    const id = useParams().id;
-    
-    useEffect(() => {
-        if (!id) {
-            setPost({ ...data });
-            return;
-        }
-        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${id}`)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => setPost(res.body))
-        .catch(err => console.log(err));
-    }, [id]);
-
-
-    useEffect(() => {
-        if (view !== "comment") return;
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${post._id}`)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setComments([...res.body]) : console.log(res.body))
-        .catch(err => console.log(err));
-    }, [view]);
+    useEffect(() => setPost({ ...data }), [data]);
 
 
     const handleLike = () => {
@@ -119,7 +99,7 @@ function Post({ data }) {
             <button onClick={handleLike} className={ post.likes.includes(user) ? "post-action-active" : "" }>
                 <img src={ post.likes.includes(user) ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
             </button>
-            <button onClick={ () => setView(view === "comment" ? "default" : "comment") }>
+            <button onClick={ () => setView(view === "comment" ? "default" : "comment") || setComments([]) }>
                 <img src="/icons/comment.png" alt="comment" />
             </button>
             { post.author === user ? <>
@@ -139,20 +119,42 @@ function Post({ data }) {
                 <p className="post-caption">{ post.caption }</p>
             </> : <></> }
             { view === "comment" ? <>
-                <input type="text" placeholder="add a comment" onChange={ e => setInput(e.target.value) } className="post-body-input" />
+                <input
+                    type="text"
+                    placeholder="add a comment"
+                    onChange={ e => setInput(e.target.value) }
+                    className="post-body-input"
+                />
                 <button onClick={handleComment} className="post-body-button">done</button>
-                { comments ? <div className="post-comments">{ comments.map(v => <Comment key={v._id} data={v} />) }</div> : <></> }
+                <div className="post-comments">
+                    { comments.map(v => <Comment key={v._id} data={v} />) }
+                    <BigList
+                        route={`comments/${post._id}`}
+                        map={ v => <Comment key={v._id} data={v} /> }
+                    />
+                </div>
             </> : <></> }
             { view === "edit" ? <>
-                <input type="text" placeholder="new caption" onChange={ e => setInput(e.target.value) } className="post-body-input" />
+                <input
+                    type="text"
+                    placeholder="new caption"
+                    onChange={ e => setInput(e.target.value) }
+                    className="post-body-input"
+                />
                 <button onClick={handleEdit} className="post-body-button">done</button>
             </> : <></> }
             { view === "delete" ? <>
-                <input type="text" placeholder="enter username to confirm" onChange={ e => setInput(e.target.value) } className="post-body-input" />
+                <input
+                    type="text"
+                    placeholder="enter username to confirm"
+                    onChange={ e => setInput(e.target.value) }
+                    className="post-body-input"
+                />
                 <button onClick={handleDelete} className="post-body-button">delete</button>
             </> : <></> }
         </div>
     </div>);
 }
+
 
 export default Post;

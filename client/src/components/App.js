@@ -12,7 +12,7 @@ import Login from "./Login";
 import Register from "./Register";
 import NewPost from "./NewPost";
 import Search from "./Search";
-import Post from "./Post";
+import OnePost from "./OnePost";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -57,7 +57,7 @@ function App() {
                     <Route path="/" element={ <Home/> } />
                     <Route path="/users/:name/profile" element={ <Profile/> } />
                     <Route path="/search" element={ <Search/> } />
-                    <Route path="/posts/:id" element={ <Post/> } />
+                    <Route path="/posts/:id" element={ <OnePost/> } />
                     <Route element={ <ProtectedRoute authorized={ !!user } /> }>
                         <Route path="/newpost" element={ <NewPost/> } />
                         <Route path="/edit/profile" element={ <ProfileEdit/> } />

@@ -17,7 +17,7 @@ function getCommentsRouter(db) {
             }, null, {
                 skip: db.pageSize * req.page.number,
                 limit: db.pageSize
-            });
+            }).sort({ posted: "desc" });
 
             res.status(200).json(comments);
         } catch (err) {
