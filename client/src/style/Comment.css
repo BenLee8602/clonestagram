@@ -4,7 +4,7 @@
     width: 100%;
 }
 
-.comment-modify {
+.comment .comment-modify {
     margin-top: 8px;
     padding: 8px 0px;
 }
@@ -35,19 +35,19 @@
     font-weight: lighter;
 }
 
-.comment .comment-likes-count {
+.comment-likes-count {
     display: inline-block;
     vertical-align: top;
     height: 16px;
     padding: 4px;
 }
 
-.comment .comment-actions {
+.comment-actions {
     float: right;
     margin-top: 10px;
 }
 
-.comment .comment-actions button {
+.comment-actions button {
     border: none;
     background-color: white;
     color: black;
@@ -56,12 +56,18 @@
     padding: 0px;
 }
 
-.comment .comment-actions .comment-action-active {
+.comment-actions .comment-action-active {
     background-color: black;
 }
 
-.comment .comment-actions img {
+.comment-actions img {
     width: 16px;
     height: 16px;
     padding: 4px;
+}
+
+.comment-replies {
+    width: calc(100% - 8px);
+    max-height: 200px;
+    overflow-y: scroll;
 }

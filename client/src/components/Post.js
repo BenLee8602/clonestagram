@@ -130,7 +130,7 @@ function Post({ data }) {
                     { comments.map(v => <Comment key={v._id} data={v} />) }
                     <BigList
                         route={`comments/${post._id}`}
-                        map={ v => <Comment key={v._id} data={v} /> }
+                        map={ v => <Comment key={v._id} data={v} showReplies /> }
                     />
                 </div>
             </> : <></> }
