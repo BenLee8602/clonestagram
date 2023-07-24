@@ -1,7 +1,7 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
 import UserContext from "../UserContext";
-import PostList from "./PostList";
+import BigList from "./BigList";
 import UserList from "./UserList";
 
 import "../style/content.css";
@@ -13,7 +13,6 @@ function Profile() {
     const [user, setUser] = useContext(UserContext);
     const [profile, setProfile] = useState(null);
     const [content, setContent] = useState("posts");
-    const [postSize, setPostSize] = useState(true);
 
 
     const req = {
@@ -52,35 +51,40 @@ function Profile() {
     return (<>
         <div className="profile">
             <div className="profile-col1">
-                <img src={ profile.user.pfp ? profile.user.pfp : "/icons/user.png" } alt="pfp" className="profile-img"/>
-                { profile.user.name === user ? (
+                <img src={ profile.pfp ? profile.pfp : "/icons/user.png" } alt="pfp" className="profile-img"/>
+                { profile.name === user ? (
                     <Link to="/edit/profile" className="profile-under-pfp">edit profile</Link>
                 ) : (<button id="follow" onClick={ handleFollow } className="profile-under-pfp">
-                    { profile.user.followers.includes(user) ? "unfollow" : "follow" }
+                    { profile.followers.includes(user) ? "unfollow" : "follow" }
                 </button>) }
             </div>
             <div className="profile-col2">
                 <button onClick={ () => setContent("posts") } className="profile-switch">
                     <p className="profile-switch-title">posts</p>
-                    <p className="profile-switch-subtitle">{ profile.posts.length }</p>
+                    <p className="profile-switch-subtitle">num</p>
                 </button>
                 <button onClick={ () => setContent("followers") } className="profile-switch">
                     <p className="profile-switch-title">followers</p>
-                    <p className="profile-switch-subtitle">{ profile.user.followers.length }</p>
+                    <p className="profile-switch-subtitle">{ profile.followers.length }</p>
                 </button>
                 <button onClick={ () => setContent("following") } className="profile-switch">
                     <p className="profile-switch-title">following</p>
-                    <p className="profile-switch-subtitle">{ profile.user.following.length }</p>
+                    <p className="profile-switch-subtitle">{ profile.following.length }</p>
                 </button>
-                <h1 className="profile-name">{ profile.user.nick ? profile.user.nick : profile.user.name }</h1>
-                <h3 className="profile-nick">{ profile.user.name }</h3>
-                <p className="profile-bio">{ profile.user.bio }</p>
+                <h1 className="profile-name">{ profile.nick ? profile.nick : profile.name }</h1>
+                <h3 className="profile-nick">{ profile.name }</h3>
+                <p className="profile-bio">{ profile.bio }</p>
             </div>
         </div>
 
-        { content === "posts" ? <PostList posts={ profile.posts } /> : <></> }
-        { content === "followers" ? <UserList names={ profile.user.followers } /> : <></> }
-        { content === "following" ? <UserList names={ profile.user.following } /> : <></> }
+        { content === "posts" ? <div className="postlist"><BigList
+            route={`posts/author/${name}`}
+            map={ v => <Link key={v._id} to={`/posts/${v._id}`} className="postlist-item">
+                <img src={v.image} alt="post" className="postlist-image" />
+            </Link> }
+        /></div> : <></> }
+        { content === "followers" ? <UserList names={ profile.followers } /> : <></> }
+        { content === "following" ? <UserList names={ profile.following } /> : <></> }
     </>);
 }
 

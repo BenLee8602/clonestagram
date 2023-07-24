@@ -198,23 +198,17 @@ describe("get many user's data", () => {
         });
         expect(res.statusCode).toBe(200);
 
-        const expected = [
-            {
-                "name": "ben",
-                "pfp": "linkToBensProfilePicture",
-                "nick": "benjamin",
-                "bio": "hi my name is ben",
-                "followers": ["someguy"],
-                "following": []
-            }, {
-                "name": "someguy",
-                "pfp": "",
-                "nick": "awesome nickname",
-                "bio": "awesome bio",
-                "followers": [],
-                "following": ["ben"]
-            }
-        ];
+        const expected = [{
+            _id: "63cf278abc581a025767848d",
+            name: "ben",
+            pfp: "linkToBensProfilePicture",
+            nick: "benjamin"
+        }, {
+            _id: "63cf27d7bc581a0257678496",
+            name: "someguy",
+            pfp: "",
+            nick: "awesome nickname"
+        }];
         
         expect(JSON.stringify(res.body)).toBe(JSON.stringify(expected));
     });
@@ -236,34 +230,12 @@ describe("get one user's data", () => {
         expect(res.statusCode).toBe(200);
 
         const expected = {
-            user: {
-                name: "ben",
-                pfp: "linkToBensProfilePicture",
-                nick: "benjamin",
-                bio: "hi my name is ben",
-                followers: ["someguy"],
-                following: []
-            },
-            posts: [
-                {
-                    _id: "63cf2bb1bc581a02576784e8",
-                    author: "ben",
-                    posted: "2023-01-24T00:52:01.675Z",
-                    image: "linkToPost2Image",
-                    caption: "cccc",
-                    likes: ["someguy"]
-                },
-                {
-                    _id: "63cf287bbc581a02576784aa",
-                    author: "ben",
-                    posted: "2023-01-24T00:38:19.476Z",
-                    image: "linkToPost1Image",
-                    caption: "a cool caption",
-                    likes: ["ben", "someguy"]
-                }
-            ],
-            isThisUser: true,
-            isFollowing: false
+            name: "ben",
+            pfp: "linkToBensProfilePicture",
+            nick: "benjamin",
+            bio: "hi my name is ben",
+            followers: ["someguy"],
+            following: []
         };
 
         expect(JSON.stringify(res.body)).toBe(JSON.stringify(expected));

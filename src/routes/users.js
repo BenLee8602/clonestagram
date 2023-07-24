@@ -122,12 +122,12 @@ function getUsersRouter(db, img) {
     });
 
 
-    // get user data for each name in list
+    // get basic user data for each name in list
     router.post("/", async (req, res) => {
         const names = req.body.names;
         if (!names) return res.status(400).json("missing names list");
         try {
-            const users = await db.users.find({ name: { $in: req.body.names } }, "-_id -pass -__v");
+            const users = await db.users.find({ name: { $in: req.body.names } }, "pfp name nick");
             for (let i = 0; i < users.length; ++i) users[i].pfp = await img.getImage(users[i].pfp);
             res.status(200).json(users);
         } catch (err) {
@@ -143,23 +143,7 @@ function getUsersRouter(db, img) {
             const user = await db.users.findOne({ name: req.params.name }, "-_id -pass -__v");
             if (!user) return res.status(404).json("user not found");
             user.pfp = await img.getImage(user.pfp);
-
-            const posts = await db.posts.find({ author: req.params.name }, "-__v").sort({ posted: "desc" });
-            for (let i = 0; i < posts.length; ++i)
-                posts[i].image = await img.getImage(posts[i].image);
-
-            let isThisUser = false;
-            let isFollowing = false;
-            if (req.headers["authorization"]) {
-                const token = req.headers["authorization"].split(' ')[1];
-                jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
-                    if (err) return;
-                    isThisUser = data.user === req.params.name;
-                    isFollowing = user.followers.includes(data.user);
-                });
-            }
-
-            res.status(200).json({ user, posts, isThisUser, isFollowing });
+            res.status(200).json(user);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
