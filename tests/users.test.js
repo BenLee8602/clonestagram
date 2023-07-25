@@ -183,38 +183,6 @@ describe("search users", () => {
 });
 
 
-describe("get many user's data", () => {
-    it("should fail if names list is missing", async () => {
-        const res = await request(app).post("/api/users").send({
-            msg: "hello"
-        });
-        expect(res.statusCode).toBe(400);
-    });
-
-
-    it("should succeed given a list of names", async () => {
-        const res = await request(app).post("/api/users").send({
-            names: ["ben", "someguy", "doesntExist"]
-        });
-        expect(res.statusCode).toBe(200);
-
-        const expected = [{
-            _id: "63cf278abc581a025767848d",
-            name: "ben",
-            pfp: "linkToBensProfilePicture",
-            nick: "benjamin"
-        }, {
-            _id: "63cf27d7bc581a0257678496",
-            name: "someguy",
-            pfp: "",
-            nick: "awesome nickname"
-        }];
-        
-        expect(JSON.stringify(res.body)).toBe(JSON.stringify(expected));
-    });
-});
-
-
 describe("get one user's data", () => {
     it("should fail if user doesnt exist", async () => {
         const res = await request(app).get("/api/users/doesntExist/profile").send();
@@ -233,85 +201,10 @@ describe("get one user's data", () => {
             name: "ben",
             pfp: "linkToBensProfilePicture",
             nick: "benjamin",
-            bio: "hi my name is ben",
-            followers: ["someguy"],
-            following: []
+            bio: "hi my name is ben"
         };
 
         expect(JSON.stringify(res.body)).toBe(JSON.stringify(expected));
-    });
-});
-
-
-describe("follow a user", () => {
-    it("should not allow following oneself", async () => {
-        const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).get("/api/users/ben/follow").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(400);
-
-        const user = await db.users.findOne({ name: "ben" });
-        expect(user.followers).toStrictEqual(["someguy"]);
-        expect(user.following).toStrictEqual([]);
-    });
-
-
-    it("should follow if not already following", async () => {
-        const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).get("/api/users/someguy/follow").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(200);
-
-        const user1 = await db.users.findOne({ name: "ben" });
-        const user2 = await db.users.findOne({ name: "someguy" });
-        expect(user1.following).toStrictEqual(["someguy"]);
-        expect(user2.followers).toStrictEqual(["ben"]);
-    });
-
-
-    it("should unfollow if already following", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).get("/api/users/ben/follow").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(200);
-        
-        const user1 = await db.users.findOne({ name: "ben" });
-        const user2 = await db.users.findOne({ name: "someguy" });
-        expect(user1.followers).toStrictEqual([]);
-        expect(user2.following).toStrictEqual([]);
-    });
-});
-
-
-describe("get the logged in user's data", () => {
-    it("should fail if user doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("doesntExist");
-        const res = await request(app).get("/api/users/profile").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(404);
-    });
-
-
-    it("should return user stored in access token", async () => {
-        const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).get("/api/users/profile").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(200);
-
-        const expected = {
-            "name": "ben",
-            "pfp": "bensProfilePicture",
-            "nick": "benjamin",
-            "bio": "hi my name is ben",
-            "followers": ["someguy"],
-            "following": []
-        };
-        expect(res.body).toStrictEqual(expected);
     });
 });
 

@@ -6,6 +6,7 @@ const Post    = require("../../src/models/post");
 const Token   = require("../../src/models/token");
 const User    = require("../../src/models/user");
 const Comment = require("../../src/models/comment");
+const Follow  = require("../../src/models/follow");
 
 const testData = require("./testdata");
 
@@ -30,11 +31,13 @@ async function resetData() {
     await Token.deleteMany({});
     await Post.deleteMany({});
     await Comment.deleteMany({});
+    await Follow.deleteMany({});
 
     await User.insertMany(testData.users);
     await Token.insertMany(testData.tokens);
     await Post.insertMany(testData.posts);
     await Comment.insertMany(testData.comments);
+    await Follow.insertMany(testData.follows);
 }
 
 
@@ -52,6 +55,7 @@ module.exports = {
     tokens: Token,
     users: User,
     comments: Comment,
+    follows: Follow,
     pageSize,
 
     start,

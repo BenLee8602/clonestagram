@@ -122,21 +122,6 @@ function getUsersRouter(db, img) {
     });
 
 
-    // get basic user data for each name in list
-    router.post("/", async (req, res) => {
-        const names = req.body.names;
-        if (!names) return res.status(400).json("missing names list");
-        try {
-            const users = await db.users.find({ name: { $in: req.body.names } }, "pfp name nick");
-            for (let i = 0; i < users.length; ++i) users[i].pfp = await img.getImage(users[i].pfp);
-            res.status(200).json(users);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
     // get the given user's profile data
     router.get("/:name/profile", async (req, res) => {
         try {
@@ -144,67 +129,6 @@ function getUsersRouter(db, img) {
             if (!user) return res.status(404).json("user not found");
             user.pfp = await img.getImage(user.pfp);
             res.status(200).json(user);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
-    // follow a user
-    router.get("/:name/follow", requireLogin, async (req, res) => {
-        try {
-            const thisUser  = req.user;
-            const otherUser = req.params.name;
-
-            if (thisUser === otherUser) return res.status(400).json("cant follow yourself");
-            
-            // this user
-            await db.users.updateOne(
-                { name: thisUser },
-                [{ $set: {
-                    following: {
-                        $cond: {
-                            if: { $in: [otherUser, "$following"] },
-                            then: { $setDifference: ["$following", [otherUser]] },
-                            else: { $concatArrays:  ["$following", [otherUser]] }
-                        }
-                    }
-                } }]
-            );
-
-            // other user
-            const updated = await db.users.findOneAndUpdate(
-                { name: otherUser },
-                [{ $set: {
-                    followers: {
-                        $cond: {
-                            if: { $in: [thisUser, "$followers"] },
-                            then: { $setDifference: ["$followers", [thisUser]] },
-                            else: { $concatArrays:  ["$followers", [thisUser]] }
-                        }
-                    }
-                } }],
-                {
-                    fields: { "_id": 0, "pass": 0, "pfp": 0, "__v": 0 },
-                    new: true
-                }
-            );
-
-            res.status(200).json(updated);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
-    // get the logged in user's profile
-    router.get("/profile", requireLogin, async (req, res) => {
-        try {
-            const user = await db.users.findOne({ name: req.user }, "-_id -pass -__v");
-            if (user) res.status(200).json(user);
-            else res.status(404).json("user not found");
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -289,18 +213,6 @@ function getUsersRouter(db, img) {
             await db.posts.updateMany(
                 { },
                 { $pull: { "comments.$[].replies.$[].likes": req.user } }
-            );
-
-            // delete user from follower lists
-            await db.users.updateMany(
-                { },
-                { $pull: { followers: req.user } }
-            );
-
-            // delete user from following lists
-            await db.users.updateMany(
-                { },
-                { $pull: { following: req.user } }
             );
 
             // delete account
