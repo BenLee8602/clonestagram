@@ -192,7 +192,9 @@ describe("get one user's data", () => {
 
     it("should pass if user exists", async () => {
         const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).get("/api/users/ben/profile").set({
+        const res = await request(app).get("/api/users/ben/profile").query({
+            cur: "someguy"
+        }).set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(200);
@@ -201,7 +203,8 @@ describe("get one user's data", () => {
             name: "ben",
             pfp: "linkToBensProfilePicture",
             nick: "benjamin",
-            bio: "hi my name is ben"
+            bio: "hi my name is ben",
+            following: true
         };
 
         expect(JSON.stringify(res.body)).toBe(JSON.stringify(expected));

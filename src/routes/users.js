@@ -125,10 +125,19 @@ function getUsersRouter(db, img) {
     // get the given user's profile data
     router.get("/:name/profile", async (req, res) => {
         try {
-            const user = await db.users.findOne({ name: req.params.name }, "-_id -pass -__v");
+            const user = await db.users.findOne(
+                { name: req.params.name },
+                "-_id -pass -__v"
+            ).lean();
             if (!user) return res.status(404).json("user not found");
             user.pfp = await img.getImage(user.pfp);
-            res.status(200).json(user);
+            if (!req.query.cur) return res.status(200).json(user);
+            
+            const following = await db.follows.findOne({
+                follower: req.query.cur,
+                following: req.params.name
+            });
+            res.status(200).json({ ...user, following: !!following });
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
