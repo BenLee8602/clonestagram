@@ -20,7 +20,7 @@ function App() {
     useEffect(() => {
         const refresh = () => {
             const refreshToken = localStorage.getItem("refreshToken");
-            if (!refreshToken) return;
+            if (!refreshToken) return setUser(null);
 
             const req = {
                 method: "POST",
