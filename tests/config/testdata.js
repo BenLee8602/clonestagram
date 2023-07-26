@@ -8,14 +8,17 @@ module.exports = {
             "pass": "$2b$10$4hBzoLGNiIN7STLo.Uuln.XHX3MaDJt2xd6m610uTLh6NV4pRB0Cm",
             "pfp": "bensProfilePicture",
             "nick": "benjamin",
-            "bio": "hi my name is ben"
+            "bio": "hi my name is ben",
+            "postCount": 2,
+            "followerCount": 1
         }, {
             "_id": new mongoose.Types.ObjectId("63cf27d7bc581a0257678496"),
             "name": "someguy",
             "pass": "$2b$10$q9AWwrNN5RZO0qi5DPtp4OSBtXddkw510qC88i4JaY5NznJPb1B/C",
             "pfp": "",
             "nick": "awesome nickname",
-            "bio": "awesome bio"
+            "bio": "awesome bio",
+            "followingCount": 1
         }
     ],
     "tokens": [

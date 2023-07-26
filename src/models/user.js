@@ -22,6 +22,18 @@ const UserSchema = new Schema({
     bio: {
         type: String,
         default: ""
+    },
+    postCount: {
+        type: Number,
+        default: 0
+    },
+    followerCount: {
+        type: Number,
+        default: 0
+    },
+    followingCount: {
+        type: Number,
+        default: 0
     }
 });
 

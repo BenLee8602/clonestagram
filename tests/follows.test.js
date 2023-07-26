@@ -33,6 +33,11 @@ describe("follow a user", () => {
 
         const fol = await db.follows.find({}).count();
         expect(fol).toBe(2);
+
+        const follower  = await db.users.findOne({ name: "ben" });
+        const following = await db.users.findOne({ name: "someguy" });
+        expect(follower.followingCount).toBe(1);
+        expect(following.followerCount).toBe(1);
     });
 
 
@@ -45,6 +50,11 @@ describe("follow a user", () => {
 
         const fol = await db.follows.find({}).count();
         expect(fol).toBe(0);
+
+        const follower  = await db.users.findOne({ name: "someguy" });
+        const following = await db.users.findOne({ name: "ben" });
+        expect(follower.followingCount).toBe(0);
+        expect(following.followerCount).toBe(0);
     });
 });
 

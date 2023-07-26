@@ -88,6 +88,9 @@ describe("create new post", () => {
         
         const posts = await db.posts.find({});
         expect(posts.length).toBe(3);
+
+        const author = await db.users.findOne({ name: "someguy" });
+        expect(author.postCount).toBe(1);
     });
 });
 
@@ -184,5 +187,8 @@ describe("delete a post", () => {
 
         const post = await db.posts.findById("63cf2bb1bc581a02576784e8");
         expect(post).toBeNull();
+
+        const author = await db.users.findOne({ name: "ben" });
+        expect(author.postCount).toBe(1);
     });
 });

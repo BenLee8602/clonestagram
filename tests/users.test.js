@@ -204,6 +204,9 @@ describe("get one user's data", () => {
             pfp: "linkToBensProfilePicture",
             nick: "benjamin",
             bio: "hi my name is ben",
+            postCount: 2,
+            followerCount: 1,
+            followingCount: 0,
             following: true
         };
 

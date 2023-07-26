@@ -19,8 +19,26 @@ function getFollowsRouter(db, img) {
                 return res.status(400).json("cant follow yourself");
             
             const deleted = await db.follows.findOneAndDelete(fol);
-            if (deleted) return res.status(200).json("unfollowed");
+            if (deleted) {
+                await db.users.updateOne(
+                    { name: fol.follower },
+                    { $inc: { followingCount: -1 } }
+                );
+                await db.users.updateOne(
+                    { name: fol.following },
+                    { $inc: { followerCount: -1 } }
+                );
+                return res.status(200).json("unfollowed");
+            }
 
+            await db.users.updateOne(
+                { name: fol.follower },
+                { $inc: { followingCount: 1 } }
+            );
+            await db.users.updateOne(
+                { name: fol.following },
+                { $inc: { followerCount: 1 } }
+            );
             await db.follows.create(fol);
             res.status(201).json("followed");
         } catch (err) {

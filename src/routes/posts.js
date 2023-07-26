@@ -101,7 +101,11 @@ function getPostsRouter(db, img) {
                 image: imageName,
                 caption: caption
             });
-            await newPost.save();
+            
+            await db.users.updateOne(
+                { name: req.user },
+                { $inc: { postCount: 1 } }
+            );
 
             res.status(200).json(newPost);
         } catch (err) {
@@ -164,6 +168,11 @@ function getPostsRouter(db, img) {
             if (!post) return res.status(404).json(req.params.id);
             
             await img.deleteImage(post.image);
+            
+            await db.users.updateOne(
+                { name: req.user },
+                { $inc: { postCount: -1 } }
+            );
 
             res.status(200).json(req.params.id);
         } catch (err) {
