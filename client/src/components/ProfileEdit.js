@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 
 import "../style/content.css";
 import "../style/Login.css";
@@ -8,7 +8,7 @@ import "../style/Login.css";
 
 function ProfileEdit() {
     const Navigate = useNavigate();
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
     const [profile, setProfile] = useState(null);
     const [deleting, setDeleting] = useState(false);
     const [input, setInput] = useState("");

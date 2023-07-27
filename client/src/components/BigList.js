@@ -5,7 +5,7 @@ function BigList({ route, req = undefined, map, container = null }) {
     const [data, setData] = useState([]);
     const [good, setGood] = useState(true);
     const [page, setPage] = useState(0);
-    const [start, setStart] = useState(new Date().getTime());
+    const [start, setStart] = useState(Date.now());
 
     const pageRef = useRef(page);
     const goodRef = useRef(good);

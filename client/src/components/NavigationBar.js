@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 import "../style/NavigationBar.css";
 
 function NavigationBar() {
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
 
 
     const logout = () => {

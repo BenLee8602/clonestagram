@@ -4,8 +4,8 @@ import BigList from "./BigList";
 
 
 import "../style/Search.css";
-import "../style/UserList.css";
-import "../style/PostList.css";
+import "../style/userlist.css";
+import "../style/postlist.css";
 
 
 function Search() {

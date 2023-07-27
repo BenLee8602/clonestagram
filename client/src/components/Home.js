@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import BigList from "./BigList";
 import Post from "./Post";
 

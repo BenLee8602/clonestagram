@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 
 import BigList from "./BigList";
 
@@ -9,7 +9,7 @@ import "../style/Reply.css";
 
 
 function Comment({ data, showReplies }) {
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
     const [comment, setComment] = useState(null);
     const [replies, setReplies] = useState([]);
     const [view, setView] = useState("default");

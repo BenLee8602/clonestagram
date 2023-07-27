@@ -1,15 +1,17 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 import BigList from "./BigList";
 
 import "../style/content.css";
+import "../style/postlist.css";
+import "../style/userlist.css";
 import "../style/Profile.css";
 
 
 function Profile() {
     const name = useParams().name;
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
     const [profile, setProfile] = useState(null);
     const [view, setView] = useState("posts");
 
@@ -22,8 +24,7 @@ function Profile() {
         }
     };
 
-    useEffect(async () => {
-        if (user === undefined) return;
+    useEffect(() => { const fetchProfile = async () => {
         setView("posts");
         const url = `${process.env.REACT_APP_BACKEND_API}/users/${name}/profile`;
         try {
@@ -32,7 +33,7 @@ function Profile() {
             if (res.status !== 200) return console.log(body);
             setProfile(body);
         } catch (err) { console.log(err); }
-    }, [name, user]);
+    }; fetchProfile(); }, [name]);
 
 
     const handleFollow = async () => {

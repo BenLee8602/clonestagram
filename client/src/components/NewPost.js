@@ -1,13 +1,13 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 
 import "../style/content.css";
 import "../style/Login.css";
 
 function NewPost() {
     const Navigate = useNavigate();
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
     const [image, setImage] = useState();
     const [caption, setCaption] = useState("");
 

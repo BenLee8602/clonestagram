@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 import BigList from "./BigList";
 import Comment from "./Comment";
 
@@ -8,7 +8,7 @@ import "../style/Post.css";
 
 
 function Post({ data }) {
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
     const [post, setPost] = useState(null);
     const [view, setView] = useState("default");
     const [input, setInput] = useState("");
