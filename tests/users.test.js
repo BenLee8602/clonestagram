@@ -216,22 +216,6 @@ describe("get one user's data", () => {
 
 
 describe("edit user profile", () => {
-    it("should fail if nickname or bio is missing", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).put("/api/users/profile").set({
-            "Authorization": "Bearer " + accessToken
-        }).send({
-            nick: "new nickname",
-            msg: "hi"
-        });
-        expect(res.statusCode).toBe(400);
-
-        const user = await db.users.findOne({ name: "someguy" });
-        expect(user.nick).toBe("awesome nickname");
-        expect(user.bio).toBe("awesome bio");
-    });
-
-
     it("should only update nickname and bio if no pfp given", async () => {
         const accessToken = db.genTestAccessToken("someguy");
         const res = await request(app).put("/api/users/profile").set({

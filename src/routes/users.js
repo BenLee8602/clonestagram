@@ -147,9 +147,8 @@ function getUsersRouter(db, img) {
 
     // edit the logged in user's profile
     router.put("/profile", requireLogin, upload.single("image"), async (req, res) => {
-        const nick = req.body.nick;
-        const bio = req.body.bio;
-        if (!nick || !bio) return res.status(400).json("missing nickname or bio");
+        const nick = req.body.nick || "";
+        const bio = req.body.bio || "";
 
         try {
             const user = await db.users.findOneAndUpdate(
