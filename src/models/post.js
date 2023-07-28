@@ -4,15 +4,18 @@ const Schema = mongoose.Schema;
 const PostSchema = new Schema({
     author: {
         type: String,
-        required: true
+        required: true,
+        immutable: true
     },
     posted: {
         type: Date,
+        required: true,
         immutable: true,
         default: () => Date.now()
     },
     image: {
         type: String,
+        immutable: true,
         default: "/default_pfp.png"
     },
     caption: {

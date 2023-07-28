@@ -5,7 +5,8 @@ const TokenSchema = new Schema({
     token: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        immutable: true
     }
 });
 

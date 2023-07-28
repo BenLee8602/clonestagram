@@ -8,8 +8,13 @@ const LikeSchema = new Schema({
         immutable: true,
         default: () => Date.now()
     },
-    target: {
+    parent: {
         type: mongoose.Types.ObjectId,
+        required: true,
+        immutable: true
+    },
+    parentType: {
+        type: String,
         required: true,
         immutable: true
     },
