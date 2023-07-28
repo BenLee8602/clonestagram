@@ -32,15 +32,15 @@ module.exports = {
             "author": "ben",
             "image": "post1Image",
             "caption": "a cool caption",
-            "likes": ["ben", "someguy"],
-            "posted": 1674520699476
+            "likeCount": 2,
+            "commentCount": 3
         }, {
             "_id": new mongoose.Types.ObjectId("63cf2bb1bc581a02576784e8"),
             "author": "ben",
             "image": "post2Image",
             "caption": "cccc",
-            "likes": ["someguy"],
-            "posted": 1674521521675
+            "likeCount": 1,
+            "commentCount": 1
         }
     ],
     "comments": [
@@ -49,63 +49,92 @@ module.exports = {
             "parent": new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
             "author": "ben",
             "text": "first comment",
-            "likes": ["ben", "someguy"],
-            "posted": 1674521024573
+            "likeCount": 2,
+            "replyCount": 2
         }, {
             "_id": new mongoose.Types.ObjectId("63cf29c8bc581a02576784b7"),
             "parent": new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
             "author": "ben",
             "text": "another comment",
-            "likes": ["someguy"],
-            "posted": 1674521032206
+            "likeCount": 1
         }, {
             "_id": new mongoose.Types.ObjectId("63cf29f8bc581a02576784cb"),
             "parent": new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
             "author": "someguy",
             "text": "hi",
-            "likes": ["ben"],
-            "posted": 1674521080158
+            "likeCount": 1,
+            "replyCount": 1
         }, {
             "_id": new mongoose.Types.ObjectId("63cf2c42bc581a02576784f6"),
             "parent": new mongoose.Types.ObjectId("63cf2bb1bc581a02576784e8"),
             "author": "someguy",
             "text": "cool",
-            "likes": ["someguy", "ben"],
-            "posted": 1674521666418
+            "likeCount": 2,
+            "replyCount": 1
         }, {
             "_id": new mongoose.Types.ObjectId("63cf29d5bc581a02576784bb"),
             "parent": new mongoose.Types.ObjectId("63cf29c0bc581a02576784b3"),
             "author": "ben",
             "text": "first reply",
-            "likes": ["someguy"],
-            "posted": 1674521045978
+            "likeCount": 1
         }, {
             "_id": new mongoose.Types.ObjectId("63cf2a19bc581a02576784cf"),
             "parent": new mongoose.Types.ObjectId("63cf29c0bc581a02576784b3"),
             "author": "someguy",
             "text": "heres a reply",
-            "likes": ["ben"],
-            "posted": 1674521113775
+            "likeCount": 1
         }, {
             "_id": new mongoose.Types.ObjectId("63cf2b16bc581a02576784e3"),
             "parent": new mongoose.Types.ObjectId("63cf29f8bc581a02576784cb"),
             "author": "ben",
-            "text": "hello",
-            "likes": [],
-            "posted": 1674521366855
+            "text": "hello"
         }, {
             "_id": new mongoose.Types.ObjectId("63cf2c5cbc581a0257678503"),
             "parent": new mongoose.Types.ObjectId("63cf2c42bc581a02576784f6"),
             "author": "ben",
-            "text": "thanks",
-            "likes": [],
-            "posted": 1674521692216
+            "text": "thanks"
         }
     ],
     "follows": [
         {
             follower: "someguy",
             following: "ben"
+        }
+    ],
+    "likes": [
+        {
+            target: new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
+            likedBy: "ben"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
+            likedBy: "someguy"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf2bb1bc581a02576784e8"),
+            likedBy: "someguy"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf29c0bc581a02576784b3"),
+            likedBy: "ben"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf29c0bc581a02576784b3"),
+            likedBy: "someguy"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf29c8bc581a02576784b7"),
+            likedBy: "someguy"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf29f8bc581a02576784cb"),
+            likedBy: "ben"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf2c42bc581a02576784f6"),
+            likedBy: "someguy"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf2c42bc581a02576784f6"),
+            likedBy: "ben"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf29d5bc581a02576784bb"),
+            likedBy: "someguy"
+        }, {
+            target: new mongoose.Types.ObjectId("63cf2a19bc581a02576784cf"),
+            likedBy: "ben"
         }
     ]
 }

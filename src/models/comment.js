@@ -19,9 +19,13 @@ const CommentSchema = new Schema({
         type: String,
         required: true
     },
-    likes: {
-        type: Array,
-        default: []
+    likeCount: {
+        type: Number,
+        default: 0
+    },
+    replyCount: {
+        type: Number,
+        default: 0
     }
 });
 
