@@ -104,34 +104,6 @@ function getFollowsRouter(db, img) {
             res.status(500).json(err);
         }
     });
-    
-    
-    // get follower count
-    router.get("/:name/followers/count", async (req, res) => {
-        try {
-            const followerCount = await db.follows.find({
-                following: req.params.name
-            }).count();
-            res.status(200).json(followerCount);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
-    // get following count
-    router.get("/:name/following/count", async (req, res) => {
-        try {
-            const followingCount = await db.follows.find({
-                follower: req.params.name
-            }).count();
-            res.status(200).json(followingCount);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
 
 
     return router;

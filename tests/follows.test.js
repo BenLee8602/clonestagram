@@ -84,21 +84,3 @@ describe("get following", () => {
         expect(JSON.stringify(res.body)).toBe(JSON.stringify(expected));
     });
 });
-
-
-describe("get follower count", () => {
-    it("should return a given user's follower count", async () => {
-        const res = await request(app).get("/api/follows/ben/followers/count").send();
-        expect(res.statusCode).toBe(200);
-        expect(res.body).toBe(1);
-    });
-});
-
-
-describe("get following count", () => {
-    it("should return a given user's following count", async () => {
-        const res = await request(app).get("/api/follows/ben/following/count").send();
-        expect(res.statusCode).toBe(200);
-        expect(res.body).toBe(0);
-    });
-});
