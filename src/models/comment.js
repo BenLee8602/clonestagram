@@ -31,7 +31,7 @@ const CommentSchema = new Schema({
         type: Number,
         default: 0
     },
-    replyCount: {
+    commentCount: {
         type: Number,
         default: 0
     }

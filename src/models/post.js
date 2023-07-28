@@ -15,7 +15,6 @@ const PostSchema = new Schema({
     },
     image: {
         type: String,
-        immutable: true,
         default: "/default_pfp.png"
     },
     caption: {

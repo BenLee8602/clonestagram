@@ -51,7 +51,7 @@ module.exports = {
             author: "ben",
             text: "first comment",
             likeCount: 2,
-            replyCount: 2
+            commentCount: 2
         }, {
             _id: new mongoose.Types.ObjectId("63cf29c8bc581a02576784b7"),
             parent: new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
@@ -66,7 +66,7 @@ module.exports = {
             author: "someguy",
             text: "hi",
             likeCount: 1,
-            replyCount: 1
+            commentCount: 1
         }, {
             _id: new mongoose.Types.ObjectId("63cf2c42bc581a02576784f6"),
             parent: new mongoose.Types.ObjectId("63cf2bb1bc581a02576784e8"),
@@ -74,7 +74,7 @@ module.exports = {
             author: "someguy",
             text: "cool",
             likeCount: 2,
-            replyCount: 1
+            commentCount: 1
         }, {
             _id: new mongoose.Types.ObjectId("63cf29d5bc581a02576784bb"),
             parent: new mongoose.Types.ObjectId("63cf29c0bc581a02576784b3"),

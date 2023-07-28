@@ -30,42 +30,30 @@ function getCommentsRouter(db) {
     // create comment
     router.post("/:parent", requireLogin, async (req, res) => {
         const text = req.body.text;
-        if (!text) return res.status(400).json("missing comment");
+        if (!text) return res.status(400).json("missing comment text");
+
+        const parentType = req.body.parentType;
+        if (parentType !== "post" && parentType !== "comment")
+            return res.status(400).json("parent type must be \"post\" or \"comment\"");
+        const parentCollection = parentType === "post" ? db.posts : db.comments;
+        
         try {
+            const parent = await parentCollection.findById(req.params.parent);
+            if (!parent)
+                return res.status(404).json("parent not found");
+            if (parent.parentType === "comment")
+                return res.status(400).json("parent cannot be a reply");
+            parent.commentCount += 1;
+            await parent.save();
+
             const comment = await db.comments.create({
                 parent: req.params.parent,
+                parentType: parentType,
                 author: req.user,
-                text: req.body.text,
+                text: text,
             });
-            await comment.save();
             
             res.status(200).json(comment);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
-    // like comment
-    router.put("/:id/like", requireLogin, async (req, res) => {
-        try {
-            const comment = await db.comments.findOneAndUpdate(
-                { _id: req.params.id },
-                [{ $set: {
-                    likes: {
-                        $cond: {
-                            if: { $in: [req.user, "$likes"] },
-                            then: { $setDifference: ["$likes", [req.user]] },
-                            else: { $concatArrays:  ["$likes", [req.user]] }
-                        }
-                    }
-                } }],
-                { new: true }
-            );
-            
-            if (!comment) return res.status(404).json("comment not found");
-            res.status(200).json(comment.likes);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -95,8 +83,18 @@ function getCommentsRouter(db) {
     // delete comment
     router.delete("/:id", requireLogin, async (req, res) => {
         try {
-            const comment = await db.comments.findOneAndDelete({ _id: req.params.id, author: req.user });
+            const comment = await db.comments.findOneAndDelete({
+                _id: req.params.id,
+                author: req.user
+            });
             if (!comment) return res.status(404).json("comment not found");
+
+            const parentCol = comment.parentType === "post" ? db.posts : db.comments;
+            await parentCol.findByIdAndUpdate(
+                comment.parent,
+                { $inc: { commentCount: -1 } }
+            );
+
             res.status(200).json(comment);
         } catch (err) {
             console.log(err);

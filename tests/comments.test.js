@@ -37,9 +37,49 @@ describe("create comment", () => {
         const res = await request(app).post("/api/comments/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send({
-            message: "wonderful weather were having!"
+            message: "wonderful weather were having!",
+            parentType: "post"
         });
         expect(res.statusCode).toBe(400);
+        expect(res.body).toBe("missing comment text");
+    });
+
+
+    it("should fail if parent type is invalid", async () => {
+        const accessToken = db.genTestAccessToken("someguy");
+        const res = await request(app).post("/api/comments/63cf2bb1bc581a02576784e8").set({
+            "Authorization": "Bearer " + accessToken
+        }).send({
+            text: "testing 123",
+            parentType: "someInvalidType"
+        });
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toBe("parent type must be \"post\" or \"comment\"");
+    });
+
+
+    it("should fail if parent is not found", async () => {
+        const accessToken = db.genTestAccessToken("ben");
+        const res = await request(app).post("/api/comments/63cf278abc581a025767848d").set({
+            "Authorization": "Bearer " + accessToken
+        }).send({
+            text: "oops wrong id",
+            parentType: "post"
+        });
+        expect(res.statusCode).toBe(404);
+    });
+
+
+    it("should fail if parent is a reply", async () => {
+        const accessToken = db.genTestAccessToken("someguy");
+        const res = await request(app).post("/api/comments/63cf29d5bc581a02576784bb").set({
+            "Authorization": "Bearer " + accessToken
+        }).send({
+            text: "replying to a reply",
+            parentType: "comment"
+        });
+        expect(res.statusCode).toBe(400);
+        expect(res.body).toBe("parent cannot be a reply");
     });
 
 
@@ -48,7 +88,8 @@ describe("create comment", () => {
         const res = await request(app).post("/api/comments/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send({
-            text: "new comment from test 3"
+            text: "new comment from test 3",
+            parentType: "post"
         });
         expect(res.statusCode).toBe(200);
 
@@ -58,41 +99,9 @@ describe("create comment", () => {
             author: "ben"
         });
         expect(comment).not.toBeNull();
-    });
-});
 
-
-describe("like comment", () => {
-    it("should fail if comment doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).put("/api/comments/0f65d7e90d604c9d82af37a8/like").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(404);
-    });
-
-
-    it("should like if not already", async () => {
-        const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).put("/api/comments/63cf29c8bc581a02576784b7/like").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(200);
-
-        const comment = await db.comments.findById("63cf29c8bc581a02576784b7");
-        expect(comment.likes).toContain("ben");
-    });
-
-
-    it("should unlike if already liked", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).put("/api/comments/63cf29c0bc581a02576784b3/like").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(200);
-
-        const comment = await db.comments.findById("63cf29c0bc581a02576784b3");
-        expect(comment.likes).not.toContain("someguy");
+        const parent = await db.posts.findById("63cf2bb1bc581a02576784e8");
+        expect(parent.commentCount).toBe(2);
     });
 });
 
@@ -154,5 +163,8 @@ describe("delete a comment", () => {
 
         const comment = await db.comments.findById("63cf2c42bc581a02576784f6");
         expect(comment).toBeNull();
+
+        const parent = await db.posts.findById("63cf2bb1bc581a02576784e8");
+        expect(parent.commentCount).toBe(0);
     });
 });

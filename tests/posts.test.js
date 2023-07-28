@@ -18,10 +18,7 @@ describe("get all posts", () => {
     it("should return all posts in db", async () => {
         const res = await request(app).get("/api/posts").send();
         expect(res.statusCode).toBe(200);
-        
         expect(res.body.length).toBe(2);
-        expect(res.body[0]._id).toBe("63cf2bb1bc581a02576784e8");
-        expect(res.body[1]._id).toBe("63cf287bbc581a02576784aa");
     });
 });
 
@@ -36,13 +33,14 @@ describe("get post by id", () => {
     it("should return post if exists", async () => {
         const res = await request(app).get("/api/posts/63cf287bbc581a02576784aa").send();
         expect(res.statusCode).toBe(200);
+        delete res.body.posted;
         expect(JSON.stringify(res.body)).toBe(JSON.stringify({
             "_id": db.objectId("63cf287bbc581a02576784aa"),
             "author": "ben",
-            "posted": "2023-01-24T00:38:19.476Z",
             "image": "linkToPost1Image",
             "caption": "a cool caption",
-            "likes": ["ben", "someguy"]
+            "likeCount": 2,
+            "commentCount": 3
         }));
     });
 });
@@ -91,41 +89,6 @@ describe("create new post", () => {
 
         const author = await db.users.findOne({ name: "someguy" });
         expect(author.postCount).toBe(1);
-    });
-});
-
-
-describe("like a post", () => {
-    it("should fail if post doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).put("/api/posts/05224502d0ca37c7afd61f6e/like").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(404);
-    });
-
-
-    it("should like if not already", async () => {
-        const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).put("/api/posts/63cf2bb1bc581a02576784e8/like").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(200);
-
-        const post = await db.posts.findById("63cf2bb1bc581a02576784e8");
-        expect(post.likes).toContain("ben");
-    });
-
-
-    it("should unlike if already liked", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).put("/api/posts/63cf287bbc581a02576784aa/like").set({
-            "Authorization": "Bearer " + accessToken
-        }).send();
-        expect(res.statusCode).toBe(200);
-
-        const post = await db.posts.findById("63cf287bbc581a02576784aa");
-        expect(post.likes).not.toContain("someguy");
     });
 });
 

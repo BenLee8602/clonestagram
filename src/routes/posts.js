@@ -115,32 +115,6 @@ function getPostsRouter(db, img) {
     });
 
 
-    // like a post
-    router.put("/:id/like", requireLogin, async (req, res) => {
-        try {
-            const post = await db.posts.findOneAndUpdate(
-                { _id: req.params.id },
-                [{ $set: {
-                    likes: {
-                        $cond: {
-                            if: { $in: [req.user, "$likes"] },
-                            then: { $setDifference: ["$likes", [req.user]] },
-                            else: { $concatArrays:  ["$likes", [req.user]] }
-                        }
-                    }
-                } }],
-                { new: true }
-            );
-            
-            if (!post) return res.status(404).json("post not found");
-            res.status(200).json(post.likes);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
     // edit a post
     router.put("/:id", requireLogin, async (req, res) => {
         const caption = req.body.caption;
