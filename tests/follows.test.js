@@ -24,6 +24,15 @@ describe("follow a user", () => {
     });
 
 
+    it("should not allow following nonexistent user", async () => {
+        const accessToken = db.genTestAccessToken("ben");
+        const res = await request(app).put("/api/follows/nobody").set({
+            "Authorization": "Bearer " + accessToken
+        }).send();
+        expect(res.statusCode).toBe(404);
+    });
+
+
     it("should follow if not already following", async () => {
         const accessToken = db.genTestAccessToken("ben");
         const res = await request(app).put("/api/follows/someguy").set({

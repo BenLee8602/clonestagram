@@ -10,35 +10,30 @@ function getFollowsRouter(db, img) {
 
     // follow a user
     router.put("/:name", requireLogin, async (req, res) => {
+        const fol = {
+            follower: req.user,
+            following: req.params.name
+        };
+        if (fol.follower === fol.following)
+            return res.status(400).json("cant follow yourself");
+
         try {
-            const fol = {
-                follower: req.user,
-                following: req.params.name
-            };
-            if (fol.follower === fol.following)
-                return res.status(400).json("cant follow yourself");
+            const exists = await db.users.findOne({ name: fol.following });
+            if (!exists) return res.status(404).json("user not found");
             
             const deleted = await db.follows.findOneAndDelete(fol);
-            if (deleted) {
-                await db.users.updateOne(
-                    { name: fol.follower },
-                    { $inc: { followingCount: -1 } }
-                );
-                await db.users.updateOne(
-                    { name: fol.following },
-                    { $inc: { followerCount: -1 } }
-                );
-                return res.status(200).json("unfollowed");
-            }
+            const inc = deleted ? -1 : 1;
 
             await db.users.updateOne(
                 { name: fol.follower },
-                { $inc: { followingCount: 1 } }
+                { $inc: { followingCount: inc } }
             );
             await db.users.updateOne(
                 { name: fol.following },
-                { $inc: { followerCount: 1 } }
+                { $inc: { followerCount: inc } }
             );
+
+            if (deleted) return res.status(200).json("unfollowed");
             await db.follows.create(fol);
             res.status(201).json("followed");
         } catch (err) {
