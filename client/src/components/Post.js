@@ -26,7 +26,7 @@ function Post({ data }) {
             }
         };
         
-        fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}/like`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/likes/post/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setPost({ ...post, likes: res.body }) : console.log(res.body))
         .catch(err => console.log(err));
@@ -43,7 +43,7 @@ function Post({ data }) {
             body: JSON.stringify({ text: input })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${post._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/post/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setComments([res.body, ...comments]) : console.log(res.body))
         .catch(err => console.log(err));

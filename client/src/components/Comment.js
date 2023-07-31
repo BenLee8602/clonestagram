@@ -27,7 +27,7 @@ function Comment({ data, showReplies }) {
             }
         };
         
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/like`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/likes/comment/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setComment({ ...comment, likes: res.body }) : console.log(res.body))
         .catch(err => console.log(err));
@@ -44,7 +44,7 @@ function Comment({ data, showReplies }) {
             body: JSON.stringify({ text: input })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/comment/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setReplies([res.body, ...replies]) : console.log(res.body))
         .catch(err => console.log(err));
