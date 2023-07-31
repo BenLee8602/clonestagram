@@ -19,12 +19,12 @@ function App() {
                 <NavigationBar />
                 <Routes>
                     <Route path="/" element={ <Home/> } />
-                    <Route path="/users/:name/profile" element={ <Profile/> } />
                     <Route path="/search" element={ <Search/> } />
+                    <Route path="/users/:name" element={ <Profile/> } />
                     <Route path="/posts/:id" element={ <OnePost/> } />
                     <Route element={ <RequireLogin/> }>
-                        <Route path="/newpost" element={ <NewPost/> } />
-                        <Route path="/edit/profile" element={ <ProfileEdit/> } />
+                        <Route path="/new-post" element={ <NewPost/> } />
+                        <Route path="/edit-profile" element={ <ProfileEdit/> } />
                     </Route>
                     <Route path="/register" element={ <Register/> } />
                     <Route path="/login" element={ <Login/> } />

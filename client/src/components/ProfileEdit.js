@@ -44,7 +44,7 @@ function ProfileEdit() {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? Navigate(`/users/${user}/profile`) : console.log(res.body))
+        .then(res => res.status === 200 ? Navigate(`/users/${user}`) : console.log(res.body))
         .catch(err => console.log(err));
     };
 

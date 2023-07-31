@@ -62,7 +62,7 @@ function Profile() {
             <div className="profile-col1">
                 <img src={ profile.pfp ? profile.pfp : "/icons/user.png" } alt="pfp" className="profile-img"/>
                 { profile.name === user ? (
-                    <Link to="/edit/profile" className="profile-under-pfp">edit profile</Link>
+                    <Link to="/edit-profile" className="profile-under-pfp">edit profile</Link>
                 ) : (<button id="follow" onClick={ handleFollow } className="profile-under-pfp">
                     { profile.following ? "unfollow" : "follow" }
                 </button>) }
@@ -95,7 +95,7 @@ function Profile() {
         /></div> : <div className="userlist"><BigList
             key={name + view}
             route={`follows/${name}/${view}`}
-            map={ v => <Link key={v._id} to={`/users/${v.name}/profile`} className="userlist-item">
+            map={ v => <Link key={v._id} to={`/users/${v.name}`} className="userlist-item">
                 <img src={ v.pfp ? v.pfp : "/icons/user.png" } alt="pfp" className="userlist-item-img" />
                 <div className="userlist-item-text">
                     <span className="userlist-item-nick">{ v.nick ? v.nick : v.name }</span>{' '}

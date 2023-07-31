@@ -103,7 +103,7 @@ function Comment({ data, showReplies }) {
 
     return (<div className={ showReplies ? "comment" : "reply" }>
         <div className="comment-body">
-            <Link to={`/users/${comment.author}/profile`} className="comment-author">{ comment.author }</Link>
+            <Link to={`/users/${comment.author}`} className="comment-author">{ comment.author }</Link>
             <span className="comment-date">{ new Date(comment.posted).toLocaleString() }</span><br/>
             { comment.text }
         </div>
