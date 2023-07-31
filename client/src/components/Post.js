@@ -17,7 +17,7 @@ function Post({ data }) {
     useEffect(() => setPost({ ...data }), [data]);
 
 
-    const handleLike = () => {
+    const handleLike = async () => {
         const req = {
             method: "PUT",
             headers: {
@@ -26,10 +26,22 @@ function Post({ data }) {
             }
         };
         
-        fetch(`${process.env.REACT_APP_BACKEND_API}/likes/post/${post._id}`, req)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...post, likes: res.body }) : console.log(res.body))
-        .catch(err => console.log(err));
+        try {
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/likes/post/${post._id}`, req);
+            const body = await res.json();
+            if (res.status === 200) return setPost(prev => ({
+                ...prev,
+                liked: false,
+                likeCount: prev.likeCount - 1
+            }));
+            if (res.status === 201) return setPost(prev => ({
+                ...prev,
+                liked: true,
+                likeCount: prev.likeCount + 1
+            }));
+            console.log(body);
+        } catch (err) { console.log(err); }
+
     };
 
 
@@ -96,8 +108,8 @@ function Post({ data }) {
             <img src={ post.image } className="post-image"/>
         </Link>
         <div className="post-actions">
-            <button onClick={handleLike} className={ post.likes.includes(user) ? "post-action-active" : "" }>
-                <img src={ post.likes.includes(user) ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
+            <button onClick={handleLike} className={ post.liked ? "post-action-active" : "" }>
+                <img src={ post.liked ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
             </button>
             <button onClick={ () => setView(view === "comment" ? "default" : "comment") || setComments([]) }>
                 <img src="/icons/comment.png" alt="comment" />
@@ -115,7 +127,7 @@ function Post({ data }) {
             { view === "default" ? <>
                 <Link to={`/users/${post.author}/profile`} className="post-author">{ post.author }</Link>
                 <p className="post-sub">{ new Date(post.posted).toLocaleString() }</p>
-                <p className="post-sub">{ post.likes.length }{ post.likes.length === 1 ? " like " : " likes" }</p>
+                <p className="post-sub">{ post.likeCount }{ post.likeCount === 1 ? " like " : " likes" }</p>
                 <p className="post-caption">{ post.caption }</p>
             </> : <></> }
             { view === "comment" ? <>

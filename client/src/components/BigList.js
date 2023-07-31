@@ -1,7 +1,9 @@
 import React, { useEffect, useRef, useState } from "react";
+import useCurrentUser from "./Auth";
 
 
 function BigList({ route, req = undefined, map, container = null }) {
+    const [user, setUser] = useCurrentUser();
     const [data, setData] = useState([]);
     const [good, setGood] = useState(true);
     const [page, setPage] = useState(0);
@@ -20,7 +22,7 @@ function BigList({ route, req = undefined, map, container = null }) {
         setGood(false);
         try {
             const url = `${process.env.REACT_APP_BACKEND_API}/${route}?page=${pageRef.current}&start=${start}`;
-            const res = await fetch(url, req);
+            const res = await fetch(url + (user ? `&cur=${user}` : ``), req);
             const body = await res.json();
             if (res.status !== 200 || body.length === 0) return setGood(false);
             setPage(prev => prev + 1);

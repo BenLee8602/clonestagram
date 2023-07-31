@@ -18,7 +18,7 @@ function Comment({ data, showReplies }) {
     useEffect(() => setComment({ ...data }), [data]);
 
 
-    const handleLike = () => {
+    const handleLike = async () => {
         const req = {
             method: "PUT",
             headers: {
@@ -27,10 +27,21 @@ function Comment({ data, showReplies }) {
             }
         };
         
-        fetch(`${process.env.REACT_APP_BACKEND_API}/likes/comment/${comment._id}`, req)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setComment({ ...comment, likes: res.body }) : console.log(res.body))
-        .catch(err => console.log(err));
+        try {
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/likes/comment/${comment._id}`, req);
+            const body = await res.json();
+            if (res.status === 200) return setComment(prev => ({
+                ...prev,
+                liked: false,
+                likeCount: prev.likeCount - 1
+            }));
+            if (res.status === 201) return setComment(prev => ({
+                ...prev,
+                liked: true,
+                likeCount: prev.likeCount + 1
+            }));
+            console.log(body);
+        } catch (err) { console.log(err); }
     };
 
 
@@ -98,9 +109,9 @@ function Comment({ data, showReplies }) {
         </div>
 
         { view === "default" ? <div className="comment-actions">
-            <span className="comment-likes-count">{ comment.likes.length }</span>
-            <button onClick={handleLike} className={ comment.likes.includes(user) ? "comment-action-active" : "" }>
-                <img src={ comment.likes.includes(user) ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
+            <span className="comment-likes-count">{ comment.likeCount }</span>
+            <button onClick={handleLike} className={ comment.liked ? "comment-action-active" : "" }>
+                <img src={ comment.liked ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
             </button>
             { showReplies ? <button onClick={ () => setView("reply") }><img src="/icons/comment.png" alt="comment" /></button> : <></> }
             { comment.author === user ? <>
