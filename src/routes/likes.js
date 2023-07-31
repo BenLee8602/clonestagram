@@ -9,8 +9,8 @@ function getLikesRouter(db, img) {
 
 
     // like a post or comment
-    router.put("/:parent", requireLogin, async (req, res) => {
-        const parentType = req.body.parentType;
+    router.put("/:parentType/:parentId", requireLogin, async (req, res) => {
+        const parentType = req.params.parentType;
         if (parentType !== "post" && parentType !== "comment")
             return res.status(400).json("parent type must be \"post\" or \"comment\"");
         const parentCollection = parentType === "post" ? db.posts : db.comments;
@@ -18,19 +18,19 @@ function getLikesRouter(db, img) {
         try {
             const deleted = await db.likes.findOneAndDelete({
                 likedBy: req.user,
-                parent: req.params.parent
+                parent: req.params.parentId
             });
             const inc = deleted ? -1 : 1;
 
             const parent = await parentCollection.findByIdAndUpdate(
-                req.params.parent,
+                req.params.parentId,
                 { $inc: { likeCount: inc } }
             );
             if (!parent) return res.status(404).json("parent not found");
 
             if (deleted) return res.status(200).json("unliked");
             await db.likes.create({
-                parent: req.params.parent,
+                parent: req.params.parentId,
                 parentType: parentType,
                 likedBy: req.user
             });
@@ -43,10 +43,10 @@ function getLikesRouter(db, img) {
 
 
     // get likes
-    router.get("/:parent", getPageInfo, async (req, res) => {
+    router.get("/:parentId", getPageInfo, async (req, res) => {
         try {
             const names = (await db.likes.find({
-                parent: req.params.parent,
+                parent: req.params.parentId,
                 created: { $lt: req.page.start }
             }, null, {
                 skip: db.pageSize * req.page.number,

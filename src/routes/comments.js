@@ -9,10 +9,10 @@ function getCommentsRouter(db) {
 
 
     // get comments
-    router.get("/:parent", getPageInfo, async (req, res) => {
+    router.get("/:parentId", getPageInfo, async (req, res) => {
         try {
             const comments = await db.comments.find({
-                parent: req.params.parent,
+                parent: req.params.parentId,
                 posted: { $lt: req.page.start }
             }, null, {
                 skip: db.pageSize * req.page.number,
@@ -28,17 +28,17 @@ function getCommentsRouter(db) {
 
 
     // create comment
-    router.post("/:parent", requireLogin, async (req, res) => {
+    router.post("/:parentType/:parentId", requireLogin, async (req, res) => {
         const text = req.body.text;
         if (!text) return res.status(400).json("missing comment text");
 
-        const parentType = req.body.parentType;
+        const parentType = req.params.parentType;
         if (parentType !== "post" && parentType !== "comment")
             return res.status(400).json("parent type must be \"post\" or \"comment\"");
         const parentCollection = parentType === "post" ? db.posts : db.comments;
         
         try {
-            const parent = await parentCollection.findById(req.params.parent);
+            const parent = await parentCollection.findById(req.params.parentId);
             if (!parent)
                 return res.status(404).json("parent not found");
             if (parent.parentType === "comment")
@@ -47,7 +47,7 @@ function getCommentsRouter(db) {
             await parent.save();
 
             const comment = await db.comments.create({
-                parent: req.params.parent,
+                parent: req.params.parentId,
                 parentType: parentType,
                 author: req.user,
                 text: text,

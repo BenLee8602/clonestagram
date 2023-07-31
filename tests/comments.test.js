@@ -34,11 +34,10 @@ describe("get comments for a post", () => {
 describe("create comment", () => {
     it("should fail if comment text is missing", async () => {
         const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).post("/api/comments/63cf2bb1bc581a02576784e8").set({
+        const res = await request(app).post("/api/comments/post/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send({
-            message: "wonderful weather were having!",
-            parentType: "post"
+            message: "wonderful weather were having!"
         });
         expect(res.statusCode).toBe(400);
         expect(res.body).toBe("missing comment text");
@@ -47,11 +46,10 @@ describe("create comment", () => {
 
     it("should fail if parent type is invalid", async () => {
         const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).post("/api/comments/63cf2bb1bc581a02576784e8").set({
+        const res = await request(app).post("/api/comments/someInvalidType/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send({
-            text: "testing 123",
-            parentType: "someInvalidType"
+            text: "testing 123"
         });
         expect(res.statusCode).toBe(400);
         expect(res.body).toBe("parent type must be \"post\" or \"comment\"");
@@ -60,11 +58,10 @@ describe("create comment", () => {
 
     it("should fail if parent is not found", async () => {
         const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).post("/api/comments/63cf278abc581a025767848d").set({
+        const res = await request(app).post("/api/comments/post/63cf278abc581a025767848d").set({
             "Authorization": "Bearer " + accessToken
         }).send({
-            text: "oops wrong id",
-            parentType: "post"
+            text: "oops wrong id"
         });
         expect(res.statusCode).toBe(404);
     });
@@ -72,11 +69,10 @@ describe("create comment", () => {
 
     it("should fail if parent is a reply", async () => {
         const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).post("/api/comments/63cf29d5bc581a02576784bb").set({
+        const res = await request(app).post("/api/comments/comment/63cf29d5bc581a02576784bb").set({
             "Authorization": "Bearer " + accessToken
         }).send({
-            text: "replying to a reply",
-            parentType: "comment"
+            text: "replying to a reply"
         });
         expect(res.statusCode).toBe(400);
         expect(res.body).toBe("parent cannot be a reply");
@@ -85,11 +81,10 @@ describe("create comment", () => {
 
     it("should create comment for valid post given comment text", async () => {
         const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).post("/api/comments/63cf2bb1bc581a02576784e8").set({
+        const res = await request(app).post("/api/comments/post/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send({
-            text: "new comment from test 3",
-            parentType: "post"
+            text: "new comment from test 3"
         });
         expect(res.statusCode).toBe(200);
 

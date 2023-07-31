@@ -17,33 +17,27 @@ beforeEach(async () => {
 describe("smash the like button", () => {
     it("should fail if parent type is invalid", async () => {
         const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).put("/api/likes/63cf2c5cbc581a0257678503").set({
+        const res = await request(app).put("/api/likes/someInvalidType/63cf2c5cbc581a0257678503").set({
             "Authorization": "Bearer " + accessToken
-        }).send({
-            parentType: "someInvalidType"
-        });
+        }).send();
         expect(res.statusCode).toBe(400);
     });
 
 
     it("should fail if parent doesnt exist", async () => {
         const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).put("/api/likes/5fbca0a35e06b136c429a22a").set({
+        const res = await request(app).put("/api/likes/post/5fbca0a35e06b136c429a22a").set({
             "Authorization": "Bearer " + accessToken
-        }).send({
-            parentType: "post"
-        });
+        }).send();
         expect(res.statusCode).toBe(404);
     });
 
 
     it("should like if not already liked", async () => {
         const accessToken = db.genTestAccessToken("ben");
-        const res = await request(app).put("/api/likes/63cf2c5cbc581a0257678503").set({
+        const res = await request(app).put("/api/likes/comment/63cf2c5cbc581a0257678503").set({
             "Authorization": "Bearer " + accessToken
-        }).send({
-            parentType: "comment"
-        });
+        }).send();
         expect(res.statusCode).toBe(201);
 
         const like = await db.likes.findOne({
@@ -59,11 +53,9 @@ describe("smash the like button", () => {
 
     it("should unlike if already liked", async () => {
         const accessToken = db.genTestAccessToken("someguy");
-        const res = await request(app).put("/api/likes/63cf287bbc581a02576784aa").set({
+        const res = await request(app).put("/api/likes/post/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
-        }).send({
-            parentType: "post"
-        });
+        }).send();
         expect(res.statusCode).toBe(200);
 
         const like = await db.likes.findOne({
