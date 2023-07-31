@@ -31,7 +31,9 @@ describe("get post by id", () => {
 
 
     it("should return post if exists", async () => {
-        const res = await request(app).get("/api/posts/63cf287bbc581a02576784aa").send();
+        const res = await request(app).get("/api/posts/63cf287bbc581a02576784aa").query({
+            cur: "ben"
+        }).send();
         expect(res.statusCode).toBe(200);
         delete res.body.posted;
         expect(JSON.stringify(res.body)).toBe(JSON.stringify({
@@ -40,7 +42,8 @@ describe("get post by id", () => {
             "image": "linkToPost1Image",
             "caption": "a cool caption",
             "likeCount": 2,
-            "commentCount": 3
+            "commentCount": 3,
+            "liked": true
         }));
     });
 });

@@ -17,9 +17,16 @@ function getCommentsRouter(db) {
             }, null, {
                 skip: db.pageSize * req.page.number,
                 limit: db.pageSize
-            }).sort({ posted: "desc" });
+            }).sort({ posted: "desc" }).lean();
+            if (!req.query.cur) return res.status(200).json(comments);
 
-            res.status(200).json(comments);
+            for (let i = 0; i < comments.length; ++i) {
+                comments[i].liked = !!(await db.likes.findOne({
+                    parent: comments[i]._id,
+                    likedBy: req.query.cur
+                }));
+            }
+            return res.status(200).json(comments);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
