@@ -1,10 +1,10 @@
-import React, { useContext } from "react";
+import React from "react";
 import { Link } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 import "../style/NavigationBar.css";
 
 function NavigationBar() {
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
 
 
     const logout = () => {
@@ -30,9 +30,9 @@ function NavigationBar() {
         <nav>
             <ul>
                 <li><Link to="/" id="title" className="navitem"><h1>pixelblob</h1></Link></li>
-                <li><Link to={ user ? `/users/${user}/profile` : "/login" } className="navitem">profile</Link></li>
+                <li><Link to={ user ? `/users/${user}` : "/login" } className="navitem">profile</Link></li>
                 <li><Link to="/search" className="navitem">search</Link></li>
-                <li><Link to="/newpost" className="navitem">new</Link></li>
+                <li><Link to="/new-post" className="navitem">new</Link></li>
                 { user ? <>
                     <li style={{float:"right"}}><Link to="/login" onClick={ logout } className="navitem">logout</Link></li>
                 </> : <>

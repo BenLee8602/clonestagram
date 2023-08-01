@@ -1,13 +1,13 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 
 import "../style/content.css";
 import "../style/Login.css";
 
 function NewPost() {
     const Navigate = useNavigate();
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
     const [image, setImage] = useState();
     const [caption, setCaption] = useState("");
 
@@ -26,7 +26,7 @@ function NewPost() {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? Navigate(`/users/${user}/profile`) : console.log(res.body))
+        .then(res => res.status === 200 ? Navigate(`/users/${user}`) : console.log(res.body))
         .catch(err => console.log(err));
     };
 

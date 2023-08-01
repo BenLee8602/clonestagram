@@ -1,6 +1,6 @@
-import React, { useContext, useState } from "react";
+import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 
 import "../style/content.css";
 import "../style/Login.css";
@@ -8,7 +8,7 @@ import "../style/Login.css";
 
 function Register() {
     const Navigate = useNavigate();
-    const [user, setUser] = useContext(UserContext);
+    const [user, setUser] = useCurrentUser();
     const [curName, setCurName] = useState("");
     const [curPass, setCurPass] = useState("");
     const [curPassConf, setCurPassConf] = useState("");

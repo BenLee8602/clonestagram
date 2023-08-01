@@ -72,6 +72,7 @@
     font-size: 12px;
     font-weight: lighter;
     margin: 0px;
+    text-decoration: none;
 }
 
 .post .post-caption {
@@ -79,6 +80,20 @@
 }
 
 .post .post-comments {
-    max-height: 200px;
-    overflow: auto;
+    max-height: 400px;
+    overflow-y: scroll;
+}
+
+
+.post ::-webkit-scrollbar {
+    width: 8px;
+}
+
+.post ::-webkit-scrollbar-track {
+    background: none;
+}
+
+.post ::-webkit-scrollbar-thumb {
+    background: black;
+    border-radius: 4px;
 }

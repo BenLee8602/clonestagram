@@ -1,53 +1,70 @@
 import React, { useState } from "react";
-import PostList from "./PostList";
-import UserList from "./UserList";
+import { Link } from "react-router-dom";
+import BigList from "./BigList";
+
 
 import "../style/Search.css";
+import "../style/userlist.css";
+import "../style/postlist.css";
+
 
 function Search() {
+    const [input, setInput] = useState("");
     const [query, setQuery] = useState("");
-    const [results, setResults] = useState(null);
-    const [show, setShow] = useState("users");
+    const [view, setView] = useState("users");
+
 
     const handleSearch = () => {
-        if (query === "") return;
-        fetch(`${process.env.REACT_APP_BACKEND_API}/search/${query}`)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setResults(res.body) : console.log(res.body));
+        if (input === "") return;
+        setQuery(input);
     };
 
-    return (<>
-        <div className="search">
+
+    return (<div className="search">
+        <button
+            onClick={ () => setView("users") }
+            className="search-switch"
+            id={ view === "users" ? "search-switch-active" : "" }
+        >users</button>
+        <button
+            onClick={ () => setView("posts") }
+            className="search-switch search-switch-right"
+            id={ view === "posts" ? "search-switch-active" : "" }
+        >posts</button>
+
+        <div className="search-body">
             <input
                 type="text"
-                placeholder="search users and posts"
-                onChange={ e => setQuery(e.target.value) }
+                placeholder={`search ${view}`}
+                onChange={ e => setInput(e.target.value) }
                 className="search-bar"
             />
             <button onClick={ handleSearch } className="search-button">search</button>
         </div>
-        
-        { results ? <>
-            <div className="search">
-                <button
-                    onClick={ () => setShow("users") }
-                    className="search-switch"
-                    id={ show === "users" ? "search-switch-active" : "" }
-                >users</button>
-                <button
-                    onClick={ () => setShow("posts") }
-                    className="search-switch"
-                    id={ show === "posts" ? "search-switch-active" : "" }
-                >posts</button>
-            </div>
 
-            { show === "users" ? (
-                results.users.length ? <UserList data={ results.users } /> : <h3>No users found for "{ results.query }"</h3>
-            ) : (
-                results.posts.length ? <PostList posts={ results.posts } /> : <h3>No posts found for "{ results.query }"</h3>
-            ) }
-        </> : <></> }
-    </>);
+        <div className="search-spacer"></div>
+
+        { query && view === "users" ? <BigList
+            key={query}
+            route={`users/search/${query}`}
+            map={ v => <Link key={v._id} to={`/users/${v.name}`} className="userlist-item">
+                <img src={ v.pfp ? v.pfp : "/icons/user.png" } alt="pfp" className="userlist-item-img" />
+                <div className="userlist-item-text">
+                    <span className="userlist-item-nick">{ v.nick ? v.nick : v.name }</span>{' '}
+                    <span className="userlist-item-name">{v.name}</span>
+                </div>
+            </Link> }
+        /> : <></> }
+
+        { query && view === "posts" ? <div className="postlist"><BigList
+            key={query}
+            route={`posts/search/${query}`}
+            map={ v => <Link key={v._id} to={`/posts/${v._id}`} className="postlist-item">
+                <img src={v.image} alt="post" className="postlist-image" />
+            </Link> }
+        /></div> : <></> }
+    </div>);
 }
+
 
 export default Search;

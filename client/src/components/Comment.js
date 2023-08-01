@@ -1,31 +1,24 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import UserContext from "../UserContext";
-import Reply from "./Reply";
+import useCurrentUser from "./Auth";
+
+import BigList from "./BigList";
 
 import "../style/Comment.css";
+import "../style/Reply.css";
 
 
-function Comment({ data }) {
-    const [user, setUser] = useContext(UserContext);
+function Comment({ data, showReplies }) {
+    const [user, setUser] = useCurrentUser();
     const [comment, setComment] = useState(null);
-    const [replies, setReplies] = useState(null);
-    const [view, setView] = useState(null);
+    const [replies, setReplies] = useState([]);
+    const [view, setView] = useState("default");
     const [input, setInput] = useState("");
-
 
     useEffect(() => setComment({ ...data }), [data]);
 
-    useEffect(() => {
-        if (view !== "reply") return;
-        fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${comment._id}`)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setReplies([...res.body]) : console.log(res.body))
-        .catch(err => console.log(err));
-    }, [view]);
 
-
-    const handleLike = () => {
+    const handleLike = async () => {
         const req = {
             method: "PUT",
             headers: {
@@ -34,10 +27,21 @@ function Comment({ data }) {
             }
         };
         
-        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}/like`, req)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setComment({ ...comment, likes: res.body }) : console.log(res.body))
-        .catch(err => console.log(err));
+        try {
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/likes/comment/${comment._id}`, req);
+            const body = await res.json();
+            if (res.status === 200) return setComment(prev => ({
+                ...prev,
+                liked: false,
+                likeCount: prev.likeCount - 1
+            }));
+            if (res.status === 201) return setComment(prev => ({
+                ...prev,
+                liked: true,
+                likeCount: prev.likeCount + 1
+            }));
+            console.log(body);
+        } catch (err) { console.log(err); }
     };
 
 
@@ -51,12 +55,10 @@ function Comment({ data }) {
             body: JSON.stringify({ text: input })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/replies/${comment._id}`, req)
+        fetch(`${process.env.REACT_APP_BACKEND_API}/comments/comment/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
         .then(res => res.status === 200 ? setReplies([res.body, ...replies]) : console.log(res.body))
         .catch(err => console.log(err));
-
-        setView(null);
     };
 
 
@@ -75,7 +77,7 @@ function Comment({ data }) {
         .then(res => res.status === 200 ? setComment({ ...res.body }) : console.log(res.body))
         .catch(err => console.log(err));
 
-        setView(null);
+        setView("default");
     };
 
 
@@ -97,44 +99,50 @@ function Comment({ data }) {
     };
 
 
-    if (!comment) return <></>;
-    
-    if (view === "reply") return (<div className="comment-modify">
-        <input type="text" placeholder="new reply" onChange={ e => setInput(e.target.value) } />
-        <button onClick={ () => setView(null) }>✕</button>
-        <button onClick={handleReply}>✓</button>
-        { replies ? <div className="comment-replies">{ replies.map(v => <Reply key={v._id} data={v} />) }</div> : <></> }
-    </div>);
+    if (!comment) return (<></>);
 
-    if (view === "edit") return (<div className="comment-modify">
-        <input type="text" placeholder="new comment text" onChange={ e => setInput(e.target.value) } />
-        <button onClick={ () => setView(null) }>✕</button>
-        <button onClick={handleEdit}>✓</button>
-    </div>);
-
-    if (view === "delete") return (<div className="comment-modify">
-        <input type="text" placeholder="enter username to confirm" onChange={ e => setInput(e.target.value) } />
-        <button onClick={ () => setView(null) }>✕</button>
-        <button onClick={handleDelete}>✓</button>
-    </div>);
-
-    return (<div className="comment">
+    return (<div className={ showReplies ? "comment" : "reply" }>
         <div className="comment-body">
-            <Link to={`/users/${comment.author}/profile`} className="comment-author">{ comment.author }</Link>
+            <Link to={`/users/${comment.author}`} className="comment-author">{ comment.author }</Link>
             <span className="comment-date">{ new Date(comment.posted).toLocaleString() }</span><br/>
             { comment.text }
         </div>
-        <div className="comment-actions">
-            <span className="comment-likes-count">{ comment.likes.length }</span>
-            <button onClick={handleLike} className={ comment.likes.includes(user) ? "comment-action-active" : "" }>
-                <img src={ comment.likes.includes(user) ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
+
+        { view === "default" ? <div className="comment-actions">
+            <Link to={`/likes/${comment._id}`} className="comment-likes-count">{ comment.likeCount }</Link>
+            <button onClick={handleLike} className={ comment.liked ? "comment-action-active" : "" }>
+                <img src={ comment.liked ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
             </button>
-            <button onClick={ () => setView("reply") }><img src="/icons/comment.png" alt="comment" /></button>
+            { showReplies ? <button onClick={ () => setView("reply") }><img src="/icons/comment.png" alt="comment" /></button> : <></> }
             { comment.author === user ? <>
                 <button onClick={ () => setView("edit") }><img src="/icons/edit.png" alt="edit" /></button>
                 <button onClick={ () => setView("delete") }><img src="/icons/delete.png" alt="delete" /></button>
             </> : <></> }
-        </div>
+        </div> : <></> }
+        { view === "reply" ? <>
+            <div className="comment-actions">
+                <input type="text" placeholder="new reply" onChange={ e => setInput(e.target.value) } />
+                <button onClick={ () => setView("default") || setReplies([]) }>✕</button>
+                <button onClick={handleReply}>✓</button>
+            </div>
+            <div className="comment-replies">
+                { replies ? <>{ replies.map(v => <Comment key={v._id} data={v} />) }</> : <></> }
+                <BigList
+                    route={`comments/${comment._id}`}
+                    map={ v => <Comment key={v._id} data={v} /> }
+                />
+            </div>
+        </> : <></> }
+        { view === "edit" ? <div className="comment-actions">
+            <input type="text" placeholder="new comment text" onChange={ e => setInput(e.target.value) } />
+            <button onClick={ () => setView("default") }>✕</button>
+            <button onClick={handleEdit}>✓</button>
+        </div> : <></> }
+        { view === "delete" ? <div className="comment-actions">
+            <input type="text" placeholder="enter username to confirm" onChange={ e => setInput(e.target.value) } />
+            <button onClick={ () => setView("default") }>✕</button>
+            <button onClick={handleDelete}>✓</button>
+        </div> : <></> }
     </div>);
 }
 
