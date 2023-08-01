@@ -56,7 +56,7 @@ function getCommentsRouter(db) {
             const comment = await db.comments.create({
                 parent: req.params.parentId,
                 parentType: parentType,
-                author: req.user,
+                author: req.user.name,
                 text: text,
             });
             
@@ -74,7 +74,7 @@ function getCommentsRouter(db) {
         if (!text) return res.status(400).send("new text missing");
         try {
             const comment = await db.comments.findOneAndUpdate(
-                { _id: req.params.id, author: req.user },
+                { _id: req.params.id, author: req.user.name },
                 { $set: { text: text } },
                 { new: true }
             );
@@ -92,7 +92,7 @@ function getCommentsRouter(db) {
         try {
             const comment = await db.comments.findOneAndDelete({
                 _id: req.params.id,
-                author: req.user
+                author: req.user.name
             });
             if (!comment) return res.status(404).json("comment not found");
 

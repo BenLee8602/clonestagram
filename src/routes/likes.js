@@ -17,7 +17,7 @@ function getLikesRouter(db, img) {
 
         try {
             const deleted = await db.likes.findOneAndDelete({
-                likedBy: req.user,
+                likedBy: req.user.name,
                 parent: req.params.parentId
             });
             const inc = deleted ? -1 : 1;
@@ -32,7 +32,7 @@ function getLikesRouter(db, img) {
             await db.likes.create({
                 parent: req.params.parentId,
                 parentType: parentType,
-                likedBy: req.user
+                likedBy: req.user.name
             });
             return res.status(201).json("liked");
         } catch (err) {

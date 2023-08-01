@@ -11,7 +11,7 @@ function getFollowsRouter(db, img) {
     // follow a user
     router.put("/:name", requireLogin, async (req, res) => {
         const fol = {
-            follower: req.user,
+            follower: req.user.name,
             following: req.params.name
         };
         if (fol.follower === fol.following)

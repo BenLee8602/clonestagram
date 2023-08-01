@@ -116,13 +116,13 @@ function getPostsRouter(db, img) {
             await img.putImage(imageName, req.file.buffer, req.file.mimetype);
 
             const newPost = await db.posts.create({
-                author: req.user,
+                author: req.user.name,
                 image: imageName,
                 caption: caption
             });
             
             await db.users.updateOne(
-                { name: req.user },
+                { name: req.user.name },
                 { $inc: { postCount: 1 } }
             );
 
@@ -140,7 +140,7 @@ function getPostsRouter(db, img) {
         if (!caption) return res.status(400).json("new caption missing");
         try {
             const post = await db.posts.findOneAndUpdate(
-                { _id: req.params.id, author: req.user },
+                { _id: req.params.id, author: req.user.name },
                 { $set: { caption: caption } }
             );
             if (!post) return res.status(404).json("post not found");
@@ -156,14 +156,14 @@ function getPostsRouter(db, img) {
     router.delete("/:id", requireLogin, async (req, res) => {
         try {
             const post = await db.posts.findOneAndDelete(
-                { _id: req.params.id, author: req.user },
+                { _id: req.params.id, author: req.user.name },
             );
             if (!post) return res.status(404).json(req.params.id);
             
             await img.deleteImage(post.image);
             
             await db.users.updateOne(
-                { name: req.user },
+                { name: req.user.name },
                 { $inc: { postCount: -1 } }
             );
 
