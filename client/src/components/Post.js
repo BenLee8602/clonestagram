@@ -8,7 +8,7 @@ import "../style/Post.css";
 
 
 function Post({ data }) {
-    const [user, setUser] = useCurrentUser();
+    const [user] = useCurrentUser();
     const [post, setPost] = useState(null);
     const [view, setView] = useState("default");
     const [input, setInput] = useState("");
@@ -84,7 +84,7 @@ function Post({ data }) {
 
 
     const handleDelete = () => {
-        if (input !== user) return;
+        if (input !== user.name) return;
 
         const req = {
             method: "DELETE",
@@ -114,7 +114,7 @@ function Post({ data }) {
             <button onClick={ () => setView(view === "comment" ? "default" : "comment") || setComments([]) }>
                 <img src="/icons/comment.png" alt="comment" />
             </button>
-            { post.author === user ? <>
+            { post.author === user.name ? <>
                 <button onClick={ () => setView(view === "edit" ? "default" :  "edit") }>
                     <img src="/icons/edit.png" alt="edit" />
                 </button>

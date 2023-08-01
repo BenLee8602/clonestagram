@@ -10,7 +10,7 @@ export default function useCurrentUser() {
 
 
 export function RequireLogin() {
-    const [curUser, setCurUser] = useCurrentUser();
+    const [curUser] = useCurrentUser();
     return curUser ? <Outlet/> : <Navigate to="/login"/>;
 }
 

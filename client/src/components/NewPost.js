@@ -7,7 +7,7 @@ import "../style/Login.css";
 
 function NewPost() {
     const Navigate = useNavigate();
-    const [user, setUser] = useCurrentUser();
+    const [user] = useCurrentUser();
     const [image, setImage] = useState();
     const [caption, setCaption] = useState("");
 
@@ -26,7 +26,7 @@ function NewPost() {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? Navigate(`/users/${user}`) : console.log(res.body))
+        .then(res => res.status === 200 ? Navigate(`/users/${user.name}`) : console.log(res.body))
         .catch(err => console.log(err));
     };
 

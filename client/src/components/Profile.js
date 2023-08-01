@@ -11,7 +11,7 @@ import "../style/Profile.css";
 
 function Profile() {
     const name = useParams().name;
-    const [user, setUser] = useCurrentUser();
+    const [user] = useCurrentUser();
     const [profile, setProfile] = useState(null);
     const [view, setView] = useState("posts");
 
@@ -28,7 +28,7 @@ function Profile() {
         setView("posts");
         const url = `${process.env.REACT_APP_BACKEND_API}/users/${name}/profile`;
         try {
-            const res = await fetch(url + (user ? `?cur=${user}` : ``));
+            const res = await fetch(url + (user ? `?cur=${user.name}` : ``));
             const body = await res.json();
             if (res.status !== 200) return console.log(body);
             setProfile(body);
@@ -61,7 +61,7 @@ function Profile() {
         <div className="profile">
             <div className="profile-col1">
                 <img src={ profile.pfp ? profile.pfp : "/icons/user.png" } alt="pfp" className="profile-img"/>
-                { profile.name === user ? (
+                { profile.name === user.name ? (
                     <Link to="/edit-profile" className="profile-under-pfp">edit profile</Link>
                 ) : (<button id="follow" onClick={ handleFollow } className="profile-under-pfp">
                     { profile.following ? "unfollow" : "follow" }

@@ -30,7 +30,7 @@ function NavigationBar() {
         <nav>
             <ul>
                 <li><Link to="/" id="title" className="navitem"><h1>pixelblob</h1></Link></li>
-                <li><Link to={ user ? `/users/${user}` : "/login" } className="navitem">profile</Link></li>
+                <li><Link to={ user ? `/users/${user.name}` : "/login" } className="navitem">profile</Link></li>
                 <li><Link to="/search" className="navitem">search</Link></li>
                 <li><Link to="/new-post" className="navitem">new</Link></li>
                 { user ? <>

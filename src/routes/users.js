@@ -10,9 +10,17 @@ const upload = multer({ storage });
 const { requireLogin } = require("../middlewares/auth");
 const { getPageInfo } = require("../middlewares/page");
 
-function genAccessToken(user) {
+
+function genRefreshToken(id, name) {
     return jwt.sign(
-        { user },
+        { id, name },
+        process.env.REFRESH_TOKEN_SECRET
+    );
+}
+
+function genAccessToken(id, name) {
+    return jwt.sign(
+        { id, name },
         process.env.ACCESS_TOKEN_SECRET,
         { expiresIn: "15m" }
     );
@@ -30,18 +38,20 @@ function getUsersRouter(db, img) {
         if (!name || !pass) return res.status(400).json("missing username or password");
 
         try {
-            const doc = await db.users.findOne({ name }, "-_id name");
+            const doc = await db.users.findOne({ name }, "name");
             if (doc) return res.status(409).json("username is taken");
 
             const salt = await bcrypt.genSalt();
             const hash = await bcrypt.hash(pass, salt);
-            await db.users.create({ name, pass: hash });
+            
+            const user = await db.users.create({ name, pass: hash });
+            const id = user._id.toString();
 
-            const refreshToken = jwt.sign({ user: name }, process.env.REFRESH_TOKEN_SECRET);
-            const accessToken = genAccessToken(name);
+            const refreshToken = genRefreshToken(id, name);
+            const accessToken = genAccessToken(id, name);
+
             await db.tokens.create({ token: refreshToken });
-
-            res.status(200).json({ refreshToken, accessToken });
+            res.status(200).json({ refreshToken, accessToken, user: { id, name } });
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -60,11 +70,12 @@ function getUsersRouter(db, img) {
             if (!user) return res.status(404).json(`user ${name} not found`);
             if (!await bcrypt.compare(pass, user.pass)) return res.status(401).json("incorrect password");
 
-            const refreshToken = jwt.sign({ user: name }, process.env.REFRESH_TOKEN_SECRET);
-            const accessToken = genAccessToken(name);
-            await db.tokens.create({ token: refreshToken });
+            const id = user._id.toString();
+            const refreshToken = genRefreshToken(id, name);
+            const accessToken = genAccessToken(id, name);
 
-            res.status(200).json({ refreshToken, accessToken });
+            await db.tokens.create({ token: refreshToken });
+            res.status(200).json({ refreshToken, accessToken, user: { id, name } });
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -80,8 +91,8 @@ function getUsersRouter(db, img) {
             jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, async (err, token) => {
                 if (err) return res.status(401).json("invalid refresh token");
                 if (!await db.tokens.findOne({ token: refreshToken })) return res.status(401).json("old refresh token");
-                const accessToken = genAccessToken(token.user);
-                res.status(200).json({ accessToken, user: token.user });
+                const accessToken = genAccessToken(token.id, token.name);
+                res.status(200).json({ accessToken, user: token });
             });
         } catch (err) {
             console.log(err);
@@ -92,8 +103,11 @@ function getUsersRouter(db, img) {
 
     // logout user
     router.delete("/logout", async (req, res) => {
+        const refreshToken = req.body.refreshToken;
+        if (!refreshToken) return res.status(400).json("missing refresh token");
         try {
-            await db.tokens.deleteOne({ token: req.body.refreshToken });
+            const deleted = await db.tokens.findOneAndDelete({ token: req.body.refreshToken });
+            if (!deleted) return res.status(404).json("token not found");
             res.status(200).json("logged out");
         } catch (err) {
             console.log(err);
@@ -127,7 +141,7 @@ function getUsersRouter(db, img) {
         try {
             const user = await db.users.findOne(
                 { name: req.params.name },
-                "-_id -pass -__v"
+                "-pass"
             ).lean();
             if (!user) return res.status(404).json("user not found");
             user.pfp = await img.getImage(user.pfp);
@@ -151,9 +165,9 @@ function getUsersRouter(db, img) {
         const bio = req.body.bio || "";
 
         try {
-            const user = await db.users.findOneAndUpdate(
-                { name: req.user },
-                { $set: { nick, bio } },
+            const user = await db.users.findByIdAndUpdate(
+                req.user.id,
+                { nick, bio },
                 {
                     fields: { "_id": 0, "pass": 0, "__v": 0 },
                     new: true
@@ -163,13 +177,9 @@ function getUsersRouter(db, img) {
             if (!req.file) return res.status(200).json(user);
             if (!user.pfp) {
                 user.pfp = img.generateImageName();
-                await db.users.updateOne(
-                    { name: req.user },
-                    { $set: { pfp: user.pfp } },
-                    {
-                        fields: { "_id": 0, "pass": 0, "__v": 0 },
-                        new: true
-                    }
+                await db.users.findByIdAndUpdate(
+                    req.user.id,
+                    { pfp: user.pfp }
                 );
             }
             await img.putImage(user.pfp, req.file.buffer, req.file.mimetype);

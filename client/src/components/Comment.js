@@ -9,7 +9,7 @@ import "../style/Reply.css";
 
 
 function Comment({ data, showReplies }) {
-    const [user, setUser] = useCurrentUser();
+    const [user] = useCurrentUser();
     const [comment, setComment] = useState(null);
     const [replies, setReplies] = useState([]);
     const [view, setView] = useState("default");
@@ -82,7 +82,7 @@ function Comment({ data, showReplies }) {
 
 
     const handleDelete = () => {
-        if (input !== user) return;
+        if (input !== user.name) return;
 
         const req = {
             method: "DELETE",
