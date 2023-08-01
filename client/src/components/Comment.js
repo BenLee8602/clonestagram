@@ -109,7 +109,7 @@ function Comment({ data, showReplies }) {
         </div>
 
         { view === "default" ? <div className="comment-actions">
-            <span className="comment-likes-count">{ comment.likeCount }</span>
+            <Link to={`/likes/${comment._id}`} className="comment-likes-count">{ comment.likeCount }</Link>
             <button onClick={handleLike} className={ comment.liked ? "comment-action-active" : "" }>
                 <img src={ comment.liked ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
             </button>

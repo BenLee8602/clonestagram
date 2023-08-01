@@ -11,6 +11,7 @@ import Register from "./Register";
 import NewPost from "./NewPost";
 import Search from "./Search";
 import OnePost from "./OnePost";
+import Likes from "./Likes";
 
 function App() {
     return (<>
@@ -22,6 +23,7 @@ function App() {
                     <Route path="/search" element={ <Search/> } />
                     <Route path="/users/:name" element={ <Profile/> } />
                     <Route path="/posts/:id" element={ <OnePost/> } />
+                    <Route path="/likes/:id" element={ <Likes/> } />
                     <Route element={ <RequireLogin/> }>
                         <Route path="/new-post" element={ <NewPost/> } />
                         <Route path="/edit-profile" element={ <ProfileEdit/> } />

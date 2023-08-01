@@ -40,6 +40,8 @@
     vertical-align: top;
     height: 16px;
     padding: 4px;
+    text-decoration: none;
+    color: black;
 }
 
 .comment-actions {

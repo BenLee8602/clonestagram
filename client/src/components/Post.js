@@ -127,7 +127,9 @@ function Post({ data }) {
             { view === "default" ? <>
                 <Link to={`/users/${post.author}`} className="post-author">{ post.author }</Link>
                 <p className="post-sub">{ new Date(post.posted).toLocaleString() }</p>
-                <p className="post-sub">{ post.likeCount }{ post.likeCount === 1 ? " like " : " likes" }</p>
+                <Link to={`/likes/${post._id}`} className="post-sub">
+                    { post.likeCount }{ post.likeCount === 1 ? " like " : " likes" }
+                </Link>
                 <p className="post-caption">{ post.caption }</p>
             </> : <></> }
             { view === "comment" ? <>

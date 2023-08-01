@@ -16,7 +16,6 @@ function Search() {
 
     const handleSearch = () => {
         if (input === "") return;
-        console.log(input);
         setQuery(input);
     };
 
