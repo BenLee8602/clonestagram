@@ -1,6 +1,6 @@
-import React, { useContext, useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import UserContext from "../UserContext";
+import useCurrentUser from "./Auth";
 
 import "../style/content.css";
 import "../style/Login.css";
@@ -8,36 +8,24 @@ import "../style/Login.css";
 
 function ProfileEdit() {
     const Navigate = useNavigate();
-    const [user, setUser] = useContext(UserContext);
-    const [profile, setProfile] = useState(null);
+    const [user, setUser] = useCurrentUser();
     const [deleting, setDeleting] = useState(false);
-    const [input, setInput] = useState("");
 
     const [pfp, setPfp] = useState("");
     const [nick, setNick] = useState("");
     const [bio, setBio] = useState("");
 
 
-    useEffect(() => {
-        const req = {
-            method: "GET",
-            headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + localStorage.getItem("accessToken")
-            }
-        };
-
-        fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => {
-            if (res.status !== 200) return console.log(res.body);
-            setProfile(res.body);
-            setPfp(res.body.pfp);
-            setNick(res.body.nick);
-            setBio(res.body.bio);
-        })
-        .catch(err => console.log(err));
-    }, []);
+    useEffect(() => { const fetchProfile = async () => {
+        try {
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/users/${user}/profile`);
+            const body = await res.json();
+            if (res.status !== 200) return console.log(body);
+            setPfp(body.pfp);
+            setNick(body.nick);
+            setBio(body.bio);
+        } catch (err) { console.log(err); }
+    }; fetchProfile() }, []);
 
 
     const handleSubmit = () => {
@@ -45,7 +33,7 @@ function ProfileEdit() {
         formData.append("image", pfp);
         formData.append("nick", nick);
         formData.append("bio", bio);
-
+        
         const req = {
             method: "PUT",
             headers: {
@@ -56,13 +44,13 @@ function ProfileEdit() {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? Navigate(`/users/${profile.name}/profile`) : console.log(res.body))
+        .then(res => res.status === 200 ? Navigate(`/users/${user}`) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
 
     const handleDelete = async () => {
-        if (input !== user) return;
+        if (deleting !== user) return;
 
         const req = {
             method: "DELETE",
@@ -85,7 +73,6 @@ function ProfileEdit() {
     };
 
 
-    if (!profile) return (<div><h1>loading</h1></div>);
     return (<div className="content" id="login">
         <input
             type="file"
@@ -95,22 +82,22 @@ function ProfileEdit() {
         <input
             type="text"
             placeholder="nickname"
-            defaultValue={ profile.nick }
+            value={ nick }
             onChange={ e => setNick(e.target.value) }
         /><br/>
         <textarea
             placeholder="bio"
-            defaultValue={ profile.bio }
+            value={ bio }
             onChange={ e => setBio(e.target.value) }
         /><br/>
         <button onClick={ handleSubmit }>submit</button><br/><br/>
 
-        { deleting ? <>
+        { deleting !== false ? <>
             <span>deleting your account removes all your posts, comments, etc. it cannot be undone!</span>
-            <input type="text" placeholder="enter username to confirm" onChange={ e => setInput(e.target.value) } />
+            <input type="text" placeholder="enter username to confirm" onChange={ e => setDeleting(e.target.value) } />
             <button onClick={ () => setDeleting(false) }>cancel</button>
             <button onClick={handleDelete}>confirm</button>
-        </> : <button onClick={ () => setDeleting(true) }>delete account</button> }
+        </> : <button onClick={ () => setDeleting("") }>delete account</button> }
     </div>);
 }
 

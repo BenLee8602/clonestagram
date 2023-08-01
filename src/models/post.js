@@ -4,10 +4,12 @@ const Schema = mongoose.Schema;
 const PostSchema = new Schema({
     author: {
         type: String,
-        required: true
+        required: true,
+        immutable: true
     },
     posted: {
         type: Date,
+        required: true,
         immutable: true,
         default: () => Date.now()
     },
@@ -19,9 +21,13 @@ const PostSchema = new Schema({
         type: String,
         required: true
     },
-    likes: {
-        type: Array,
-        default: []
+    likeCount: {
+        type: Number,
+        default: 0
+    },
+    commentCount: {
+        type: Number,
+        default: 0
     }
 });
 

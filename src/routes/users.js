@@ -8,6 +8,7 @@ const storage = multer.memoryStorage();
 const upload = multer({ storage });
 
 const { requireLogin } = require("../middlewares/auth");
+const { getPageInfo } = require("../middlewares/page");
 
 function genAccessToken(user) {
     return jwt.sign(
@@ -101,12 +102,17 @@ function getUsersRouter(db, img) {
     });
 
 
-    // get user data for each name in list
-    router.post("/", async (req, res) => {
-        const names = req.body.names;
-        if (!names) return res.status(400).json("missing names list");
+    // search users
+    router.get("/search/:query", getPageInfo, async (req, res) => {
+        const query = { $regex: req.params.query, $options: "i" };
         try {
-            const users = await db.users.find({ name: { $in: req.body.names } }, "-_id -pass -__v");
+            const users = await db.users.find({
+                name: query,
+                posted: { $lt: req.page.start }
+            }, "-pass", {
+                skip: db.pageSize * req.page.number,
+                limit: db.pageSize
+            });
             for (let i = 0; i < users.length; ++i) users[i].pfp = await img.getImage(users[i].pfp);
             res.status(200).json(users);
         } catch (err) {
@@ -119,87 +125,19 @@ function getUsersRouter(db, img) {
     // get the given user's profile data
     router.get("/:name/profile", async (req, res) => {
         try {
-            const user = await db.users.findOne({ name: req.params.name }, "-_id -pass -__v");
+            const user = await db.users.findOne(
+                { name: req.params.name },
+                "-_id -pass -__v"
+            ).lean();
             if (!user) return res.status(404).json("user not found");
             user.pfp = await img.getImage(user.pfp);
-
-            const posts = await db.posts.find({ author: req.params.name }, "-__v").sort({ posted: "desc" });
-            for (let i = 0; i < posts.length; ++i)
-                posts[i].image = await img.getImage(posts[i].image);
-
-            let isThisUser = false;
-            let isFollowing = false;
-            if (req.headers["authorization"]) {
-                const token = req.headers["authorization"].split(' ')[1];
-                jwt.verify(token, process.env.ACCESS_TOKEN_SECRET, (err, data) => {
-                    if (err) return;
-                    isThisUser = data.user === req.params.name;
-                    isFollowing = user.followers.includes(data.user);
-                });
-            }
-
-            res.status(200).json({ user, posts, isThisUser, isFollowing });
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
-    // follow a user
-    router.get("/:name/follow", requireLogin, async (req, res) => {
-        try {
-            const thisUser  = req.user;
-            const otherUser = req.params.name;
-
-            if (thisUser === otherUser) return res.status(400).json("cant follow yourself");
+            if (!req.query.cur) return res.status(200).json(user);
             
-            // this user
-            await db.users.updateOne(
-                { name: thisUser },
-                [{ $set: {
-                    following: {
-                        $cond: {
-                            if: { $in: [otherUser, "$following"] },
-                            then: { $setDifference: ["$following", [otherUser]] },
-                            else: { $concatArrays:  ["$following", [otherUser]] }
-                        }
-                    }
-                } }]
-            );
-
-            // other user
-            const updated = await db.users.findOneAndUpdate(
-                { name: otherUser },
-                [{ $set: {
-                    followers: {
-                        $cond: {
-                            if: { $in: [thisUser, "$followers"] },
-                            then: { $setDifference: ["$followers", [thisUser]] },
-                            else: { $concatArrays:  ["$followers", [thisUser]] }
-                        }
-                    }
-                } }],
-                {
-                    fields: { "_id": 0, "pass": 0, "pfp": 0, "__v": 0 },
-                    new: true
-                }
-            );
-
-            res.status(200).json(updated);
-        } catch (err) {
-            console.log(err);
-            res.status(500).json(err);
-        }
-    });
-
-
-    // get the logged in user's profile
-    router.get("/profile", requireLogin, async (req, res) => {
-        try {
-            const user = await db.users.findOne({ name: req.user }, "-_id -pass -__v");
-            if (user) res.status(200).json(user);
-            else res.status(404).json("user not found");
+            const following = await db.follows.findOne({
+                follower: req.query.cur,
+                following: req.params.name
+            });
+            res.status(200).json({ ...user, following: !!following });
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -209,9 +147,8 @@ function getUsersRouter(db, img) {
 
     // edit the logged in user's profile
     router.put("/profile", requireLogin, upload.single("image"), async (req, res) => {
-        const nick = req.body.nick;
-        const bio = req.body.bio;
-        if (!nick || !bio) return res.status(400).json("missing nickname or bio");
+        const nick = req.body.nick || "";
+        const bio = req.body.bio || "";
 
         try {
             const user = await db.users.findOneAndUpdate(
@@ -284,18 +221,6 @@ function getUsersRouter(db, img) {
             await db.posts.updateMany(
                 { },
                 { $pull: { "comments.$[].replies.$[].likes": req.user } }
-            );
-
-            // delete user from follower lists
-            await db.users.updateMany(
-                { },
-                { $pull: { followers: req.user } }
-            );
-
-            // delete user from following lists
-            await db.users.updateMany(
-                { },
-                { $pull: { following: req.user } }
             );
 
             // delete account

@@ -5,7 +5,8 @@ const UserSchema = new Schema({
     name: {
         type: String,
         required: true,
-        unique: true
+        unique: true,
+        immutable: true
     },
     pass: {
         type: String,
@@ -23,13 +24,17 @@ const UserSchema = new Schema({
         type: String,
         default: ""
     },
-    followers: {
-        type: Array,
-        default: []
+    postCount: {
+        type: Number,
+        default: 0
     },
-    following: {
-        type: Array,
-        default: []
+    followerCount: {
+        type: Number,
+        default: 0
+    },
+    followingCount: {
+        type: Number,
+        default: 0
     }
 });
 
