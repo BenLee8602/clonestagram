@@ -92,7 +92,7 @@ function getUsersRouter(db, img) {
                 if (err) return res.status(401).json("invalid refresh token");
                 if (!await db.tokens.findOne({ token: refreshToken })) return res.status(401).json("old refresh token");
                 const accessToken = genAccessToken(token.id, token.name);
-                res.status(200).json({ accessToken, user: token });
+                res.status(200).json({ accessToken, user: { id: token.id, name: token.name } });
             });
         } catch (err) {
             console.log(err);
@@ -106,7 +106,7 @@ function getUsersRouter(db, img) {
         const refreshToken = req.body.refreshToken;
         if (!refreshToken) return res.status(400).json("missing refresh token");
         try {
-            const deleted = await db.tokens.findOneAndDelete({ token: req.body.refreshToken });
+            const deleted = await db.tokens.findOneAndDelete({ token: refreshToken });
             if (!deleted) return res.status(404).json("token not found");
             res.status(200).json("logged out");
         } catch (err) {
@@ -198,7 +198,6 @@ function getUsersRouter(db, img) {
         try {
             // delete images from s3
             const posts = await db.posts.find({ author: req.user.name }).lean();
-            console.log(posts);
             for (let i = 0; i < posts.length; ++i) await img.deleteImage(posts[i].image);
 
             // delete posts
@@ -220,9 +219,9 @@ function getUsersRouter(db, img) {
             const user = await db.users.findOneAndDelete({ name: req.user.name });
 
             // delete user profile picture
-            console.log(user, user.pfp);
             if (user.pfp) await img.deleteImage(user.pfp);
 
+            // done!
             res.status(200).json("user deleted");
         } catch (err) {
             console.log(err);

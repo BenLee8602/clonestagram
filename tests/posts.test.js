@@ -79,7 +79,7 @@ describe("search posts", () => {
 
 describe("create new post", () => {
     it("should add the post to the database", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).post("/api/posts").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("new post image buffer"), "image").field({
@@ -98,7 +98,7 @@ describe("create new post", () => {
 
 describe("edit a post", () => {
     it("should fail if caption is not given", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/posts/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -109,7 +109,7 @@ describe("edit a post", () => {
 
 
     it("should fail if post doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/posts/01abe3720d6e382d80970673").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -120,7 +120,7 @@ describe("edit a post", () => {
 
 
     it("should update a valid post given a caption", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/posts/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -136,7 +136,7 @@ describe("edit a post", () => {
 
 describe("delete a post", () => {
     it("should fail if post doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).delete("/api/posts/cb760905e8fa1745e1457e0b").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -145,7 +145,7 @@ describe("delete a post", () => {
 
 
     it("should delete post if exists", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).delete("/api/posts/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send();

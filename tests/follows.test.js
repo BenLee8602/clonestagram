@@ -16,7 +16,7 @@ beforeEach(async () => {
 
 describe("follow a user", () => {
     it("should not allow following oneself", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/follows/ben").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -25,7 +25,7 @@ describe("follow a user", () => {
 
 
     it("should not allow following nonexistent user", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/follows/nobody").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -34,7 +34,7 @@ describe("follow a user", () => {
 
 
     it("should follow if not already following", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/follows/someguy").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -51,7 +51,7 @@ describe("follow a user", () => {
 
 
     it("should unfollow if already following", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/follows/ben").set({
             "Authorization": "Bearer " + accessToken
         }).send();

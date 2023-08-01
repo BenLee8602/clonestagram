@@ -142,7 +142,7 @@ describe("get new access token", () => {
 
     it("should fail given an old token", async () => {
         const res = await request(app).post("/api/users/refresh").send({
-            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYmVuIiwiaWF0IjoxNjc0NjczNDI4fQ.7h-pHN8qZGFeL2iJZmmfpcKNXirhba_BX4jsCllGx2A"
+            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Yzg2ZDJlYzA1OWRmZjhlNjJiMjg2NiIsIm5hbWUiOiJiZW4iLCJpYXQiOjE2OTA5MjQzMjd9.B4W0EqfHXkZVfHXZuhYeBHaPtHMsRLKOjuBp43jsYVA"
         });
         expect(res.statusCode).toBe(401);
         expect(res.body).toBe("old refresh token");
@@ -153,11 +153,11 @@ describe("get new access token", () => {
 
     it("should pass given a valid, active refesh token", async () => {
         const res = await request(app).post("/api/users/refresh").send({
-            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYmVuIiwiaWF0IjoxNjc0NjcyOTE3fQ._u36cNgDORuYRI10_02PECE5Eacl-vm3co5fKD3QPgA"
+            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Yzg2ZDJlYzA1OWRmZjhlNjJiMjg2NiIsIm5hbWUiOiJiZW4iLCJpYXQiOjE2OTA5Mjg4NDl9.NNXicoBIiLBkXSMSvh3yOs8R80AlEiXR2fFqhTPAdg0"
         });
         expect(res.statusCode).toBe(200);
         expect(res.body.accessToken).toBeDefined();
-        expect(res.body.user).toBe("ben");
+        expect(res.body.user).toStrictEqual({ id: "64c86d2ec059dff8e62b2866", name: "ben" });
     });
 });
 
@@ -165,7 +165,7 @@ describe("get new access token", () => {
 describe("logout user", () => {
     it("should delete token from database", async () => {
         const res = await request(app).delete("/api/users/logout").send({
-            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyIjoiYmVuIiwiaWF0IjoxNjc0NjcyOTE3fQ._u36cNgDORuYRI10_02PECE5Eacl-vm3co5fKD3QPgA"
+            refreshToken: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY0Yzg2ZDJlYzA1OWRmZjhlNjJiMjg2NiIsIm5hbWUiOiJiZW4iLCJpYXQiOjE2OTA5Mjg4NDl9.NNXicoBIiLBkXSMSvh3yOs8R80AlEiXR2fFqhTPAdg0"
         });
         expect(res.statusCode).toBe(200);
         expect((await db.tokens.find({})).length).toBe(0);
@@ -191,7 +191,7 @@ describe("get one user's data", () => {
 
 
     it("should pass if user exists", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).get("/api/users/ben/profile").query({
             cur: "someguy"
         }).set({
@@ -200,6 +200,7 @@ describe("get one user's data", () => {
         expect(res.statusCode).toBe(200);
 
         const expected = {
+            _id: "63cf278abc581a025767848d",
             name: "ben",
             pfp: "linkToBensProfilePicture",
             nick: "benjamin",
@@ -207,6 +208,7 @@ describe("get one user's data", () => {
             postCount: 2,
             followerCount: 1,
             followingCount: 0,
+            __v: 0,
             following: true
         };
 
@@ -217,7 +219,7 @@ describe("get one user's data", () => {
 
 describe("edit user profile", () => {
     it("should only update nickname and bio if no pfp given", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -234,7 +236,7 @@ describe("edit user profile", () => {
 
 
     it("should replace old pfp if it exists", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("test 3 pfp buffer"), "image").field({
@@ -251,7 +253,7 @@ describe("edit user profile", () => {
 
 
     it("should create new pfp if not exists", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).attach("image", Buffer.from("test 4 pfp buffer"), "image").field({
@@ -270,7 +272,7 @@ describe("edit user profile", () => {
 
 describe("delete user profile", () => {
     it("should delete user and all related data", async () => {
-        const accessToken = db.genTestAccessToken("63cf287bbc581a02576784aa", "ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).delete("/api/users/profile").set({
             "Authorization": "Bearer " + accessToken
         }).send();
