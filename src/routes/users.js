@@ -196,51 +196,32 @@ function getUsersRouter(db, img) {
     // delete the logged in user
     router.delete("/profile", requireLogin, async (req, res) => {
         try {
-            // delete user post images from s3
-            const posts = await db.posts.find({ author: req.user });
+            // delete images from s3
+            const posts = await db.posts.find({ author: req.user.name }).lean();
+            console.log(posts);
             for (let i = 0; i < posts.length; ++i) await img.deleteImage(posts[i].image);
 
-            // delete user posts
-            await db.posts.deleteMany(
-                { author: req.user }
-            );
+            // delete posts
+            await db.posts.deleteMany({ author: req.user.name });
 
-            // delete user comments
-            await db.posts.updateMany(
-                { },
-                { $pull: { comments: { author: req.user } } }
-            );
+            // delete comments
+            await db.comments.deleteMany({ author: req.user.name });
 
-            // delete user replies
-            await db.posts.updateMany(
-                { },
-                { $pull: { "comments.$[].replies": { author: req.user } } }
-            );
+            // delete followers and following
+            await db.follows.deleteMany({ $or: [
+                { follower: req.user.name },
+                { following: req.user.name }
+            ] });
 
-            // delete user from likes lists (posts, comments, replies)
-            await db.posts.updateMany(
-                { },
-                { $pull: { likes: req.user } }
-            );
-
-            await db.posts.updateMany(
-                { },
-                { $pull: { "comments.$[].likes": req.user } }
-            );
-
-            await db.posts.updateMany(
-                { },
-                { $pull: { "comments.$[].replies.$[].likes": req.user } }
-            );
+            // delete likes
+            await db.likes.deleteMany({ likedBy: req.user.name });
 
             // delete account
-            const user = await db.users.findOneAndDelete(
-                { name: req.user }
-            );
+            const user = await db.users.findOneAndDelete({ name: req.user.name });
 
             // delete user profile picture
-            if (!user.pfp) return res.status(200).json("user deleted");
-            await img.deleteImage(user.pfp);
+            console.log(user, user.pfp);
+            if (user.pfp) await img.deleteImage(user.pfp);
 
             res.status(200).json("user deleted");
         } catch (err) {

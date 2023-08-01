@@ -266,3 +266,26 @@ describe("edit user profile", () => {
         expect(user.pfp).not.toBe("");
     });
 });
+
+
+describe("delete user profile", () => {
+    it("should delete user and all related data", async () => {
+        const accessToken = db.genTestAccessToken("63cf287bbc581a02576784aa", "ben");
+        const res = await request(app).delete("/api/users/profile").set({
+            "Authorization": "Bearer " + accessToken
+        }).send();
+        expect(res.statusCode).toBe(200);
+
+        const users = await db.users.count({});
+        const posts = await db.posts.count({});
+        const comments = await db.comments.count({});
+        const follows = await db.follows.count({});
+        const likes = await db.likes.count({});
+
+        expect(users).toBe(1);
+        expect(posts).toBe(0);
+        expect(comments).toBe(3);
+        expect(follows).toBe(0);
+        expect(likes).toBe(6);
+    });
+});
