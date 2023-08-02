@@ -1,6 +1,8 @@
 import React from "react";
-import { Link, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
+
 import BigList from "./BigList";
+import User from "./User";
 
 import "../style/userlist.css";
 
@@ -11,13 +13,7 @@ function Likes() {
     return <div className="userlist"><BigList
         key={id}
         route={`likes/${id}`}
-        map={ v => <Link key={v._id} to={`/users/${v.name}`} className="userlist-item">
-            <img src={ v.pfp ? v.pfp : "/icons/user.png" } alt="pfp" className="userlist-item-img" />
-            <div className="userlist-item-text">
-                <span className="userlist-item-nick">{ v.nick ? v.nick : v.name }</span>{' '}
-                <span className="userlist-item-name">{ v.nick && v.name !== v.nick ? v.name : "" }</span>
-            </div>
-        </Link> }
+        map={ (v, i) => <User key={v._id} user={v} i={i} /> }
     /></div>
 }
 

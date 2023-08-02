@@ -40,6 +40,7 @@
     width: 32px;
     height: 32px;
     display: inline-block;
+    border-radius: 8px;
 }
 
 .comment .comment-author .comment-author-nick {
