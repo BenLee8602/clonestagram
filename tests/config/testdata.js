@@ -105,8 +105,8 @@ module.exports = {
     ],
     follows: [
         {
-            follower: "someguy",
-            following: "ben"
+            follower: new mongoose.Types.ObjectId("63cf27d7bc581a0257678496"),
+            following: new mongoose.Types.ObjectId("63cf278abc581a025767848d")
         }
     ],
     likes: [

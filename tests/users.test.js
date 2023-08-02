@@ -193,7 +193,7 @@ describe("get one user's data", () => {
     it("should pass if user exists", async () => {
         const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).get("/api/users/ben/profile").query({
-            cur: "someguy"
+            cur: "63cf27d7bc581a0257678496"
         }).set({
             "Authorization": "Bearer " + accessToken
         }).send();

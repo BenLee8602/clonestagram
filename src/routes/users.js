@@ -149,10 +149,12 @@ function getUsersRouter(db, img) {
             
             const following = await db.follows.findOne({
                 follower: req.query.cur,
-                following: req.params.name
+                following: user._id
             });
             res.status(200).json({ ...user, following: !!following });
         } catch (err) {
+            if (err.name === "CastError")
+                return res.status(400).json("invalid user id");
             console.log(err);
             res.status(500).json(err);
         }
@@ -208,8 +210,8 @@ function getUsersRouter(db, img) {
 
             // delete followers and following
             await db.follows.deleteMany({ $or: [
-                { follower: req.user.name },
-                { following: req.user.name }
+                { follower: req.user.id },
+                { following: req.user.id }
             ] });
 
             // delete likes

@@ -17,7 +17,7 @@ beforeEach(async () => {
 describe("follow a user", () => {
     it("should not allow following oneself", async () => {
         const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
-        const res = await request(app).put("/api/follows/ben").set({
+        const res = await request(app).put("/api/follows/63cf278abc581a025767848d").set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(400);
@@ -26,7 +26,7 @@ describe("follow a user", () => {
 
     it("should not allow following nonexistent user", async () => {
         const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
-        const res = await request(app).put("/api/follows/nobody").set({
+        const res = await request(app).put("/api/follows/922375f85c0d1971cbc424cf").set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(404);
@@ -35,7 +35,7 @@ describe("follow a user", () => {
 
     it("should follow if not already following", async () => {
         const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
-        const res = await request(app).put("/api/follows/someguy").set({
+        const res = await request(app).put("/api/follows/63cf27d7bc581a0257678496").set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(201);
@@ -52,7 +52,7 @@ describe("follow a user", () => {
 
     it("should unfollow if already following", async () => {
         const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
-        const res = await request(app).put("/api/follows/ben").set({
+        const res = await request(app).put("/api/follows/63cf278abc581a025767848d").set({
             "Authorization": "Bearer " + accessToken
         }).send();
         expect(res.statusCode).toBe(200);
@@ -70,7 +70,7 @@ describe("follow a user", () => {
 
 describe("get followers", () => {
     it("should return a list of followers for a given user", async () => {
-        const res = await request(app).get("/api/follows/someguy/followers").send();
+        const res = await request(app).get("/api/follows/63cf27d7bc581a0257678496/followers").send();
         expect(res.statusCode).toBe(200);
 
         const expected = [];
@@ -81,7 +81,7 @@ describe("get followers", () => {
 
 describe("get following", () => {
     it("should return a list of following for a given user", async () => {
-        const res = await request(app).get("/api/follows/someguy/following").send();
+        const res = await request(app).get("/api/follows/63cf27d7bc581a0257678496/following").send();
         expect(res.statusCode).toBe(200);
 
         const expected = [{
