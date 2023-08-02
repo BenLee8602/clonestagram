@@ -18,7 +18,7 @@ function ProfileEdit() {
 
     useEffect(() => { const fetchProfile = async () => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/users/${user}/profile`);
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/users/${user.name}/profile`);
             const body = await res.json();
             if (res.status !== 200) return console.log(body);
             setPfp(body.pfp);
@@ -44,13 +44,13 @@ function ProfileEdit() {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/users/profile`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? Navigate(`/users/${user}`) : console.log(res.body))
+        .then(res => res.status === 200 ? Navigate(`/users/${user.name}`) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
 
     const handleDelete = async () => {
-        if (deleting !== user) return;
+        if (deleting !== user.name) return;
 
         const req = {
             method: "DELETE",

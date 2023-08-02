@@ -20,7 +20,7 @@ function createApp(database, imageStorage) {
     
     app.use("/api/users", usersRouter(database, imageStorage));
     app.use("/api/posts", postsRouter(database, imageStorage));
-    app.use("/api/comments", commentsRouter(database));
+    app.use("/api/comments", commentsRouter(database, imageStorage));
     app.use("/api/follows", followsRouter(database, imageStorage));
     app.use("/api/likes", likesRouter(database, imageStorage));
     
