@@ -11,7 +11,7 @@ function requireLogin(req, res, next) {
             return res.status(401).json("invalid access token");
         if (err === jwt.TokenExpiredError)
             return res.status(403).json("expired access token");
-        req.user = tkn.user;
+        req.user = tkn;
         next();
     });
 }

@@ -19,7 +19,7 @@ const LikeSchema = new Schema({
         immutable: true
     },
     likedBy: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true,
         immutable: true
     }

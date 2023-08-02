@@ -16,7 +16,7 @@ beforeEach(async () => {
 
 describe("smash the like button", () => {
     it("should fail if parent type is invalid", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/likes/someInvalidType/63cf2c5cbc581a0257678503").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -25,7 +25,7 @@ describe("smash the like button", () => {
 
 
     it("should fail if parent doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/likes/post/5fbca0a35e06b136c429a22a").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -34,7 +34,7 @@ describe("smash the like button", () => {
 
 
     it("should like if not already liked", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).put("/api/likes/comment/63cf2c5cbc581a0257678503").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -42,7 +42,7 @@ describe("smash the like button", () => {
 
         const like = await db.likes.findOne({
             parent: "63cf2c5cbc581a0257678503",
-            likedBy: "ben"
+            likedBy: "63cf278abc581a025767848d"
         });
         expect(like).not.toBeNull();
 
@@ -52,7 +52,7 @@ describe("smash the like button", () => {
 
 
     it("should unlike if already liked", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/likes/post/63cf287bbc581a02576784aa").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -60,7 +60,7 @@ describe("smash the like button", () => {
 
         const like = await db.likes.findOne({
             parent: "63cf287bbc581a02576784aa",
-            likedBy: "someguy"
+            likedBy: "63cf27d7bc581a0257678496"
         });
         expect(like).toBeNull();
 

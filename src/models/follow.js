@@ -9,12 +9,12 @@ const FollowSchema = new Schema({
         default: () => Date.now()
     },
     follower: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true,
         immutable: true
     },
     following: {
-        type: String,
+        type: mongoose.Types.ObjectId,
         required: true,
         immutable: true
     }

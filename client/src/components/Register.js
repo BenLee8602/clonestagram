@@ -8,13 +8,13 @@ import "../style/Login.css";
 
 function Register() {
     const Navigate = useNavigate();
-    const [user, setUser] = useCurrentUser();
+    const setUser = useCurrentUser()[1];
     const [curName, setCurName] = useState("");
     const [curPass, setCurPass] = useState("");
     const [curPassConf, setCurPassConf] = useState("");
     const [errMsg, setErrMsg] = useState("");
 
-    const handleRegister = () => {
+    const handleRegister = async () => {
         if (curPass !== curPassConf) {
             setErrMsg("Passwords do not match");
             return;
@@ -26,15 +26,15 @@ function Register() {
             body: JSON.stringify({ name: curName, pass: curPass })
         };
 
-        fetch(`${process.env.REACT_APP_BACKEND_API}/users/register`, req)
-        .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => {
-            if (res.status !== 200) return setErrMsg(res.body);
-            localStorage.setItem("refreshToken", res.body.refreshToken);
-            localStorage.setItem("accessToken",  res.body.accessToken);
-            setUser(curName);
+        try {
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/users/register`, req);
+            const body = await res.json();
+            if (res.status !== 200) return setErrMsg(body);
+            localStorage.setItem("refreshToken", body.refreshToken);
+            localStorage.setItem("accessToken",  body.accessToken);
+            setUser(body.user);
             Navigate("/");
-        });
+        } catch (err) { console.log(err); }
     };
 
     return (<div id="login" className="content">
