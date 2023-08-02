@@ -62,7 +62,7 @@ function Comment({ data, showReplies }) {
     };
 
 
-    const handleEdit = () => {
+    const handleEdit = async () => {
         const req = {
             method: "PUT",
             headers: {
@@ -74,7 +74,7 @@ function Comment({ data, showReplies }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/comments/${comment._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setComment({ ...res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? setComment({ ...comment, text: input }) : console.log(res.body))
         .catch(err => console.log(err));
 
         setView("default");
@@ -103,7 +103,7 @@ function Comment({ data, showReplies }) {
 
     return (<div className={ showReplies ? "comment" : "reply" }>
         <div className="comment-body">
-            <Link to={`/users/${comment.author}`} className="comment-author">{ comment.author }</Link>
+            <Link to={`/users/${comment.author.name}`} className="comment-author">{ comment.author.name }</Link>
             <span className="comment-date">{ new Date(comment.posted).toLocaleString() }</span><br/>
             { comment.text }
         </div>
@@ -114,7 +114,7 @@ function Comment({ data, showReplies }) {
                 <img src={ comment.liked ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
             </button>
             { showReplies ? <button onClick={ () => setView("reply") }><img src="/icons/comment.png" alt="comment" /></button> : <></> }
-            { comment.author === user ? <>
+            { comment.author._id === user.id ? <>
                 <button onClick={ () => setView("edit") }><img src="/icons/edit.png" alt="edit" /></button>
                 <button onClick={ () => setView("delete") }><img src="/icons/delete.png" alt="delete" /></button>
             </> : <></> }

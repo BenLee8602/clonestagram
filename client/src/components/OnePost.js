@@ -12,7 +12,7 @@ function OnePost() {
     useEffect(() => { const fetchPost = async () => {
         try {
             const url = `${process.env.REACT_APP_BACKEND_API}/posts/${id}`;
-            const res = await fetch(url + (user ? `?cur=${user.name}` : ``));
+            const res = await fetch(url + (user ? `?cur=${user.id}` : ``));
             const body = await res.json();
             if (res.status !== 200) return console.log(body);
             setPost(body);

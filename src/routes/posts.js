@@ -146,7 +146,7 @@ function getPostsRouter(db, img) {
                 { caption: caption }
             );
             if (!post) return res.status(404).json("post not found");
-            res.status(200).json(caption);
+            res.status(200).json("post updated");
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -169,7 +169,7 @@ function getPostsRouter(db, img) {
                 { $inc: { postCount: -1 } }
             );
 
-            res.status(200).json(req.params.id);
+            res.status(200).json("post deleted");
         } catch (err) {
             console.log(err);
             res.status(500).json(err);

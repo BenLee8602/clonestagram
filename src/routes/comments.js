@@ -21,8 +21,8 @@ function getCommentsRouter(db, img) {
 
             let pfps = {};
             const comments = await Promise.all(rawComments.map(async c => {
-                if (req.query.cur) comments[i].liked = !!(await db.likes.findOne({
-                    parent: comments[i]._id,
+                if (req.query.cur) c.liked = !!(await db.likes.findOne({
+                    parent: c._id,
                     likedBy: req.query.cur
                 }));
 
@@ -63,13 +63,19 @@ function getCommentsRouter(db, img) {
             parent.commentCount += 1;
             await parent.save();
 
-            const comment = await db.comments.create({
+            const rawComment = await db.comments.create({
                 parent: req.params.parentId,
                 parentType: parentType,
                 author: req.user.id,
                 text: text,
             });
+            const author = await db.users.findById(
+                rawComment.author,
+                "_id name nick pfp"
+            );
+            author.pfp = await img.getImage(author.pfp);
             
+            const comment = { ...rawComment._doc, author };
             res.status(200).json(comment);
         } catch (err) {
             console.log(err);
@@ -89,7 +95,7 @@ function getCommentsRouter(db, img) {
                 { new: true }
             );
             if (!comment) return res.status(404).json("comment not found");
-            res.status(200).json(comment);
+            res.status(200).json("comment updated");
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -112,7 +118,7 @@ function getCommentsRouter(db, img) {
                 { $inc: { commentCount: -1 } }
             );
 
-            res.status(200).json(comment);
+            res.status(200).json("comment deleted");
         } catch (err) {
             console.log(err);
             res.status(500).json(err);

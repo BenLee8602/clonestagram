@@ -76,7 +76,7 @@ function Post({ data }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => res.status === 200 ? setPost({ ...post, caption: res.body }) : console.log(res.body))
+        .then(res => res.status === 200 ? setPost({ ...post, caption: input }) : console.log(res.body))
         .catch(err => console.log(err));
 
         setView("default");
@@ -96,7 +96,7 @@ function Post({ data }) {
 
         fetch(`${process.env.REACT_APP_BACKEND_API}/posts/${post._id}`, req)
         .then(res => res.json().then(body => ({ status: res.status, body })))
-        .then(res => setPost(null))
+        .then(res => res.status === 200 ? setPost(null) : console.log(res.body))
         .catch(err => console.log(err));
     };
 
@@ -114,7 +114,7 @@ function Post({ data }) {
             <button onClick={ () => setView(view === "comment" ? "default" : "comment") || setComments([]) }>
                 <img src="/icons/comment.png" alt="comment" />
             </button>
-            { post.author === user.name ? <>
+            { post.author._id === user.id ? <>
                 <button onClick={ () => setView(view === "edit" ? "default" :  "edit") }>
                     <img src="/icons/edit.png" alt="edit" />
                 </button>
@@ -125,7 +125,7 @@ function Post({ data }) {
         </div>
         <div className="post-body">
             { view === "default" ? <>
-                <Link to={`/users/${post.author}`} className="post-author">{ post.author }</Link>
+                <Link to={`/users/${post.author.name}`} className="post-author">{ post.author.name }</Link>
                 <p className="post-sub">{ new Date(post.posted).toLocaleString() }</p>
                 <Link to={`/likes/${post._id}`} className="post-sub">
                     { post.likeCount }{ post.likeCount === 1 ? " like " : " likes" }
@@ -141,7 +141,7 @@ function Post({ data }) {
                 />
                 <button onClick={handleComment} className="post-body-button">done</button>
                 <div className="post-comments">
-                    { comments.map(v => <Comment key={v._id} data={v} />) }
+                    { comments.map(v => <Comment key={v._id} data={v} showReplies />) }
                     <BigList
                         route={`comments/${post._id}`}
                         map={ v => <Comment key={v._id} data={v} showReplies /> }

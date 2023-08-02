@@ -28,7 +28,7 @@ function Profile() {
         setView("posts");
         const url = `${process.env.REACT_APP_BACKEND_API}/users/${name}/profile`;
         try {
-            const res = await fetch(url + (user ? `?cur=${user.name}` : ``));
+            const res = await fetch(url + (user ? `?cur=${user.id}` : ``));
             const body = await res.json();
             if (res.status !== 200) return console.log(body);
             setProfile(body);
@@ -38,7 +38,7 @@ function Profile() {
 
     const handleFollow = async () => {
         try {
-            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/follows/${name}`, req);
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_API}/follows/${profile._id}`, req);
             const body = await res.json();
             if (res.status === 200)  return setProfile({ // unfollowed
                 ...profile,
@@ -88,13 +88,13 @@ function Profile() {
 
         { view === "posts" ? <div className="postlist"><BigList
             key={name + view}
-            route={`posts/author/${name}`}
+            route={`posts/author/${profile._id}`}
             map={ v => <Link key={v._id} to={`/posts/${v._id}`} className="postlist-item">
                 <img src={v.image} alt="post" className="postlist-image" />
             </Link> }
         /></div> : <div className="userlist"><BigList
             key={name + view}
-            route={`follows/${name}/${view}`}
+            route={`follows/${profile._id}/${view}`}
             map={ v => <Link key={v._id} to={`/users/${v.name}`} className="userlist-item">
                 <img src={ v.pfp ? v.pfp : "/icons/user.png" } alt="pfp" className="userlist-item-img" />
                 <div className="userlist-item-text">
