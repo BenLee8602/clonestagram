@@ -206,7 +206,7 @@ function getUsersRouter(db, img) {
             await db.posts.deleteMany({ author: req.user.id });
 
             // delete comments
-            await db.comments.deleteMany({ author: req.user.name });
+            await db.comments.deleteMany({ author: req.user.id });
 
             // delete followers and following
             await db.follows.deleteMany({ $or: [
@@ -218,7 +218,7 @@ function getUsersRouter(db, img) {
             await db.likes.deleteMany({ likedBy: req.user.name });
 
             // delete account
-            const user = await db.users.findOneAndDelete({ name: req.user.name });
+            const user = await db.users.findByIdAndDelete(req.user.id);
 
             // delete user profile picture
             if (user.pfp) await img.deleteImage(user.pfp);

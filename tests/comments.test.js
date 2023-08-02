@@ -91,7 +91,7 @@ describe("create comment", () => {
         const comment = await db.comments.findOne({
             parent: "63cf2bb1bc581a02576784e8",
             text: "new comment from test 3",
-            author: "ben"
+            author: "63cf278abc581a025767848d"
         });
         expect(comment).not.toBeNull();
 

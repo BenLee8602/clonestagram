@@ -4,28 +4,38 @@ const { requireLogin } = require("../middlewares/auth");
 const { getPageInfo } = require("../middlewares/page");
 
 
-function getCommentsRouter(db) {
+function getCommentsRouter(db, img) {
     const router = express.Router();
 
 
     // get comments
     router.get("/:parentId", getPageInfo, async (req, res) => {
         try {
-            const comments = await db.comments.find({
+            const rawComments = await db.comments.find({
                 parent: req.params.parentId,
                 posted: { $lt: req.page.start }
             }, null, {
                 skip: db.pageSize * req.page.number,
                 limit: db.pageSize
             }).sort({ posted: "desc" }).lean();
-            if (!req.query.cur) return res.status(200).json(comments);
 
-            for (let i = 0; i < comments.length; ++i) {
-                comments[i].liked = !!(await db.likes.findOne({
+            let pfps = {};
+            const comments = await Promise.all(rawComments.map(async c => {
+                if (req.query.cur) comments[i].liked = !!(await db.likes.findOne({
                     parent: comments[i]._id,
                     likedBy: req.query.cur
                 }));
-            }
+
+                c.author = await db.users.findById(
+                    c.author,
+                    "_id name nick pfp"
+                ).lean();
+                const id = c.author._id.toString();
+                if (!(id in pfps)) pfps[id] = await img.getImage(c.author.pfp);
+                c.author.pfp = pfps[id];
+                return c;
+            }));
+            
             return res.status(200).json(comments);
         } catch (err) {
             console.log(err);
@@ -56,7 +66,7 @@ function getCommentsRouter(db) {
             const comment = await db.comments.create({
                 parent: req.params.parentId,
                 parentType: parentType,
-                author: req.user.name,
+                author: req.user.id,
                 text: text,
             });
             
@@ -74,8 +84,8 @@ function getCommentsRouter(db) {
         if (!text) return res.status(400).send("new text missing");
         try {
             const comment = await db.comments.findOneAndUpdate(
-                { _id: req.params.id, author: req.user.name },
-                { $set: { text: text } },
+                { _id: req.params.id, author: req.user.id },
+                { text },
                 { new: true }
             );
             if (!comment) return res.status(404).json("comment not found");
@@ -92,7 +102,7 @@ function getCommentsRouter(db) {
         try {
             const comment = await db.comments.findOneAndDelete({
                 _id: req.params.id,
-                author: req.user.name
+                author: req.user.id
             });
             if (!comment) return res.status(404).json("comment not found");
 
