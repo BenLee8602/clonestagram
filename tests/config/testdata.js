@@ -113,47 +113,47 @@ module.exports = {
         {
             parent: new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
             parentType: "post",
-            likedBy: "ben"
+            likedBy: new mongoose.Types.ObjectId("63cf278abc581a025767848d")
         }, {
             parent: new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
             parentType: "post",
-            likedBy: "someguy"
+            likedBy: new mongoose.Types.ObjectId("63cf27d7bc581a0257678496")
         }, {
             parent: new mongoose.Types.ObjectId("63cf2bb1bc581a02576784e8"),
             parentType: "post",
-            likedBy: "someguy"
+            likedBy: new mongoose.Types.ObjectId("63cf27d7bc581a0257678496")
         }, {
             parent: new mongoose.Types.ObjectId("63cf29c0bc581a02576784b3"),
             parentType: "comment",
-            likedBy: "ben"
+            likedBy: new mongoose.Types.ObjectId("63cf278abc581a025767848d")
         }, {
             parent: new mongoose.Types.ObjectId("63cf29c0bc581a02576784b3"),
             parentType: "comment",
-            likedBy: "someguy"
+            likedBy: new mongoose.Types.ObjectId("63cf27d7bc581a0257678496")
         }, {
             parent: new mongoose.Types.ObjectId("63cf29c8bc581a02576784b7"),
             parentType: "comment",
-            likedBy: "someguy"
+            likedBy: new mongoose.Types.ObjectId("63cf27d7bc581a0257678496")
         }, {
             parent: new mongoose.Types.ObjectId("63cf29f8bc581a02576784cb"),
             parentType: "comment",
-            likedBy: "ben"
+            likedBy: new mongoose.Types.ObjectId("63cf278abc581a025767848d")
         }, {
             parent: new mongoose.Types.ObjectId("63cf2c42bc581a02576784f6"),
             parentType: "comment",
-            likedBy: "someguy"
+            likedBy: new mongoose.Types.ObjectId("63cf27d7bc581a0257678496")
         }, {
             parent: new mongoose.Types.ObjectId("63cf2c42bc581a02576784f6"),
             parentType: "comment",
-            likedBy: "ben"
+            likedBy: new mongoose.Types.ObjectId("63cf278abc581a025767848d")
         }, {
             parent: new mongoose.Types.ObjectId("63cf29d5bc581a02576784bb"),
             parentType: "comment",
-            likedBy: "someguy"
+            likedBy: new mongoose.Types.ObjectId("63cf27d7bc581a0257678496")
         }, {
             parent: new mongoose.Types.ObjectId("63cf2a19bc581a02576784cf"),
             parentType: "comment",
-            likedBy: "ben"
+            likedBy: new mongoose.Types.ObjectId("63cf278abc581a025767848d")
         }
     ]
 }

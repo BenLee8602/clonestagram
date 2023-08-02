@@ -215,7 +215,7 @@ function getUsersRouter(db, img) {
             ] });
 
             // delete likes
-            await db.likes.deleteMany({ likedBy: req.user.name });
+            await db.likes.deleteMany({ likedBy: req.user.id });
 
             // delete account
             const user = await db.users.findByIdAndDelete(req.user.id);

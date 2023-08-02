@@ -32,7 +32,7 @@ describe("get post by id", () => {
 
     it("should return post if exists", async () => {
         const res = await request(app).get("/api/posts/63cf287bbc581a02576784aa").query({
-            cur: "ben"
+            cur: "63cf278abc581a025767848d"
         }).send();
         expect(res.statusCode).toBe(200);
         delete res.body.posted;

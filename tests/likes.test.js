@@ -42,7 +42,7 @@ describe("smash the like button", () => {
 
         const like = await db.likes.findOne({
             parent: "63cf2c5cbc581a0257678503",
-            likedBy: "ben"
+            likedBy: "63cf278abc581a025767848d"
         });
         expect(like).not.toBeNull();
 
@@ -60,7 +60,7 @@ describe("smash the like button", () => {
 
         const like = await db.likes.findOne({
             parent: "63cf287bbc581a02576784aa",
-            likedBy: "someguy"
+            likedBy: "63cf27d7bc581a0257678496"
         });
         expect(like).toBeNull();
 

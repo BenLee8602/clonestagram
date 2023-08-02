@@ -17,7 +17,7 @@ function getLikesRouter(db, img) {
 
         try {
             const deleted = await db.likes.findOneAndDelete({
-                likedBy: req.user.name,
+                likedBy: req.user.id,
                 parent: req.params.parentId
             });
             const inc = deleted ? -1 : 1;
@@ -32,7 +32,7 @@ function getLikesRouter(db, img) {
             await db.likes.create({
                 parent: req.params.parentId,
                 parentType: parentType,
-                likedBy: req.user.name
+                likedBy: req.user.id
             });
             return res.status(201).json("liked");
         } catch (err) {
@@ -45,7 +45,7 @@ function getLikesRouter(db, img) {
     // get likes
     router.get("/:parentId", getPageInfo, async (req, res) => {
         try {
-            const names = (await db.likes.find({
+            const ids = (await db.likes.find({
                 parent: req.params.parentId,
                 created: { $lt: req.page.start }
             }, null, {
@@ -53,17 +53,17 @@ function getLikesRouter(db, img) {
                 limit: db.pageSize
             })).map(l => l.likedBy);
 
-            const users1 = await db.users.find(
-                { name: { $in: names } },
+            const rawUsers = await db.users.find(
+                { _id: { $in: ids } },
                 "pfp name nick"
             );
 
-            const users2 = await Promise.all(users1.map(async u => {
+            const users = await Promise.all(rawUsers.map(async u => {
                 u.pfp = await img.getImage(u.pfp);
                 return u;
             }));
 
-            res.status(200).json(users2);
+            res.status(200).json(users);
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
