@@ -29,14 +29,14 @@ module.exports = {
     posts: [
         {
             _id: new mongoose.Types.ObjectId("63cf287bbc581a02576784aa"),
-            author: "ben",
+            author: new mongoose.Types.ObjectId("63cf278abc581a025767848d"),
             image: "post1Image",
             caption: "a cool caption",
             likeCount: 2,
             commentCount: 3
         }, {
             _id: new mongoose.Types.ObjectId("63cf2bb1bc581a02576784e8"),
-            author: "ben",
+            author: new mongoose.Types.ObjectId("63cf278abc581a025767848d"),
             image: "post2Image",
             caption: "cccc",
             likeCount: 1,

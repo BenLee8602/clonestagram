@@ -197,11 +197,11 @@ function getUsersRouter(db, img) {
     router.delete("/profile", requireLogin, async (req, res) => {
         try {
             // delete images from s3
-            const posts = await db.posts.find({ author: req.user.name }).lean();
+            const posts = await db.posts.find({ author: req.user.id }).lean();
             for (let i = 0; i < posts.length; ++i) await img.deleteImage(posts[i].image);
 
             // delete posts
-            await db.posts.deleteMany({ author: req.user.name });
+            await db.posts.deleteMany({ author: req.user.id });
 
             // delete comments
             await db.comments.deleteMany({ author: req.user.name });

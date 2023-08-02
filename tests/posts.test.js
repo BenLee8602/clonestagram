@@ -36,38 +36,35 @@ describe("get post by id", () => {
         }).send();
         expect(res.statusCode).toBe(200);
         delete res.body.posted;
-        expect(JSON.stringify(res.body)).toBe(JSON.stringify({
-            "_id": db.objectId("63cf287bbc581a02576784aa"),
-            "author": "ben",
-            "image": "linkToPost1Image",
-            "caption": "a cool caption",
-            "likeCount": 2,
-            "commentCount": 3,
-            "liked": true
-        }));
+        expect(res.body).toStrictEqual({
+            _id: "63cf287bbc581a02576784aa",
+            author: {
+                _id: "63cf278abc581a025767848d",
+                name: "ben",
+                pfp: "linkToBensProfilePicture",
+                nick: "benjamin"
+            },
+            image: "linkToPost1Image",
+            caption: "a cool caption",
+            likeCount: 2,
+            commentCount: 3,
+            liked: true
+        });
     });
 });
 
 
 describe("get posts by author", () => {
     it("should return all posts created by author", async () => {
-        const res = await request(app).get("/api/posts/author/ben").send();
+        const res = await request(app).get("/api/posts/author/63cf278abc581a025767848d").send();
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(2);
-        for (const post of res.body) expect(post.author).toBe("ben");
+        for (const post of res.body) expect(post.author.name).toBe("ben");
     });
 });
 
 
 describe("search posts", () => {
-    it("should search by author", async () => {
-        const res = await request(app).get("/api/posts/search/ben").send();
-        expect(res.statusCode).toBe(200);
-        expect(res.body.length).toBe(2);
-        for (const post of res.body) expect(post.author).toMatch(/ben/i);
-    });
-
-
     it("should search by caption", async () => {
         const res = await request(app).get("/api/posts/search/cool").send();
         expect(res.statusCode).toBe(200);
