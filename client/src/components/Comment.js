@@ -114,7 +114,7 @@ function Comment({ data, showReplies }) {
                 <img src={ comment.liked ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
             </button>
             { showReplies ? <button onClick={ () => setView("reply") }><img src="/icons/comment.png" alt="comment" /></button> : <></> }
-            { comment.author._id === user.id ? <>
+            { user && user.id === comment.author._id ? <>
                 <button onClick={ () => setView("edit") }><img src="/icons/edit.png" alt="edit" /></button>
                 <button onClick={ () => setView("delete") }><img src="/icons/delete.png" alt="delete" /></button>
             </> : <></> }

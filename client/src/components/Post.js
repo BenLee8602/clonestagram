@@ -114,7 +114,7 @@ function Post({ data }) {
             <button onClick={ () => setView(view === "comment" ? "default" : "comment") || setComments([]) }>
                 <img src="/icons/comment.png" alt="comment" />
             </button>
-            { post.author._id === user.id ? <>
+            { user && user.id === post.author._id ? <>
                 <button onClick={ () => setView(view === "edit" ? "default" :  "edit") }>
                     <img src="/icons/edit.png" alt="edit" />
                 </button>
