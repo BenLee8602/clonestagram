@@ -87,13 +87,13 @@ function Profile() {
         </div>
 
         { view === "posts" ? <div className="postlist"><BigList
-            key={name + view}
+            key={profile._id + view}
             route={`posts/author/${profile._id}`}
             map={ v => <Link key={v._id} to={`/posts/${v._id}`} className="postlist-item">
                 <img src={v.image} alt="post" className="postlist-image" />
             </Link> }
         /></div> : <div className="userlist"><BigList
-            key={name + view}
+            key={profile._id + view}
             route={`follows/${profile._id}/${view}`}
             map={ v => <Link key={v._id} to={`/users/${v.name}`} className="userlist-item">
                 <img src={ v.pfp ? v.pfp : "/icons/user.png" } alt="pfp" className="userlist-item-img" />
