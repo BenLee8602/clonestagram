@@ -153,5 +153,10 @@ describe("delete a post", () => {
 
         const author = await db.users.findOne({ name: "ben" });
         expect(author.postCount).toBe(1);
+
+        const cCount = await db.comments.count({});
+        const lCount = await db.likes.count({});
+        expect(cCount).toBe(7);
+        expect(lCount).toBe(10);
     });
 });

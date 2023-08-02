@@ -163,6 +163,9 @@ function getPostsRouter(db, img) {
             if (!post) return res.status(404).json(req.params.id);
             
             await img.deleteImage(post.image);
+
+            await db.comments.deleteMany({ parent: post._id });
+            await db.likes.deleteMany({ parent: post._id });
             
             await db.users.updateOne(
                 { name: req.user.name },

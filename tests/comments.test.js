@@ -161,5 +161,10 @@ describe("delete a comment", () => {
 
         const parent = await db.posts.findById("63cf2bb1bc581a02576784e8");
         expect(parent.commentCount).toBe(0);
+
+        const cCount = await db.comments.count({});
+        const lCount = await db.likes.count({});
+        expect(cCount).toBe(6);
+        expect(lCount).toBe(9);
     });
 });
