@@ -44,16 +44,16 @@ async function resetData() {
 }
 
 
-function genTestAccessToken(user) {
+function genTestAccessToken(id, name) {
     return jwt.sign(
-        { user },
+        { id, name },
         process.env.ACCESS_TOKEN_SECRET
     );
 }
 
 
 module.exports = {
-    objectId: (id) => new mongoose.Types.ObjectId(id),
+    objectId: id => new mongoose.Types.ObjectId(id),
     posts: Post,
     tokens: Token,
     users: User,

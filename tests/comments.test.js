@@ -33,7 +33,7 @@ describe("get comments for a post", () => {
 
 describe("create comment", () => {
     it("should fail if comment text is missing", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).post("/api/comments/post/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -45,7 +45,7 @@ describe("create comment", () => {
 
 
     it("should fail if parent type is invalid", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).post("/api/comments/someInvalidType/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -57,7 +57,7 @@ describe("create comment", () => {
 
 
     it("should fail if parent is not found", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).post("/api/comments/post/63cf278abc581a025767848d").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -66,9 +66,9 @@ describe("create comment", () => {
         expect(res.statusCode).toBe(404);
     });
 
-
+    
     it("should fail if parent is a reply", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).post("/api/comments/comment/63cf29d5bc581a02576784bb").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -80,7 +80,7 @@ describe("create comment", () => {
 
 
     it("should create comment for valid post given comment text", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).post("/api/comments/post/63cf2bb1bc581a02576784e8").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -91,7 +91,7 @@ describe("create comment", () => {
         const comment = await db.comments.findOne({
             parent: "63cf2bb1bc581a02576784e8",
             text: "new comment from test 3",
-            author: "ben"
+            author: "63cf278abc581a025767848d"
         });
         expect(comment).not.toBeNull();
 
@@ -103,7 +103,7 @@ describe("create comment", () => {
 
 describe("edit a comment", () => {
     it("should fail if new text is not given", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/comments/63cf29f8bc581a02576784cb").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -114,7 +114,7 @@ describe("edit a comment", () => {
 
 
     it("should fail if comment doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/comments/1d42dba5a242fae43db013ff").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -125,7 +125,7 @@ describe("edit a comment", () => {
 
 
     it("should update a valid comment given a caption", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).put("/api/comments/63cf29f8bc581a02576784cb").set({
             "Authorization": "Bearer " + accessToken
         }).send({
@@ -141,7 +141,7 @@ describe("edit a comment", () => {
 
 describe("delete a comment", () => {
     it("should fail if comment doesnt exist", async () => {
-        const accessToken = db.genTestAccessToken("ben");
+        const accessToken = db.genTestAccessToken("63cf278abc581a025767848d", "ben");
         const res = await request(app).delete("/api/comments/922375f85c0d1971cbc424cf").set({
             "Authorization": "Bearer " + accessToken
         }).send();
@@ -150,7 +150,7 @@ describe("delete a comment", () => {
 
 
     it("should delete comment if exists", async () => {
-        const accessToken = db.genTestAccessToken("someguy");
+        const accessToken = db.genTestAccessToken("63cf27d7bc581a0257678496", "someguy");
         const res = await request(app).delete("/api/comments/63cf2c42bc581a02576784f6").set({
             "Authorization": "Bearer " + accessToken
         }).send();

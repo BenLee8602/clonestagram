@@ -21,21 +21,34 @@ function getPostsRouter(db, img) {
     }
 
 
+    async function processPosts(posts, cur) {
+        let pfps = {};
+        return await Promise.all(posts.map(async p => {
+            p.image = await img.getImage(p.image);
+            p.liked = await checkLike(p, cur);
+
+            p.author = await db.users.findById(
+                p.author,
+                "_id name nick pfp"
+            ).lean();
+            const id = p.author._id.toString();
+            if (!(id in pfps)) pfps[id] = await img.getImage(p.author.pfp);
+            p.author.pfp = pfps[id];
+            return p;
+        }));
+    }
+
+
     // get all posts
     router.get("/", getPageInfo, async (req, res) => {
         try {
-            const posts = await db.posts.find({
+            const rawPosts = await db.posts.find({
                 posted: { $lt: req.page.start }
             }, null, {
                 skip: db.pageSize * req.page.number,
                 limit: db.pageSize
             }).sort({ posted: "desc" }).lean();
-
-            for (let i = 0; i < posts.length; ++i) {
-                posts[i].image = await img.getImage(posts[i].image);
-                posts[i].liked = await checkLike(posts[i], req.query.cur);
-            }
-
+            const posts = await processPosts(rawPosts, req.query.cur)
             res.status(200).json(posts);
         } catch (err) {
             console.log(err);
@@ -47,10 +60,9 @@ function getPostsRouter(db, img) {
     // get a post by id
     router.get("/:id", async (req, res) => {
         try {
-            var post = await db.posts.findById(req.params.id, "-__v").lean();
-            if (!post) return res.status(404).json("post not found");
-            post.image = await img.getImage(post.image);
-            post.liked = await checkLike(post, req.query.cur);
+            const rawPost = await db.posts.findById(req.params.id, "-__v").lean();
+            if (!rawPost) return res.status(404).json("post not found");
+            const post = (await processPosts([rawPost], req.query.cur))[0];
             res.status(200).json(post);
         } catch (err) {
             console.log(err);
@@ -62,19 +74,14 @@ function getPostsRouter(db, img) {
     // get posts by author
     router.get("/author/:name", getPageInfo, async (req, res) => {
         try {
-            const posts = await db.posts.find({
+            const rawPosts = await db.posts.find({
                 author: req.params.name,
                 posted: { $lt: req.page.start }
             }, null, {
                 skip: db.pageSize * req.page.number,
                 limit: db.pageSize
             }).sort({ posted: "desc" }).lean();
-
-            for (let i = 0; i < posts.length; ++i) {
-                posts[i].image = await img.getImage(posts[i].image);
-                posts[i].liked = await checkLike(posts[i], req.query.cur);
-            }
-
+            const posts = await processPosts(rawPosts, req.query.cur);
             res.status(200).json(posts);
         } catch (err) {
             console.log(err);
@@ -83,23 +90,18 @@ function getPostsRouter(db, img) {
     });
 
 
-    // search posts by author and caption
+    // search posts by caption
     router.get("/search/:query", getPageInfo, async (req, res) => {
         const query = { $regex: req.params.query, $options: "i" };
         try {
-            const posts = await db.posts.find({
-                $or: [{ author: query }, { caption: query }],
+            const rawPosts = await db.posts.find({
+                caption: query,
                 posted: { $lt: req.page.start }
             }, null, {
                 skip: db.pageSize * req.page.number,
                 limit: db.pageSize
             }).lean();
-
-            for (let i = 0; i < posts.length; ++i) {
-                posts[i].image = await img.getImage(posts[i].image);
-                posts[i].liked = await checkLike(posts[i], req.query.cur);
-            }
-
+            const posts = await processPosts(rawPosts, req.query.cur);
             res.status(200).json(posts);
         } catch (err) {
             console.log(err);
@@ -116,13 +118,13 @@ function getPostsRouter(db, img) {
             await img.putImage(imageName, req.file.buffer, req.file.mimetype);
 
             const newPost = await db.posts.create({
-                author: req.user,
+                author: req.user.id,
                 image: imageName,
                 caption: caption
             });
             
             await db.users.updateOne(
-                { name: req.user },
+                { name: req.user.name },
                 { $inc: { postCount: 1 } }
             );
 
@@ -140,11 +142,11 @@ function getPostsRouter(db, img) {
         if (!caption) return res.status(400).json("new caption missing");
         try {
             const post = await db.posts.findOneAndUpdate(
-                { _id: req.params.id, author: req.user },
-                { $set: { caption: caption } }
+                { _id: req.params.id, author: req.user.id },
+                { caption: caption }
             );
             if (!post) return res.status(404).json("post not found");
-            res.status(200).json(caption);
+            res.status(200).json("post updated");
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
@@ -156,18 +158,18 @@ function getPostsRouter(db, img) {
     router.delete("/:id", requireLogin, async (req, res) => {
         try {
             const post = await db.posts.findOneAndDelete(
-                { _id: req.params.id, author: req.user },
+                { _id: req.params.id, author: req.user.id },
             );
             if (!post) return res.status(404).json(req.params.id);
             
             await img.deleteImage(post.image);
             
             await db.users.updateOne(
-                { name: req.user },
+                { name: req.user.name },
                 { $inc: { postCount: -1 } }
             );
 
-            res.status(200).json(req.params.id);
+            res.status(200).json("post deleted");
         } catch (err) {
             console.log(err);
             res.status(500).json(err);
