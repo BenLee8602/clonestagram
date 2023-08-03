@@ -38,7 +38,9 @@ function getUsersRouter(db, img) {
         if (!name || !pass) return res.status(400).json("missing username or password");
 
         try {
-            const doc = await db.users.findOne({ name }, "name");
+            const doc = await db.users.findOne({
+                name: { $regex: `^${name}$`, $options: "i" }
+            });
             if (doc) return res.status(409).json("username is taken");
 
             const salt = await bcrypt.genSalt();

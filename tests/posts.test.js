@@ -66,11 +66,11 @@ describe("get posts by author", () => {
 
 describe("search posts", () => {
     it("should search by caption", async () => {
-        const res = await request(app).get("/api/posts/search/cool").send();
+        const res = await request(app).get("/api/posts/search/COOL").send();
         expect(res.statusCode).toBe(200);
         expect(res.body.length).toBe(1);
         for (const post of res.body) expect(post.caption).toMatch(/cool/i);
-    })
+    });
 });
 
 
@@ -153,5 +153,10 @@ describe("delete a post", () => {
 
         const author = await db.users.findOne({ name: "ben" });
         expect(author.postCount).toBe(1);
+
+        const cCount = await db.comments.count({});
+        const lCount = await db.likes.count({});
+        expect(cCount).toBe(7);
+        expect(lCount).toBe(10);
     });
 });

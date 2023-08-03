@@ -23,16 +23,40 @@
     float: left;
 }
 
-.comment .comment-author {
-    text-decoration: none;
-    color: black;
-    font-weight: bolder;
+.comment .comment-body p {
+    margin: 0px;
 }
 
-.comment .comment-date {
-    color: #444;
+.comment .comment-author {
+    display: flex;
+    text-decoration: none;
+}
+
+.comment .comment-author .comment-info {
+    padding-left: 6px;
+}
+
+.comment .comment-author .comment-author-pfp {
+    width: 32px;
+    height: 32px;
+    display: inline-block;
+    border-radius: 8px;
+}
+
+.comment .comment-author .comment-author-nick {
+    color: black;
+    font-size: 18px;
+}
+
+.comment .comment-author .comment-author-name {
+    color: gray;
     font-size: 12px;
     font-weight: lighter;
+}
+
+.comment .comment-text {
+    font-size: 14px;
+    padding: 4px 0px 8px 38px;
 }
 
 .comment-likes-count {
