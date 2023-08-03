@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import moment from "moment";
+
 import useCurrentUser from "./Auth";
 import BigList from "./BigList";
 import Comment from "./Comment";
@@ -114,7 +116,7 @@ function Post({ data }) {
             <button onClick={ () => setView(view === "comment" ? "default" : "comment") || setComments([]) }>
                 <img src="/icons/comment.png" alt="comment" />
             </button>
-            { post.author._id === user.id ? <>
+            { user && user.id === post.author._id ? <>
                 <button onClick={ () => setView(view === "edit" ? "default" :  "edit") }>
                     <img src="/icons/edit.png" alt="edit" />
                 </button>
@@ -125,11 +127,25 @@ function Post({ data }) {
         </div>
         <div className="post-body">
             { view === "default" ? <>
-                <Link to={`/users/${post.author.name}`} className="post-author">{ post.author.name }</Link>
-                <p className="post-sub">{ new Date(post.posted).toLocaleString() }</p>
-                <Link to={`/likes/${post._id}`} className="post-sub">
-                    { post.likeCount }{ post.likeCount === 1 ? " like " : " likes" }
+                <Link to={`/users/${post.author.name}`} className="post-author">
+                    <img
+                        src={ post.author.pfp ? post.author.pfp : "/icons/user.png" }
+                        alt="pfp"
+                        className="post-author-pfp"
+                    />
+                    <div className="post-author-info">
+                        <span className="post-author-nick">
+                            { post.author.nick ? post.author.nick : post.author.name }
+                        </span><br/>
+                        <span className="post-author-name">{ post.author.name }</span>
+                    </div>
                 </Link>
+                <p className="post-info">
+                    <Link to={`/likes/${post._id}`} className="post-info-likes">
+                        {`${post.likeCount} ${post.likeCount === 1 ? " like " : " likes"}`}
+                    </Link>
+                    {` - ${moment(post.posted).fromNow()}`}
+                </p>
                 <p className="post-caption">{ post.caption }</p>
             </> : <></> }
             { view === "comment" ? <>

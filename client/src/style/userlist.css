@@ -1,11 +1,15 @@
+.userlist {
+    width: 800px;
+    margin: auto;
+    margin-top: 20px;
+    background-color: white;
+    border-radius: 8px;
+}
+
 .userlist-item {
     width: 800px;
-    height: 80px;
-    margin: auto;
-    margin-top: 10px;
-    background-color: white;
-    border-radius: 4px;
-    overflow: hidden;
+    height: 64px;
+    padding: 8px;
     display: flex;
     align-items: center;
     text-decoration: none;
@@ -14,8 +18,9 @@
 
 .userlist-item .userlist-item-img {
     display: inline-block;
-    width: 80px;
-    height: 80px;
+    width: 64px;
+    height: 64px;
+    border-radius: 8px;
 }
 
 .userlist-item .userlist-item-text {
@@ -28,5 +33,10 @@
 }
 
 .userlist-item .userlist-item-name {
-    color: #999;
+    color: gray;
+}
+
+.userlist hr {
+    width: calc(100% - 16px);
+    margin: 0 auto;
 }

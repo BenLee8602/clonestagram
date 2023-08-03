@@ -52,7 +52,7 @@ function BigList({ route, req = undefined, map, container = null }) {
 
     return (<>
         { data.map(map) }
-        <div ref={bottom} style={{"height": "32px"}}></div>
+        <div ref={bottom} style={{"height": "1px"}}></div>
     </>);
 }
 

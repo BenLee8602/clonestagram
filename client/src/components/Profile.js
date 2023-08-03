@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { Link, useParams } from "react-router-dom";
+
 import useCurrentUser from "./Auth";
 import BigList from "./BigList";
+import User from "./User";
 
 import "../style/content.css";
 import "../style/postlist.css";
@@ -61,7 +63,7 @@ function Profile() {
         <div className="profile">
             <div className="profile-col1">
                 <img src={ profile.pfp ? profile.pfp : "/icons/user.png" } alt="pfp" className="profile-img"/>
-                { profile.name === user.name ? (
+                { user && user.id === profile._id ? (
                     <Link to="/edit-profile" className="profile-under-pfp">edit profile</Link>
                 ) : (<button id="follow" onClick={ handleFollow } className="profile-under-pfp">
                     { profile.following ? "unfollow" : "follow" }
@@ -87,21 +89,15 @@ function Profile() {
         </div>
 
         { view === "posts" ? <div className="postlist"><BigList
-            key={name + view}
+            key={profile._id + view}
             route={`posts/author/${profile._id}`}
             map={ v => <Link key={v._id} to={`/posts/${v._id}`} className="postlist-item">
                 <img src={v.image} alt="post" className="postlist-image" />
             </Link> }
         /></div> : <div className="userlist"><BigList
-            key={name + view}
+            key={profile._id + view}
             route={`follows/${profile._id}/${view}`}
-            map={ v => <Link key={v._id} to={`/users/${v.name}`} className="userlist-item">
-                <img src={ v.pfp ? v.pfp : "/icons/user.png" } alt="pfp" className="userlist-item-img" />
-                <div className="userlist-item-text">
-                    <span className="userlist-item-nick">{ v.nick ? v.nick : v.name }</span>{' '}
-                    <span className="userlist-item-name">{ v.nick && v.name !== v.nick ? v.name : "" }</span>
-                </div>
-            </Link> }
+            map={ (v, i) => <User key={v._id} user={v} i={i} /> }
         /></div> }
     </>);
 }

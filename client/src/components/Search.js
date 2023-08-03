@@ -1,7 +1,8 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
-import BigList from "./BigList";
 
+import BigList from "./BigList";
+import User from "./User";
 
 import "../style/Search.css";
 import "../style/userlist.css";
@@ -44,17 +45,11 @@ function Search() {
 
         <div className="search-spacer"></div>
 
-        { query && view === "users" ? <BigList
+        { query && view === "users" ? <div className="userlist"><BigList
             key={query}
             route={`users/search/${query}`}
-            map={ v => <Link key={v._id} to={`/users/${v.name}`} className="userlist-item">
-                <img src={ v.pfp ? v.pfp : "/icons/user.png" } alt="pfp" className="userlist-item-img" />
-                <div className="userlist-item-text">
-                    <span className="userlist-item-nick">{ v.nick ? v.nick : v.name }</span>{' '}
-                    <span className="userlist-item-name">{v.name}</span>
-                </div>
-            </Link> }
-        /> : <></> }
+            map={ (v, i) => <User key={v._id} user={v} i={i} /> }
+        /></div> : <></> }
 
         { query && view === "posts" ? <div className="postlist"><BigList
             key={query}

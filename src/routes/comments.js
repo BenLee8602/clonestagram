@@ -112,6 +112,9 @@ function getCommentsRouter(db, img) {
             });
             if (!comment) return res.status(404).json("comment not found");
 
+            await db.comments.deleteMany({ parent: comment._id });
+            await db.likes.deleteMany({ parent: comment._id });
+
             const parentCol = comment.parentType === "post" ? db.posts : db.comments;
             await parentCol.findByIdAndUpdate(
                 comment.parent,

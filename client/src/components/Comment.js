@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import useCurrentUser from "./Auth";
+import moment from "moment";
 
+import useCurrentUser from "./Auth";
 import BigList from "./BigList";
 
 import "../style/Comment.css";
@@ -103,9 +104,23 @@ function Comment({ data, showReplies }) {
 
     return (<div className={ showReplies ? "comment" : "reply" }>
         <div className="comment-body">
-            <Link to={`/users/${comment.author.name}`} className="comment-author">{ comment.author.name }</Link>
-            <span className="comment-date">{ new Date(comment.posted).toLocaleString() }</span><br/>
-            { comment.text }
+            <Link to={`/users/${comment.author.name}`} className="comment-author">
+                <img
+                    src={ comment.author.pfp ? comment.author.pfp : "/icons/user.png" }
+                    alt="pfp"
+                    className="comment-author-pfp"
+                />
+                <div className="comment-info">
+                    <p className="comment-author-nick">
+                        { comment.author.nick ? comment.author.nick : comment.author.name }
+                    </p>
+                    <p className="comment-author-name">
+                        { comment.author.name }
+                        {` - ${moment(comment.posted).fromNow()}`}
+                    </p>
+                </div>
+            </Link>
+            <p className="comment-text">{ comment.text }</p>
         </div>
 
         { view === "default" ? <div className="comment-actions">
@@ -114,7 +129,7 @@ function Comment({ data, showReplies }) {
                 <img src={ comment.liked ? "/icons/unlike.png" : "/icons/like.png" } alt="like" />
             </button>
             { showReplies ? <button onClick={ () => setView("reply") }><img src="/icons/comment.png" alt="comment" /></button> : <></> }
-            { comment.author._id === user.id ? <>
+            { user && user.id === comment.author._id ? <>
                 <button onClick={ () => setView("edit") }><img src="/icons/edit.png" alt="edit" /></button>
                 <button onClick={ () => setView("delete") }><img src="/icons/delete.png" alt="delete" /></button>
             </> : <></> }
