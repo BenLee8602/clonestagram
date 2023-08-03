@@ -31,7 +31,7 @@ describe("register user", () => {
 
     it("should fail if username is taken", async () => {
         const res = await request(app).post("/api/users/register").send({
-            name: "ben",
+            name: "BEN",
             pass: "abc123"
         });
         expect(res.statusCode).toBe(409);
