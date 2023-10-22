@@ -78,11 +78,11 @@ REACT_APP_BACKEND_API=http://localhost:3000/api
 ### build
 install dependencies, build, and run
 ```
-npm build
+npm run build
 node server.js
 ```
 
 run rest api tests
 ```
-npm test
+npm run test
 ```
