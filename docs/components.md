@@ -61,7 +61,7 @@ generic component used for handling large collections of records using paginatio
 
 ### example
 ```jsx
-function MyComponent() {
+function BigListExample() {
     const targetRef = useRef(null)
 
     const req = {
@@ -88,28 +88,30 @@ function MyComponent() {
 displays a single comment or reply. displays the authors info, comment text, and buttons to like and reply. allows the user to edit and delete the comment if they are the author.
 
 ### props
-- `data` object containing the comment information. see example for keys and types. you can get a comment object in this format using the `GET /api/comments/:commentId` endpoint
+- `data` object containing the comment information. see example for keys and types. you can get comment objects in this format using the `GET /api/comments/:commentId` endpoint
 - `showReplies` boolean that decides if replies are rendered. should be true if its a comment and not a reply
 
 ### example
 ```jsx
-const comment = {
-    _id: "64cac1679c37e83d55a99996",
-    parent: "64cab76100f25d5cab64f2e8",
-    parentType: "post",
-    author: {
-        _id: "64c9e0a369d3c90fe8a10002",
-        name: "ben2",
-        pfp: "",
-        nick: "also ben"
-    },
-    text: "helloooo",
-    likeCount: 0,
-    commentCount: 0,
-    posted: "2023-08-02T20:49:43.479Z"
-};
+function CommentExample() {
+    const comment = {
+        _id: "64cac1679c37e83d55a99996",
+        parent: "64cab76100f25d5cab64f2e8",
+        parentType: "post",
+        author: {
+            _id: "64c9e0a369d3c90fe8a10002",
+            name: "ben2",
+            pfp: "",
+            nick: "also ben"
+        },
+        text: "helloooo",
+        likeCount: 0,
+        commentCount: 0,
+        posted: "2023-08-02T20:49:43.479Z"
+    };
 
-return <Comment data={comment} showReplies />
+    return <Comment data={comment} showReplies />
+}
 ```
 
 ## home
@@ -117,7 +119,10 @@ simply returns a feed of posts using `BigList`
 
 
 ## likes
-displays a list of users that have liked a specified target (given by route parameter `id`)
+displays a list of users that have liked a specified target (given by route parameter `id`)  
+
+### route parameters
+- `id` object id of the target to display likes for
 
 ### example
 ```jsx
@@ -139,6 +144,9 @@ displays the form for creating a new post
 ## onepost
 fetches a single post, given by route parameter `id`, and displays it
 
+### route parameters
+- `id` object id of the post to display
+
 ### example
 ```jsx
 <Route path="/posts/:id" element={ <OnePost/> } />
@@ -146,24 +154,82 @@ fetches a single post, given by route parameter `id`, and displays it
 
 
 ## post
+displays a posts image, caption, and ui for liking, commenting, etc
 
+### props
+- `data` object containing the post information. see example for keys and types. you can get post objects in this format using the `GET /api/posts` endpoint
+
+### example
+```jsx
+function PostExample() {
+    const post = {
+        _id: '63cf287bbc581a02576784aa',
+        author: {
+            _id: '63cf278abc581a025767848d',
+            name: 'ben',
+            pfp: 'linkToBensProfilePicture',
+            nick: 'benjamin'
+        },
+        image: 'linkToPost1Image',
+        caption: 'a cool caption',
+        likeCount: 2,
+        commentCount: 3,
+        liked: true
+    };
+
+    return <Post data={post} />
+}
+```
 
 
 ## profile
+displays a users profile, including name, nickname, bio, profile picture, follower/following/posts count, and more
 
+### route parameters
+- `name` name of the user to display
+
+### example
+```jsx
+<Route path="/users/:name" element={ <Profile/> } />
+```
 
 
 ## profileedit
-
+displays the form for editing a users profile information, including nickname, bio, and profile picture
 
 
 ## register
-
+displays the form for registering a new user account
 
 
 ## search
-
+displays the form for searching for users and posts, and the results of the search
 
 
 ## user
+displays basic user info including name, nickname, and profile picture. usually used to display one record in a list of users
 
+### props
+- `user` an object containing the users info, should include `name`, `nick`, and `pfp` fields
+- `i` the index of this user if in a list. used for style
+
+### example
+```jsx
+function UserExample() {
+    const users = [{
+        _id: "63cf278abc581a025767848d",
+        name: "user1",
+        pfp: "linkToUser1ProfilePicture",
+        nick: "ben"
+    }, {
+        _id: "63cf27d7bc581a0257678496",
+        name: "user2",
+        pfp: "",
+        nick: "neb"
+    }];
+
+    return <>
+        { users.map((v, i) => <User key={v._id} user={v} i={i} />) }
+    </>
+}
+```
