@@ -29,6 +29,7 @@ represents a user liking a post, comment, or reply
 
 
 ## post
+represents an image uploaded by a user to their profile
 - `author` an object id referencing the user who created the post (required, immutable)
 - `posted` the datetime when the post was created (required, immutable, default=`Date.now()`)
 - `image` a string telling the filename of the image in the aws s3 bucket (required, immutable)
@@ -38,10 +39,12 @@ represents a user liking a post, comment, or reply
 
 
 ## token
+a refresh token for authentication
 - `token` a string representing a users refresh token as a jwt (required, unique, immutable)
 
 
 ## user
+represents a users profile
 - `name` a string containing the users name (required, unique, immutable)
 - `pass` a string containing the users password hash (required)
 - `pfp` a string telling the filename of the users profile picture in the aws s3 bucket (default=`""`)

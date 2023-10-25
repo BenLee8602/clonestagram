@@ -196,21 +196,13 @@ GET /api/posts
 ```
 gets a list of posts
 
-#### route parameters
-
-
 #### query parameters
 - `page` zero-indexed integer of the current page (default=`0`)
 - `start` integer (milliseconds since epoch) representing the start of the pagination session. prevents duplicate records in the response (default=`new Date()`)
-
-#### request headers
-
-
-#### request body
-
+- `cur` object id of the currently logged in user (default=`null`)
 
 #### responses
-
+- `200` returns a list of posts
 
 ### get a post by id
 ```
@@ -219,19 +211,14 @@ GET /api/posts/:id
 gets a post with the given id
 
 #### route parameters
-
+- `id` object id of the post to fetch
 
 #### query parameters
-
-
-#### request headers
-
-
-#### request body
-
+- `cur` object id of the currently logged in user (default=`null`)
 
 #### responses
-
+- `404` post is not found
+- `200` returns the requested post
 
 ### create post
 ```
@@ -239,21 +226,16 @@ POST /api/posts
 ```
 creates a new post
 
-#### route parameters
-
-
-#### query parameters
-
-
 #### request headers
 - `authorization` string containing a users access token in the format `Bearer ${token}`
 
 #### request body
-
+- `caption` caption for the new post (default=`""`)
 
 #### responses
 - `401` access token is missing or invalid
 - `403` access token is expired
+- `200` returns the new post
 
 
 ### edit post
@@ -263,20 +245,20 @@ PUT /api/posts/:id
 edits a posts caption
 
 #### route parameters
-
-
-#### query parameters
-
+- `id` object id of the post to edit
 
 #### request headers
 - `authorization` string containing a users access token in the format `Bearer ${token}`
 
 #### request body
-
+- `caption` new caption for the post
 
 #### responses
 - `401` access token is missing or invalid
 - `403` access token is expired
+- `400` new caption missing from request body
+- `404` post with the given id not found
+- `200` post has been updated
 
 
 ### delete post
@@ -286,21 +268,16 @@ DELETE /api/posts/:id
 deletes the given post
 
 #### route parameters
-
-
-#### query parameters
-
+- `id` object id of the post to delete
 
 #### request headers
 - `authorization` string containing a users access token in the format `Bearer ${token}`
 
-#### request body
-
-
 #### responses
 - `401` access token is missing or invalid
 - `403` access token is expired
-
+- `404` post with the given id not found
+- `200` post has been deleted
 
 ## users
 auth and crud operations for users
@@ -311,20 +288,14 @@ POST /api/users/register
 ```
 creates a new user
 
-#### route parameters
-
-
-#### query parameters
-
-
-#### request headers
-
-
 #### request body
-
+- `name` name for the new user
+- `pass` password for the new user
 
 #### responses
-
+- `400` name or pass is missing from request body
+- `409` name is already taken by an existing user
+- `200` returns an access token, refresh token, and user info
 
 ### login
 ```
@@ -332,20 +303,15 @@ POST /api/users/login
 ```
 creates a new refresh token
 
-#### route parameters
-
-
-#### query parameters
-
-
-#### request headers
-
-
 #### request body
-
+- `name` user to login as
+- `pass` password to authenticate user
 
 #### responses
-
+- `400` name or pass is missing from request body
+- `404` no user found with the given name
+- `401` password is incorrect
+- `200` returns an access token, refresh token, and user info
 
 ### refresh login
 ```
@@ -353,20 +319,13 @@ POST /api/users/refresh
 ```
 provides a new access token with the given refresh token
 
-#### route parameters
-
-
-#### query parameters
-
-
-#### request headers
-
-
 #### request body
-
+- `refreshToken` jwt used to authenticate user and generate new access token
 
 #### responses
-
+- `400` refresh token is missing from request body
+- `401` refresh token is invalid or old
+- `200` returns a new access token and user info
 
 ### logout
 ```
@@ -374,20 +333,13 @@ DELETE /api/users/logout
 ```
 deletes the given refresh token
 
-#### route parameters
-
-
-#### query parameters
-
-
-#### request headers
-
-
 #### request body
-
+- `refreshToken` refresh token to deactivate (remove from tokens collection)
 
 #### responses
-
+- `400` refresh token is missing from request body
+- `404` refresh token is not found in collection of active tokens
+- `200` user has been logged out, refresh token deactivated
 
 ### search users
 ```
@@ -396,20 +348,14 @@ GET /api/users/search/:query
 gets a list of users whos username includes the given query
 
 #### route parameters
-
+- `query` username (or partial) to search for
 
 #### query parameters
 - `page` zero-indexed integer of the current page (default=`0`)
 - `start` integer (milliseconds since epoch) representing the start of the pagination session. prevents duplicate records in the response (default=`new Date()`)
 
-#### request headers
-
-
-#### request body
-
-
 #### responses
-
+- `200` returns list of users whos name matches query
 
 ### get a user by name
 ```
@@ -418,19 +364,14 @@ GET /api/users/:name/profile
 gets a user with the given name
 
 #### route parameters
-
+- `name` name of the user to fetch
 
 #### query parameters
-
-
-#### request headers
-
-
-#### request body
-
+- `cur` object id of the currently logged in user (default=`null`)
 
 #### responses
-
+- `400` user with the given name is not found
+- `200` returns the given user
 
 ### edit user
 ```
@@ -438,21 +379,17 @@ PUT /api/users/profile
 ```
 edits a users nickname, bio, or profile picture
 
-#### route parameters
-
-
-#### query parameters
-
-
 #### request headers
 - `authorization` string containing a users access token in the format `Bearer ${token}`
 
 #### request body
-
+- `nick` new nickname for the user (default=`""`)
+- `bio` new bio for the user (default=`""`)
 
 #### responses
 - `401` access token is missing or invalid
 - `403` access token is expired
+- `200` user profile has been updated
 
 
 ### delete user
@@ -461,18 +398,10 @@ DELETE /api/users/profile
 ```
 deletes a user and all associated follows, posts, comments, and likes
 
-#### route parameters
-
-
-#### query parameters
-
-
 #### request headers
 - `authorization` string containing a users access token in the format `Bearer ${token}`
-
-#### request body
-
 
 #### responses
 - `401` access token is missing or invalid
 - `403` access token is expired
+- `200` user and associated posts, comments, follows, likes have been deleted
