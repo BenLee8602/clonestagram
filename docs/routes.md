@@ -22,6 +22,71 @@ gets a list of comments with the given parent
 #### responses
 - `200` returns an array of comment objects
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const route = "http://localhost:3000/api/comments/63cf287bbc581a02576784aa";
+        const url = route + "?page=2&start=1698270621452&cur=63cf278abc581a025767848d";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+[
+    {
+        "_id": "63cf29c0bc581a02576784b3",
+        "parent": "63cf287bbc581a02576784aa",
+        "parentType": "post",
+        "author": {
+            "_id": "63cf278abc581a025767848d",
+            "name": "user1",
+            "pfp": "",
+            "nick": "awesome nickname"
+        },
+        "text": "first comment",
+        "likeCount": 2,
+        "commentCount": 2,
+        "posted": "2023-10-26T01:08:07.303Z",
+        "liked": true
+    }, {
+        "_id": "63cf29c8bc581a02576784b7",
+        "parent": "63cf287bbc581a02576784aa",
+        "parentType": "post",
+        "author": {
+            "_id": "63cf278abc581a025767848d",
+            "name": "user1",
+            "pfp": "",
+            "nick": "awesome nickname"
+        },
+        "text": "another comment",
+        "likeCount": 1,
+        "posted": "2023-10-26T01:08:07.303Z",
+        "liked": false
+    }, {
+        "_id": "63cf29f8bc581a02576784cb",
+        "parent": "63cf287bbc581a02576784aa",
+        "parentType": "post",
+        "author": {
+            "_id": "63cf27d7bc581a0257678496",
+            "name": "user2",
+            "pfp": "linkToUser2ProfilePicture",
+            "nick": "second user"
+        },
+        "text": "hi",
+        "likeCount": 1,
+        "commentCount": 1,
+        "posted": "2023-10-26T01:08:07.303Z",
+        "liked": true
+    }
+]
+```
+
 
 ### create comment
 ```
@@ -48,6 +113,47 @@ creates a new comment
 - `400` parent is a reply (parent is a comment, whos parent is also a comment)
 - `200` returns the newly created comment
 
+#### example
+fetch data
+```js
+async function example() {
+    const req = {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        },
+        body: JSON.stringify({ text: "hi" })
+    };
+
+    try {
+        const url = "http://localhost:3000/api/comments/post/63cf287bbc581a02576784aa";
+        const res = await fetch(url, req);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+{
+    "_id": "6539c693f03be57df248258f",
+    "parent": "63cf287bbc581a02576784aa",
+    "parentType": "post",
+    "author": {
+        "_id": "63cf278abc581a025767848d",
+        "name": "ben",
+        "pfp": "linkToBensProfilePicture",
+        "nick": "benjamin"
+    },
+    "text": "brand new comment",
+    "posted": "2023-10-26T01:53:23.587Z",
+    "likeCount": 0,
+    "commentCount": 0
+}
+```
+
 
 ### edit comment
 ```
@@ -71,6 +177,32 @@ edits the given comments text
 - `404` comment is not found
 - `200` comment text has been updated
 
+#### example
+fetch data
+```js
+async function example() {
+    const req = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        },
+        body: JSON.stringify({ text: "updated comment text" })
+    };
+
+    try {
+        const url = "http://localhost:3000/api/comments/63cf29c0bc581a02576784b3";
+        const res = await fetch(url, req);
+        console.log(res.status);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```
+200
+```
+
 ### delete comment
 ```
 DELETE /api/comments/:id
@@ -88,6 +220,31 @@ deletes the given comment
 - `403` access token is expired
 - `404` comment is not found
 - `200` comment has been deleted
+
+#### example
+fetch data
+```js
+async function example() {
+    const req = {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+    };
+
+    try {
+        const url = "http://localhost:3000/api/comments/1d42dba5a242fae43db013ff";
+        const res = await fetch(url, req);
+        console.log(res.status);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```
+200
+```
 
 
 ## follows
@@ -113,6 +270,31 @@ follows the given user, or unfollows if already following
 - `200` current user has unfollowed other user
 - `201` current user has began following other user
 
+#### example
+fetch data
+```js
+async function example() {
+    const req = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+    };
+
+    try {
+        const url = "http://localhost:3000/api/follows/63cf27d7bc581a0257678496";
+        const res = await fetch(url, req);
+        console.log(res.status);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```
+201
+```
+
 ### get followers
 ```
 GET /api/follows/:id/followers
@@ -128,6 +310,36 @@ gets a list of users who follow the given user
 
 #### responses
 - `200` returns a list of followers for the given user
+
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/follows/922375f85c0d1971cbc424cf/followers";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+[
+    {
+        "_id": "63cf278abc581a025767848d",
+        "name": "ben",
+        "pfp": "linkToBensProfilePicture",
+        "nick": "benjamin"
+    }, {
+        "_id": "63cf27d7bc581a0257678496",
+        "name": "user1",
+        "pfp": "",
+        "nick": ""
+    }
+]
+```
 
 ### get following
 ```
@@ -145,6 +357,31 @@ gets a list of users who are followed by the given user
 #### responses
 - `200` returns a list of users followed by the given user
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/follows/63cf27d7bc581a0257678496/following";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+[
+    {
+        "_id": "922375f85c0d1971cbc424cf",
+        "name": "user2",
+        "pfp": "",
+        "nick": "second user"
+    }
+]
+```
+
 
 ## likes
 crud operations for likes
@@ -159,7 +396,7 @@ likes the given target, or unlikes if already liked
 - `parentType` type of the likes target (`post` or `comment`)
 - `parentId` object id of the target
 
-#### query parameters
+#### request headers
 - `authorization` string containing a users access token in the format `Bearer ${token}`
 
 #### responses
@@ -169,6 +406,31 @@ likes the given target, or unlikes if already liked
 - `404` parent is not found
 - `200` current user has unliked target
 - `201` current user has liked target
+
+#### example
+fetch data
+```js
+async function example() {
+    const req = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+    };
+
+    try {
+        const url = "http://localhost:3000/api/likes/comment/63cf29d5bc581a02576784bb";
+        const res = await fetch(url);
+        console.log(res.status);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```
+201
+```
 
 ### get likes
 ```
@@ -185,6 +447,36 @@ gets a list of users who have liked a given target
 
 #### responses
 - `200` returns a list of likes with the given target
+
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/likes/63cf29c0bc581a02576784b3";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+[
+    {
+        "_id": "63cf278abc581a025767848d",
+        "name": "ben",
+        "pfp": "linkToBensProfilePicture",
+        "nick": "benjamin"
+    }, {
+        "_id": "63cf27d7bc581a0257678496",
+        "name": "someguy",
+        "pfp": "",
+        "nick": "awesome nickname"
+    }
+]
+```
 
 
 ## posts
@@ -204,6 +496,24 @@ gets a list of posts
 #### responses
 - `200` returns a list of posts
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
+
 ### get a post by id
 ```
 GET /api/posts/:id
@@ -219,6 +529,24 @@ gets a post with the given id
 #### responses
 - `404` post is not found
 - `200` returns the requested post
+
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
 
 ### create post
 ```
@@ -236,6 +564,24 @@ creates a new post
 - `401` access token is missing or invalid
 - `403` access token is expired
 - `200` returns the new post
+
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
 
 
 ### edit post
@@ -260,6 +606,24 @@ edits a posts caption
 - `404` post with the given id not found
 - `200` post has been updated
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
+
 
 ### delete post
 ```
@@ -279,6 +643,24 @@ deletes the given post
 - `404` post with the given id not found
 - `200` post has been deleted
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
+
 ## users
 auth and crud operations for users
 
@@ -297,6 +679,24 @@ creates a new user
 - `409` name is already taken by an existing user
 - `200` returns an access token, refresh token, and user info
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
+
 ### login
 ```
 POST /api/users/login
@@ -313,6 +713,24 @@ creates a new refresh token
 - `401` password is incorrect
 - `200` returns an access token, refresh token, and user info
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
+
 ### refresh login
 ```
 POST /api/users/refresh
@@ -327,6 +745,24 @@ provides a new access token with the given refresh token
 - `401` refresh token is invalid or old
 - `200` returns a new access token and user info
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
+
 ### logout
 ```
 DELETE /api/users/logout
@@ -340,6 +776,24 @@ deletes the given refresh token
 - `400` refresh token is missing from request body
 - `404` refresh token is not found in collection of active tokens
 - `200` user has been logged out, refresh token deactivated
+
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
 
 ### search users
 ```
@@ -357,6 +811,24 @@ gets a list of users whos username includes the given query
 #### responses
 - `200` returns list of users whos name matches query
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
+
 ### get a user by name
 ```
 GET /api/users/:name/profile
@@ -372,6 +844,24 @@ gets a user with the given name
 #### responses
 - `400` user with the given name is not found
 - `200` returns the given user
+
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
 
 ### edit user
 ```
@@ -391,6 +881,24 @@ edits a users nickname, bio, or profile picture
 - `403` access token is expired
 - `200` user profile has been updated
 
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
+
 
 ### delete user
 ```
@@ -405,3 +913,21 @@ deletes a user and all associated follows, posts, comments, and likes
 - `401` access token is missing or invalid
 - `403` access token is expired
 - `200` user and associated posts, comments, follows, likes have been deleted
+
+#### example
+fetch data
+```js
+async function example() {
+    try {
+        const url = "http://localhost:3000/api/";
+        const res = await fetch(url);
+        const body = await res.json();
+        console.log(body);
+    } catch (err) { console.log(err); }
+}
+```
+
+output
+```json
+
+```
