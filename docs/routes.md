@@ -421,7 +421,7 @@ async function example() {
 
     try {
         const url = "http://localhost:3000/api/likes/comment/63cf29d5bc581a02576784bb";
-        const res = await fetch(url);
+        const res = await fetch(url, req);
         console.log(res.status);
     } catch (err) { console.log(err); }
 }
@@ -501,7 +501,7 @@ fetch data
 ```js
 async function example() {
     try {
-        const url = "http://localhost:3000/api/";
+        const url = "http://localhost:3000/api/posts?cur=63cf278abc581a025767848d";
         const res = await fetch(url);
         const body = await res.json();
         console.log(body);
@@ -511,7 +511,37 @@ async function example() {
 
 output
 ```json
-
+[
+    {
+        "_id": "63cf2bb1bc581a02576784e8",
+        "author": {
+            "_id": "63cf278abc581a025767848d",
+            "name": "ben",
+            "pfp": "linkToBensProfilePicture",
+            "nick": "benjamin"
+        },
+        "image": "linkToPost2Image",
+        "caption": "cccc",
+        "likeCount": 1,
+        "commentCount": 1,
+        "posted": "2023-10-26T17:49:55.479Z",
+        "liked": false
+    }, {
+        "_id": "63cf287bbc581a02576784aa",
+        "author": {
+            "_id": "63cf278abc581a025767848d",
+            "name": "ben",
+            "pfp": "linkToBensProfilePicture",
+            "nick": "benjamin"
+        },
+        "image": "linkToPost1Image",
+        "caption": "a cool caption",
+        "likeCount": 2,
+        "commentCount": 3,
+        "posted": "2023-10-26T17:49:55.478Z",
+        "liked": true
+    }
+]
 ```
 
 ### get a post by id
@@ -535,7 +565,7 @@ fetch data
 ```js
 async function example() {
     try {
-        const url = "http://localhost:3000/api/";
+        const url = "http://localhost:3000/api/posts/63cf287bbc581a02576784aa";
         const res = await fetch(url);
         const body = await res.json();
         console.log(body);
@@ -545,7 +575,21 @@ async function example() {
 
 output
 ```json
-
+{
+    "_id": "63cf287bbc581a02576784aa",
+    "author": {
+        "_id": "63cf278abc581a025767848d",
+        "name": "ben",
+        "pfp": "linkToBensProfilePicture",
+        "nick": "benjamin"
+    },
+    "image": "linkToPost1Image",
+    "caption": "a cool caption",
+    "likeCount": 2,
+    "commentCount": 3,
+    "posted": "2023-10-26T17:49:55.478Z",
+    "liked": false
+}
 ```
 
 ### create post
@@ -568,19 +612,30 @@ creates a new post
 #### example
 fetch data
 ```js
-async function example() {
+async function example(image, caption) {
+    const formData = new FormData();
+    formData.append("image", image);
+    formData.append("caption", caption);
+
+    const req = {
+        method: "POST",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        },
+        body: formData
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
-        const body = await res.json();
-        console.log(body);
+        const url = "http://localhost:3000/api/posts";
+        const res = await fetch(url, req);
+        console.log(res.status);
     } catch (err) { console.log(err); }
 }
 ```
 
 output
-```json
-
+```
+200
 ```
 
 
@@ -610,18 +665,26 @@ edits a posts caption
 fetch data
 ```js
 async function example() {
+    const req = {
+        method: "PUT",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        },
+        body: JSON.stringify({ caption: "updated caption" })
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
-        const body = await res.json();
-        console.log(body);
+        const url = "http://localhost:3000/api/posts/63cf287bbc581a02576784aa";
+        const res = await fetch(url, req);
+        console.log(res.status);
     } catch (err) { console.log(err); }
 }
 ```
 
 output
-```json
-
+```
+200
 ```
 
 
@@ -647,18 +710,25 @@ deletes the given post
 fetch data
 ```js
 async function example() {
+    const req = {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
-        const body = await res.json();
-        console.log(body);
+        const url = "http://localhost:3000/api/posts/63cf287bbc581a02576784aa";
+        const res = await fetch(url, req);
+        console.log(res.status);
     } catch (err) { console.log(err); }
 }
 ```
 
 output
-```json
-
+```
+200
 ```
 
 ## users
@@ -683,9 +753,15 @@ creates a new user
 fetch data
 ```js
 async function example() {
+    const req = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "ben2", pass: "secret" })
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
+        const url = "http://localhost:3000/api/users/register";
+        const res = await fetch(url, req);
         const body = await res.json();
         console.log(body);
     } catch (err) { console.log(err); }
@@ -694,7 +770,11 @@ async function example() {
 
 output
 ```json
-
+{
+    "refreshToken": "this.is.an.example.refresh.token",
+    "accessToken": "this.is.an.example.access.token",
+    "user": { "id": "653aaec64886de335a4407d7", "name": "ben2" }
+}
 ```
 
 ### login
@@ -717,9 +797,15 @@ creates a new refresh token
 fetch data
 ```js
 async function example() {
+    const req = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: "ben2", pass: "secret" })
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
+        const url = "http://localhost:3000/api/users/login";
+        const res = await fetch(url, req);
         const body = await res.json();
         console.log(body);
     } catch (err) { console.log(err); }
@@ -728,7 +814,11 @@ async function example() {
 
 output
 ```json
-
+{
+    "refreshToken": "this.is.an.example.refresh.token",
+    "accessToken": "this.is.an.example.access.token",
+    "user": { "id": "653aaec64886de335a4407d7", "name": "ben2" }
+}
 ```
 
 ### refresh login
@@ -749,9 +839,15 @@ provides a new access token with the given refresh token
 fetch data
 ```js
 async function example() {
+    const req = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: localStorage.getItem("refreshToken") })
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
+        const url = "http://localhost:3000/api/users/refresh";
+        const res = await fetch(url, req);
         const body = await res.json();
         console.log(body);
     } catch (err) { console.log(err); }
@@ -760,7 +856,10 @@ async function example() {
 
 output
 ```json
-
+{
+    "accessToken": "this.is.an.example.access.token",
+    "user": { "id": "653aaec64886de335a4407d7", "name": "ben2" }
+}
 ```
 
 ### logout
@@ -781,18 +880,23 @@ deletes the given refresh token
 fetch data
 ```js
 async function example() {
+    const req = {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ refreshToken: localStorage.getItem("refreshToken") })
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
-        const body = await res.json();
-        console.log(body);
+        const url = "http://localhost:3000/api/users/logout";
+        const res = await fetch(url, req);
+        console.log(res.status);
     } catch (err) { console.log(err); }
 }
 ```
 
 output
-```json
-
+```
+200
 ```
 
 ### search users
@@ -816,7 +920,7 @@ fetch data
 ```js
 async function example() {
     try {
-        const url = "http://localhost:3000/api/";
+        const url = "http://localhost:3000/api/users/search/be";
         const res = await fetch(url);
         const body = await res.json();
         console.log(body);
@@ -826,7 +930,18 @@ async function example() {
 
 output
 ```json
-
+[
+    {
+        "_id": "63cf278abc581a025767848d",
+        "name": "ben",
+        "pfp": "linkToBensProfilePicture",
+        "nick": "benjamin",
+        "bio": "hi my name is ben",
+        "postCount": 2,
+        "followerCount": 1,
+        "followingCount": 0
+    }
+]
 ```
 
 ### get a user by name
@@ -850,7 +965,7 @@ fetch data
 ```js
 async function example() {
     try {
-        const url = "http://localhost:3000/api/";
+        const url = "http://localhost:3000/api/users/ben/profile?cur=63cf27d7bc581a0257678496";
         const res = await fetch(url);
         const body = await res.json();
         console.log(body);
@@ -860,7 +975,17 @@ async function example() {
 
 output
 ```json
-
+{
+    "_id": "63cf278abc581a025767848d",
+    "name": "ben",
+    "pfp": "linkToBensProfilePicture",
+    "nick": "benjamin",
+    "bio": "hi my name is ben",
+    "postCount": 2,
+    "followerCount": 1,
+    "followingCount": 0,
+    "following": true
+}
 ```
 
 ### edit user
@@ -875,6 +1000,7 @@ edits a users nickname, bio, or profile picture
 #### request body
 - `nick` new nickname for the user (default=`""`)
 - `bio` new bio for the user (default=`""`)
+- `pfp` new profile picture for the user (default=`null`)
 
 #### responses
 - `401` access token is missing or invalid
@@ -884,10 +1010,23 @@ edits a users nickname, bio, or profile picture
 #### example
 fetch data
 ```js
-async function example() {
+async function example(pfp, nick, bio) {
+    const formData = new FormData();
+    formData.append("image", pfp);
+    formData.append("nick", nick);
+    formData.append("bio", bio);
+    
+    const req = {
+        method: "PUT",
+        headers: {
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        },
+        body: formData
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
+        const url = "http://localhost:3000/api/users/profile";
+        const res = await fetch(url, req);
         const body = await res.json();
         console.log(body);
     } catch (err) { console.log(err); }
@@ -896,7 +1035,15 @@ async function example() {
 
 output
 ```json
-
+{
+    "name": "ben",
+    "pfp": "linkToBrandNewProfilePicture",
+    "nick": "brand new nickname",
+    "bio": "brand new bio",
+    "postCount": 0,
+    "followerCount": 0,
+    "followingCount": 1
+}
 ```
 
 
@@ -918,16 +1065,23 @@ deletes a user and all associated follows, posts, comments, and likes
 fetch data
 ```js
 async function example() {
+    const req = {
+        method: "DELETE",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": "Bearer " + localStorage.getItem("accessToken")
+        }
+    };
+
     try {
-        const url = "http://localhost:3000/api/";
-        const res = await fetch(url);
-        const body = await res.json();
-        console.log(body);
+        const url = "http://localhost:3000/api/users/profile";
+        const res = await fetch(url, req);
+        console.log(res.status);
     } catch (err) { console.log(err); }
 }
 ```
 
 output
-```json
-
+```
+200
 ```
